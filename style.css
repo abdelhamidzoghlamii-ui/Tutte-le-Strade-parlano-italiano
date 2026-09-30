@@ -1,0 +1,45 @@
+:root {
+  --bg: #faf7f0;
+  --ink: #1a1a1a;
+  --green: #009246;
+  --red: #ce2b37;
+  --font-fallback: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-fallback);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+/* Validation banner */
+#banner {
+  position: sticky; top: 0; z-index: 100;
+  display: grid; grid-template-columns: 1fr auto; align-items: start; column-gap: 10px;
+  max-height: 40vh; overflow-y: auto;
+  background: #fff3cd; color: #5c4400;
+  border-bottom: 3px solid #e0a800;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+#banner[hidden] { display: none; }
+#banner h2 { margin: 0 0 6px; font-size: 16px; }
+#banner ul { grid-column: 1 / -1; margin: 0 0 4px; padding-left: 20px; }
+#banner li { margin-bottom: 3px; overflow-wrap: anywhere; }
+#banner button {
+  font: inherit; padding: 6px 14px; border: 1px solid #a07a00;
+  background: #fff; border-radius: 6px; cursor: pointer;
+}
+
+/* Start screen */
+#app { padding: 24px 16px; max-width: 520px; margin: 0 auto; }
+.start { display: flex; flex-direction: column; align-items: center; gap: 28px; padding-top: 12vh; text-align: center; }
+.start h1 { font-size: 28px; margin: 0; }
+.btn {
+  font: inherit; font-size: 20px; padding: 14px 24px; width: 100%;
+  border: 0; border-radius: 12px; background: var(--green); color: #fff; cursor: pointer;
+}
+.btn:active { filter: brightness(0.9); }
