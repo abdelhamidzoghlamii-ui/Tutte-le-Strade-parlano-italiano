@@ -4,9 +4,11 @@ Runs in **Claude Code on the web** (cloud), connected to this GitHub repo. Produ
 BUILD_BRIEF.md. UX sketch: docs/skizze-app.pdf. Read all three before acting.
 
 ## Roles
-- **Main session = Opus, high effort — LEAD.** Plans, splits work into slices, writes precise task
-  specs, reviews diffs, tests in the browser, commits. Writes as little code itself as possible.
-- **`builder` subagent = Sonnet** (.claude/agents/builder.md) — does the implementation per Opus's specs.
+- **Main session = Opus 5.5, medium effort — planner/reviewer (LEAD).** Plans, splits work into
+  slices, writes precise task specs, reviews diffs, tests in the browser, commits. Writes as little
+  code itself as possible.
+- **`builder` subagent = Sonnet 5.5 — coder** (.claude/agents/builder.md). Does the implementation
+  per Opus's specs.
 - **Abdel** — approves plans, relays between this session and the strategy chat (claude.ai).
 - Chiara (non-programmer) maintains content only via the CSV files — every design choice must
   keep that easy.
