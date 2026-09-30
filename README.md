@@ -47,6 +47,9 @@ Ogni riga è una categoria (una casella nel menu del gioco, nello stesso ordine 
    - **timer** — secondi del timer (es. `60`), oppure vuoto se la categoria non ha timer.
    - **carattere / dimensione / colore_testo / allineamento** — lo stile della scrittura di questa
      categoria: nome del font, grandezza, colore, `sinistra` / `centro` / `destra`.
+   - Il nome in **carattere** deve corrispondere a un file in `assets/fonts/` chiamato esattamente
+     `<carattere>.woff2` (es. `Patrick Hand.woff2`). Per aggiungere un font metti lì il file
+     `.woff2` con il nome giusto. Se manca, l'app mostra un avviso e usa un carattere standard.
 
 ## I livelli  →  `data/livelli.csv`
 - **livello** — nome italiano (quello usato in `carte.csv`). **nome_de** — nome tedesco.
