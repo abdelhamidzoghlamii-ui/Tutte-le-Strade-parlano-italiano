@@ -47,6 +47,9 @@ const state = {
   setup: { stesso: null, livello: null, giocatori: [{ nome: '', livello: null }], attivo: 0 },
   pools: {},
   popup: null,    // index of the player whose level popup is open
+  dialog: null,   // 'giocatore' | 'esci' on the game screen
+  card: null,     // {sfida, idx} current card (idx = index in state.carte, or null = none)
+  last: {},       // pool key -> last drawn card index (no immediate repeat)
   livelli: [],
   sfide: [],
   carte: [],
@@ -348,9 +351,12 @@ function go(screen) { state.screen = screen; render(); }
 function resetSetup() {
   state.setup = { stesso: null, livello: null, giocatori: [{ nome: '', livello: null }], attivo: 0 };
   state.pools = {};
+  state.last = {};
+  state.card = null;
   state.popup = null;
+  state.dialog = null;
 }
-function goSettings() { state.popup = null; go('stesso'); }
+function goSettings() { state.popup = null; state.dialog = null; go('stesso'); }
 
 function renderStart(app) {
   const box = el('div', 'start');
@@ -361,7 +367,7 @@ function renderStart(app) {
 
 function renderStesso(app) {
   const s = state.setup;
-  const stack = el('div', 'stack');
+  const stack = el('div', 'pair');
   app.append(el('div', 'question', t('stesso_livello')),
     stack);
   stack.append(
@@ -422,7 +428,7 @@ function renderGiocatori(app) {
   if (state.popup != null && state.popup < s.giocatori.length) app.appendChild(levelPopup(state.popup));
 }
 
-function closePopup() { state.popup = null; render(); }
+function closePopup() { state.popup = null; state.dialog = null; render(); }
 
 function levelPopup(i) {
   const back = el('div', 'backdrop');
@@ -442,25 +448,247 @@ function levelPopup(i) {
   return back;
 }
 
-// STUB: the real category grid comes in the next slice.
-function renderGioco(app) {
+/* ==========================================================================
+   GAME SCREEN (category grid) + CARD
+   ========================================================================== */
+const curLevelId = () => {
   const s = state.setup;
-  let txt;
+  if (s.stesso) return s.livello;
+  const p = s.giocatori[s.attivo];
+  return p ? p.livello : null;
+};
+
+// Icon = emoji (text) or image file in assets/icone/ (detected by extension). Missing image: hidden, no crash.
+function iconNode(sf, cls) {
+  const box = el('span', cls);
+  box.setAttribute('aria-hidden', 'true');
+  if (CONFIG.imageExt.test(sf.icona || '')) {
+    const img = document.createElement('img');
+    img.alt = '';
+    img.src = CONFIG.dirs.icone + encodeURIComponent(sf.icona);
+    img.addEventListener('error', () => { img.hidden = true; });
+    box.appendChild(img);
+  } else {
+    box.textContent = sf.icona || '';
+  }
+  box.style.setProperty('--acc', sf.accento || 'var(--green)');
+  return box;
+}
+
+// Top field. clickable = player mode on the grid only.
+function topField(clickable) {
+  const s = state.setup;
   if (s.stesso) {
     const l = findLevel(s.livello);
-    txt = t('livello').toUpperCase() + ' – ' + (l ? levelName(l) : '').toUpperCase();
-  } else {
-    const p = s.giocatori[s.attivo];
-    const l = p && findLevel(p.livello);
-    txt = playerName(s.attivo) + ' – ' + (l ? levelName(l) : '');
+    return el('div', 'topfield', (t('livello') + ' – ' + (l ? levelName(l) : '')).toUpperCase());
   }
-  app.append(el('div', 'topfield', txt),
+  const p = s.giocatori[s.attivo];
+  const l = p && findLevel(p.livello);
+  const txt = playerName(s.attivo) + ' – ' + (l ? levelName(l) : '');
+  if (!clickable) return el('div', 'topfield', txt);
+  const b = button(txt, 'topfield topfield-btn', () => { state.dialog = 'giocatore'; render(); });
+  if (l && l.colore) b.style.background = l.colore;
+  return b;
+}
+
+function dialogBack(panel) {
+  const back = el('div', 'backdrop');
+  back.addEventListener('click', e => { if (e.target === back) closePopup(); });
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-modal', 'true');
+  back.appendChild(panel);
+  return back;
+}
+
+function playerPopup() {
+  const panel = el('div', 'panel');
+  panel.appendChild(el('h2', null, t('scegli_giocatore')));
+  state.setup.giocatori.forEach((p, i) => {
+    const l = findLevel(p.livello);
+    const b = button(playerName(i) + ' – ' + (l ? levelName(l) : ''), 'btn btn-level', () => {
+      state.setup.attivo = i;
+      closePopup();
+    });
+    if (l && l.colore) b.style.background = l.colore;
+    panel.appendChild(marked(b, state.setup.attivo === i));
+  });
+  panel.appendChild(button(t('annulla'), 'btn btn-cancel', closePopup));
+  return dialogBack(panel);
+}
+
+function exitPopup() {
+  const panel = el('div', 'panel');
+  panel.appendChild(el('h2', null, t('conferma_esci')));
+  const pair = el('div', 'pair');
+  // setup is kept until [nuova_partita]
+  pair.append(button(t('si'), 'btn btn-yes', () => { state.dialog = null; go('start'); }),
+    button(t('annulla'), 'btn btn-cancel', closePopup));
+  panel.appendChild(pair);
+  return dialogBack(panel);
+}
+
+function renderGioco(app) {
+  app.appendChild(topField(!state.setup.stesso));
+  app.appendChild(el('h2', 'scegli', t('scegli_categoria')));
+  const grid = el('div', 'tiles');
+  state.sfide.forEach(sf => {
+    const tile = button('', 'tile', () => openCard(sf));
+    tile.style.setProperty('--acc', sf.accento || 'var(--green)');
+    tile.append(iconNode(sf, 'circle'), el('span', 'tile-name', sf.sfida));
+    grid.appendChild(tile);
+  });
+  app.appendChild(grid);
+  const bar = el('div', 'pair bottom');
+  bar.append(button(t('esci'), 'btn btn-secondary', () => { state.dialog = 'esci'; render(); }),
     button(t('impostazioni'), 'btn btn-secondary', goSettings));
+  app.appendChild(bar);
+  if (state.dialog === 'giocatore' && !state.setup.stesso) app.appendChild(playerPopup());
+  else if (state.dialog === 'esci') app.appendChild(exitPopup());
+}
+
+/* ---- Card drawing: no-repeat pool per category + level ---- */
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Returns an index into state.carte, or null if no card matches.
+function drawCard(sf) {
+  const lv = curLevelId();
+  const key = sf.sfida + '|' + lv;
+  let pool = state.pools[key];
+  if (!pool || !pool.length) {
+    const all = [];
+    state.carte.forEach((c, i) => { if (c.sfida === sf.sfida && c.livelli.includes(lv)) all.push(i); });
+    if (!all.length) return null;
+    pool = state.pools[key] = shuffle(all);
+    // cards are taken from the END; avoid repeating the last one right after a refill
+    if (pool.length > 1 && pool[pool.length - 1] === state.last[key]) {
+      const j = Math.floor(Math.random() * (pool.length - 1));
+      [pool[j], pool[pool.length - 1]] = [pool[pool.length - 1], pool[j]];
+    }
+  }
+  const idx = pool.pop();
+  state.last[key] = idx;
+  return idx;
+}
+
+function openCard(sf) {
+  state.card = { sfida: sf.sfida, idx: drawCard(sf) };
+  go('carta');
+}
+
+/* Per-category features (slice 7: timer, media). Each entry:
+   { applies(card, sfida) -> bool, render(container, card, sfida) }
+   Called after the card front is rendered; `container` is the card element.
+   Adding a feature = pushing one entry here. */
+const CARD_FEATURES = [];
+
+function stripe() {
+  const row = el('div', 'stripe');
+  row.setAttribute('aria-hidden', 'true');
+  const cols = ['g', 'w', 'r'];
+  for (let i = 0; i < 15; i++) row.appendChild(el('i', cols[i % 3]));
+  return row;
+}
+
+function buildCard(sf, card) {
+  const c = el('div', 'card');
+  if (!card) {
+    c.classList.add('card-empty');
+    c.appendChild(el('p', 'card-msg', t('nessuna_carta')));
+    return c;
+  }
+  // per-category text style via CSS custom properties (no per-category CSS rules)
+  const fam = sf.carattere ? '"' + sf.carattere.replace(/"/g, '') + '", var(--font-fallback)' : 'var(--font-fallback)';
+  c.style.setProperty('--card-font', fam);
+  if (sf.colore_testo) c.style.setProperty('--card-color', sf.colore_testo);
+  c.style.setProperty('--card-align', { sinistra: 'left', centro: 'center', destra: 'right' }[sf.allineamento] || 'center');
+  c.dataset.max = String(sf.dimensione || 28);
+  c.style.setProperty('--card-fs', (sf.dimensione || 28) + 'px');
+  c.style.setProperty('--acc', sf.accento || 'var(--green)');
+
+  if (card.immagine) {
+    // a) full Canva card image as the front
+    c.classList.add('card-image');
+    const img = document.createElement('img');
+    img.className = 'card-img';
+    img.alt = card.testo || '';
+    img.src = CONFIG.dirs.carte + encodeURIComponent(card.immagine);
+    img.addEventListener('error', () => { img.hidden = true; });
+    c.appendChild(img);
+  } else {
+    if (sf.sfondo) {
+      // b) category template image: app draws only prompt + buttons
+      c.classList.add('card-tpl');
+      c.style.backgroundImage = 'url("' + CONFIG.dirs.sfondi + encodeURIComponent(sf.sfondo) + '")';
+    } else {
+      // c) CSS header: icon circle + title + tricolore stripe
+      const head = el('div', 'card-head');
+      const top = el('div', 'card-head-top');
+      top.append(iconNode(sf, 'circle'), el('div', 'card-title', sf.sfida));
+      head.append(top, stripe());
+      c.appendChild(head);
+    }
+    const body = el('div', 'card-body');
+    const pr = el('div', 'card-prompt');
+    pr.appendChild(el('span', 'card-text', card.testo));
+    body.appendChild(pr);
+    c.appendChild(body);
+  }
+  const acts = el('div', 'card-actions');
+  if (card.opzioni.length === 3) {
+    // slice 6: Hilfe (multiple choice) - click handler added there
+    acts.appendChild(button(t('aiuto'), 'card-btn btn-aiuto', () => { /* slice 6 */ }));
+  }
+  if (card.risposta) {
+    // slice 6: flip to the back (also on swipe) - click handler added there
+    const b = button(t('soluzione'), 'card-btn btn-soluzione', () => { /* slice 6 */ });
+    b.style.marginLeft = 'auto';
+    acts.appendChild(b);
+  }
+  c.appendChild(acts);
+  CARD_FEATURES.forEach(f => {
+    try { if (f.applies(card, sf)) f.render(c, card, sf); } catch (e) { console.error(e); }
+  });
+  return c;
+}
+
+// Auto-shrink: start at dimensione (max), reduce 1px until the prompt fits (min 14px).
+function fitCard() {
+  const p = document.querySelector('.card-prompt');
+  if (!p) return;
+  const c = p.closest('.card');
+  let fs = Number(c.dataset.max) || 28;
+  c.style.setProperty('--card-fs', fs + 'px');
+  while (fs > 14 && p.scrollHeight > p.clientHeight) {
+    fs--;
+    c.style.setProperty('--card-fs', fs + 'px');
+  }
+}
+window.addEventListener('resize', fitCard);
+
+function renderCarta(app) {
+  const sf = state.card && state.sfide.find(x => x.sfida === state.card.sfida);
+  if (!sf) { state.screen = 'gioco'; return renderGioco(app); }
+  const card = state.card.idx != null ? state.carte[state.card.idx] : null;
+  app.appendChild(topField(false));
+  app.appendChild(el('div', 'card-wrap', null)).appendChild(buildCard(sf, card));
+  const bar = el('div', 'pair bottom');
+  const more = button(t('altra_carta'), 'btn', () => { state.card.idx = drawCard(sf); render(); });
+  more.disabled = !card;
+  bar.append(button(t('chiudi'), 'btn btn-secondary', () => go('gioco')), more);
+  app.appendChild(bar);
+  fitCard();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);
 }
 
 const SCREENS = {
   start: renderStart, stesso: renderStesso, livello: renderLivello,
-  quanti: renderQuanti, giocatori: renderGiocatori, gioco: renderGioco
+  quanti: renderQuanti, giocatori: renderGiocatori, gioco: renderGioco, carta: renderCarta
 };
 
 function render() {
@@ -472,7 +700,7 @@ function render() {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && state.popup != null) closePopup();
+  if (e.key === 'Escape' && (state.popup != null || state.dialog)) closePopup();
 });
 
 /* ==========================================================================

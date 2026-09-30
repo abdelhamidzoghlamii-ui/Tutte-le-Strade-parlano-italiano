@@ -44,3 +44,10 @@ Append-only. Never edit old entries.
 - Blank player names stay blank in state; the default "Giocatore n"/"Spieler n" is derived at display time so it follows the language.
 - Duplicate chiave in testi_ui.csv → warning, first occurrence wins.
 - No back buttons in the setup flow (not in brief/sketch); [impostazioni] is the way back.
+
+## 2026-09-30 — Slices 4+5 (lead)
+- Top field is not clickable on the card screen (change player from the grid).
+- Pool refill avoids an immediate repeat of the last card.
+- CARD_FEATURES registry = the hook for per-category features (timer, media).
+- Grow-from-tile animation deferred to slice 8; Hilfe and flip actions in slice 6.
+- [esci] returns to the start screen; setup is kept until [nuova_partita].
