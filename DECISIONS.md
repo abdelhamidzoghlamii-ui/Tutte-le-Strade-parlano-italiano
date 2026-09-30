@@ -37,3 +37,10 @@ Append-only. Never edit old entries.
 - Bad data policy: unknown sfida / no valid level / no text and no image → row skipped; unknown
   single level → that level dropped; opzioni ≠ 3 → card kept without Aiuto; missing asset file →
   warning only.
+
+## 2026-09-30 — Slices 2+3 (Abdel / lead)
+- Budget rule (Abdel): builder applies all review fixes and writes/runs the Playwright tests from the lead's test list; lead reviews diffs, test reports and ≤2 screenshots.
+- Slices 2 and 3 done together as one slice/PR.
+- Blank player names stay blank in state; the default "Giocatore n"/"Spieler n" is derived at display time so it follows the language.
+- Duplicate chiave in testi_ui.csv → warning, first occurrence wins.
+- No back buttons in the setup flow (not in brief/sketch); [impostazioni] is the way back.

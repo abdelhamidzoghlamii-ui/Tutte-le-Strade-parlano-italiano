@@ -43,3 +43,58 @@ body {
   border: 0; border-radius: 12px; background: var(--green); color: #fff; cursor: pointer;
 }
 .btn:active { filter: brightness(0.9); }
+
+/* Language switch (corner, every screen) */
+#lang {
+  position: fixed; top: 8px; right: 8px; z-index: 90;
+  display: flex; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; background: #fff;
+}
+.lang-btn {
+  font: inherit; font-size: 14px; font-weight: 700; min-width: 44px; min-height: 36px;
+  border: 0; background: transparent; color: var(--ink); cursor: pointer;
+}
+.lang-btn.active { background: var(--ink); color: #fff; }
+
+/* Setup screens */
+#app { padding-top: 56px; }
+.question {
+  background: #ffe066; border: 3px solid #e0b800; border-radius: 20px;
+  padding: 20px 16px; text-align: center; font-size: 22px; font-weight: 700;
+  margin-bottom: 24px; overflow-wrap: anywhere;
+}
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.btn { min-height: 56px; border-radius: 999px; border: 3px solid transparent; overflow-wrap: anywhere; }
+.btn.marked { border-color: var(--ink); box-shadow: 0 0 0 3px #fff inset; }
+.btn-yes { background: var(--green); color: #fff; }
+.btn-no { background: var(--red); color: #fff; }
+.btn-level { color: var(--ink); font-weight: 700; }
+.btn-num { font-size: 28px; font-weight: 700; background: #fff; color: var(--ink); border-color: #ccc; }
+.btn-secondary { background: #fff; color: var(--ink); border-color: var(--ink); margin-top: 20px; }
+.btn-cancel { background: #fff; color: var(--ink); border-color: #999; }
+.btn-start { margin-top: 24px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.rows { display: flex; flex-direction: column; gap: 12px; }
+.prow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.name-input {
+  font: inherit; font-size: 18px; min-height: 56px; min-width: 0; padding: 0 14px;
+  border: 3px solid #ccc; border-radius: 16px; background: #fff; color: var(--ink);
+}
+.level-field { font-size: 16px; padding: 8px 10px; color: var(--ink); font-weight: 700; }
+.level-field.empty { background: #fff; border: 3px dashed #999; font-weight: 400; }
+.topfield {
+  background: #fff; border: 3px solid var(--ink); border-radius: 16px;
+  padding: 16px; text-align: center; font-size: 20px; font-weight: 700; overflow-wrap: anywhere;
+}
+
+/* Modal */
+.backdrop {
+  position: fixed; inset: 0; z-index: 200; background: rgba(0, 0, 0, 0.5);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.panel {
+  width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+  background: var(--bg); border-radius: 20px; padding: 18px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.panel h2 { margin: 0; text-align: center; font-size: 20px; }
