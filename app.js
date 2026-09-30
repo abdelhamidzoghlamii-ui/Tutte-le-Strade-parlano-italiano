@@ -27,6 +27,7 @@ const CONFIG = {
   imageExt: /\.(png|jpe?g|gif|svg|webp)$/i,
   alignments: ['sinistra', 'centro', 'destra'],
   // every key the app uses (all keys of testi_ui.csv)
+  maxGiocatori: 6,
   REQUIRED_KEYS: [
     'nuova_partita', 'stesso_livello', 'si', 'no', 'quale_livello', 'quanti_giocatori', 'giocatore',
     'livello', 'inizia', 'scegli_categoria', 'aiuto', 'soluzione', 'esci', 'impostazioni', 'chiudi',
@@ -42,6 +43,10 @@ const CONFIG = {
 
 const state = {
   lang: 'de',
+  screen: 'start',
+  setup: { stesso: null, livello: null, giocatori: [{ nome: '', livello: null }], attivo: 0 },
+  pools: {},
+  popup: null,    // index of the player whose level popup is open
   livelli: [],
   sfide: [],
   carte: [],
@@ -53,10 +58,15 @@ const state = {
 window.__app = state;
 
 /* ==========================================================================
-   I18N (minimal; full toggle in slice 2)
+   I18N
    ========================================================================== */
 function fill(tpl, vars) {
   return String(tpl).replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m));
+}
+function levelName(l) { return state.lang === 'de' ? (l.nome_de || l.livello) : l.livello; }
+function loadLang() {
+  try { const v = localStorage.getItem('lang'); if (v === 'de' || v === 'it') state.lang = v; } catch (e) { /* ignore */ }
+  document.documentElement.lang = state.lang;
 }
 function t(key, vars) {
   const e = state.testi[key];
@@ -215,6 +225,7 @@ function validateTesti(csv) {
     csv.rows.forEach(({ riga, d }) => {
       if (!d.chiave) return problem(csv.file, riga, 'err_vuoto');
       if (!d.de || !d.it) problem(csv.file, riga, 'err_traduzione');
+      if (map[d.chiave]) return problem(csv.file, riga, 'err_duplicato', { valore: d.chiave });
       map[d.chiave] = { de: d.de, it: d.it };
     });
   }
@@ -262,7 +273,7 @@ async function loadFonts() {
 }
 
 /* ==========================================================================
-   RENDER (slice 1: banner + start screen)
+   RENDER - banner, language switch, one function per screen, single render()
    ========================================================================== */
 function renderBanner() {
   const el = document.getElementById('banner');
@@ -285,25 +296,190 @@ function renderBanner() {
   el.hidden = false;
 }
 
-function renderStart() {
-  const app = document.getElementById('app');
-  app.textContent = '';
-  const box = document.createElement('div');
-  box.className = 'start';
-  const h1 = document.createElement('h1');
-  h1.textContent = t('titolo');
-  const b = document.createElement('button');
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function button(label, cls, onClick) {
+  const b = el('button', cls, label);
   b.type = 'button';
-  b.className = 'btn';
-  b.textContent = t('nuova_partita');
-  box.append(h1, b);
+  b.addEventListener('click', onClick);
+  return b;
+}
+function marked(b, yes) { if (yes) { b.classList.add('marked'); b.setAttribute('aria-pressed', 'true'); } return b; }
+function levelBtn(l, cls, onClick) {
+  const b = button(levelName(l), cls, onClick);
+  if (l.colore) b.style.background = l.colore;
+  return b;
+}
+const findLevel = id => state.livelli.find(l => l.livello === id) || null;
+const playerName = i => state.setup.giocatori[i].nome || (t('giocatore') + ' ' + (i + 1));
+
+function renderLang() {
+  let box = document.getElementById('lang');
+  if (!box) {
+    box = el('div');
+    box.id = 'lang';
+    box.setAttribute('role', 'group');
+    document.body.appendChild(box);
+  }
+  box.setAttribute('aria-label', t('lingua'));
+  box.textContent = '';
+  ['de', 'it'].forEach(code => {
+    const b = button(code.toUpperCase(), 'lang-btn', () => setLang(code));
+    b.setAttribute('aria-pressed', String(state.lang === code));
+    if (state.lang === code) b.classList.add('active');
+    box.appendChild(b);
+  });
+}
+
+function setLang(code) {
+  if (code === state.lang) return;
+  state.lang = code;
+  document.documentElement.lang = code;
+  try { localStorage.setItem('lang', code); } catch (e) { /* storage unavailable: keep in-session */ }
+  render();
+}
+
+function go(screen) { state.screen = screen; render(); }
+
+function resetSetup() {
+  state.setup = { stesso: null, livello: null, giocatori: [{ nome: '', livello: null }], attivo: 0 };
+  state.pools = {};
+  state.popup = null;
+}
+function goSettings() { state.popup = null; go('stesso'); }
+
+function renderStart(app) {
+  const box = el('div', 'start');
+  box.append(el('h1', null, t('titolo')),
+    button(t('nuova_partita'), 'btn', () => { resetSetup(); go('stesso'); }));
   app.appendChild(box);
 }
+
+function renderStesso(app) {
+  const s = state.setup;
+  const stack = el('div', 'stack');
+  app.append(el('div', 'question', t('stesso_livello')),
+    stack);
+  stack.append(
+    marked(button(t('si'), 'btn btn-yes', () => { s.stesso = true; go('livello'); }), s.stesso === true),
+    marked(button(t('no'), 'btn btn-no', () => { s.stesso = false; go('quanti'); }), s.stesso === false));
+}
+
+function renderLivello(app) {
+  const s = state.setup;
+  const stack = el('div', 'stack');
+  state.livelli.forEach(l => {
+    stack.appendChild(marked(levelBtn(l, 'btn btn-level', () => { s.livello = l.livello; s.stesso = true; go('gioco'); }),
+      s.livello === l.livello));
+  });
+  app.append(el('div', 'question', t('quale_livello')), stack);
+}
+
+function renderQuanti(app) {
+  const g = state.setup.giocatori;
+  const grid = el('div', 'grid3');
+  for (let n = 1; n <= CONFIG.maxGiocatori; n++) {
+    grid.appendChild(marked(button(String(n), 'btn btn-num', () => {
+      while (g.length < n) g.push({ nome: '', livello: null });
+      g.length = n;
+      go('giocatori');
+    }), g.length === n));
+  }
+  app.append(el('div', 'question', t('quanti_giocatori')), grid);
+}
+
+function renderGiocatori(app) {
+  const s = state.setup;
+  const rows = el('div', 'rows');
+  s.giocatori.forEach((p, i) => {
+    const row = el('div', 'prow');
+    const inp = el('input', 'name-input');
+    inp.type = 'text';
+    inp.value = p.nome;
+    inp.placeholder = t('giocatore') + ' ' + (i + 1);
+    inp.maxLength = 40;
+    inp.autocomplete = 'off';
+    inp.addEventListener('input', () => { p.nome = inp.value; });
+    const l = findLevel(p.livello);
+    const lb = button(l ? levelName(l) : t('livello'), 'btn level-field', () => { state.popup = i; render(); });
+    if (l && l.colore) lb.style.background = l.colore;
+    if (!l) lb.classList.add('empty');
+    row.append(inp, lb);
+    rows.appendChild(row);
+  });
+  const go_ = button(t('inizia'), 'btn btn-start', () => {
+    if (!s.giocatori.every(p => findLevel(p.livello))) return;
+    s.stesso = false;
+    s.attivo = 0;
+    go('gioco');
+  });
+  go_.disabled = !s.giocatori.every(p => findLevel(p.livello));
+  app.append(rows, go_);
+  if (state.popup != null && state.popup < s.giocatori.length) app.appendChild(levelPopup(state.popup));
+}
+
+function closePopup() { state.popup = null; render(); }
+
+function levelPopup(i) {
+  const back = el('div', 'backdrop');
+  back.addEventListener('click', e => { if (e.target === back) closePopup(); });
+  const panel = el('div', 'panel');
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-modal', 'true');
+  panel.append(el('h2', null, t('livello')));
+  state.livelli.forEach(l => {
+    panel.appendChild(marked(levelBtn(l, 'btn btn-level', () => {
+      state.setup.giocatori[i].livello = l.livello;
+      closePopup();
+    }), state.setup.giocatori[i].livello === l.livello));
+  });
+  panel.appendChild(button(t('annulla'), 'btn btn-cancel', closePopup));
+  back.appendChild(panel);
+  return back;
+}
+
+// STUB: the real category grid comes in the next slice.
+function renderGioco(app) {
+  const s = state.setup;
+  let txt;
+  if (s.stesso) {
+    const l = findLevel(s.livello);
+    txt = t('livello').toUpperCase() + ' – ' + (l ? levelName(l) : '').toUpperCase();
+  } else {
+    const p = s.giocatori[s.attivo];
+    const l = p && findLevel(p.livello);
+    txt = playerName(s.attivo) + ' – ' + (l ? levelName(l) : '');
+  }
+  app.append(el('div', 'topfield', txt),
+    button(t('impostazioni'), 'btn btn-secondary', goSettings));
+}
+
+const SCREENS = {
+  start: renderStart, stesso: renderStesso, livello: renderLivello,
+  quanti: renderQuanti, giocatori: renderGiocatori, gioco: renderGioco
+};
+
+function render() {
+  const app = document.getElementById('app');
+  app.textContent = '';
+  (SCREENS[state.screen] || renderStart)(app);
+  renderLang();
+  renderBanner();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && state.popup != null) closePopup();
+});
 
 /* ==========================================================================
    INIT
    ========================================================================== */
 async function init() {
+  loadLang();
   const [testi, livelli, sfide, carte] = await Promise.all(
     ['testi', 'livelli', 'sfide', 'carte'].map(n => loadCsv(n).catch(() => null))
   );
@@ -312,8 +488,7 @@ async function init() {
   state.livelli = validateLivelli(livelli);
   state.sfide = validateSfide(sfide);
   state.carte = validateCarte(carte);
-  renderStart();
-  renderBanner();
+  render();
   await loadFonts();
   renderBanner();
   await checkFiles();
