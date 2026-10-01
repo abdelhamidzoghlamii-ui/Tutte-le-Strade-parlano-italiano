@@ -29,6 +29,17 @@ const CONFIG = {
   mediaImageExt: /\.(png|jpe?g|gif|webp|svg)$/i,
   mediaAudioExt: /\.(mp3|m4a|aac|ogg|oga|wav|opus)$/i,
   alignments: ['sinistra', 'centro', 'destra'],
+  // fallbacks for empty/invalid CSV cells and card-fit limits (used everywhere, never as literals)
+  defaults: {
+    fontMax: 28,            // card text size when sfide.csv `dimensione` is empty (px)
+    fontMin: 14,            // the auto-shrink never goes below this (px); CSS .card-prompt min-height assumes it
+    optFontMin: 12,         // Hilfe option font at the smallest fit (s = 0), px
+    optFontRange: 3,        // ... and + this at s = 1 (= 15px, the normal button size)
+    accent: 'var(--green)', // category accent colour when `accento` is empty
+    alignment: 'centro',    // text alignment when `allineamento` is empty
+    growMs: 350,            // grow-from-tile animation if --card-grow-time cannot be read
+    doubleTapMs: 400        // [altra_carta] ignores a second tap within this time (double tap = ONE card)
+  },
   // every key the app uses (all keys of testi_ui.csv)
   maxGiocatori: 6,
   REQUIRED_KEYS: [
@@ -195,8 +206,8 @@ function validateSfide(csv) {
     if (d.dimensione === '') s.dimensione = null;
     else if (isFinite(Number(d.dimensione)) && Number(d.dimensione) > 0) s.dimensione = Number(d.dimensione);
     else { problem(csv.file, riga, 'err_dimensione'); s.dimensione = null; }
-    if (d.allineamento === '') s.allineamento = 'centro';
-    else if (!CONFIG.alignments.includes(d.allineamento)) { problem(csv.file, riga, 'err_allineamento'); s.allineamento = 'centro'; }
+    if (d.allineamento === '') s.allineamento = CONFIG.defaults.alignment;
+    else if (!CONFIG.alignments.includes(d.allineamento)) { problem(csv.file, riga, 'err_allineamento'); s.allineamento = CONFIG.defaults.alignment; }
     addRef(csv.file, riga, CONFIG.dirs.sfondi, d.sfondo);
     if (CONFIG.imageExt.test(d.icona)) addRef(csv.file, riga, CONFIG.dirs.icone, d.icona);
     out.push(s);
@@ -475,7 +486,7 @@ function iconNode(sf, cls) {
   } else {
     box.textContent = sf.icona || '';
   }
-  box.style.setProperty('--acc', sf.accento || 'var(--green)');
+  box.style.setProperty('--acc', sf.accento || CONFIG.defaults.accent);
   return box;
 }
 
@@ -542,7 +553,7 @@ function renderGioco(app) {
   if (fadeGrid) { grid.classList.add('fade-in'); fadeGrid = false; }
   state.sfide.forEach(sf => {
     const tile = button('', 'tile', () => openCard(sf, tile.getBoundingClientRect()));
-    tile.style.setProperty('--acc', sf.accento || 'var(--green)');
+    tile.style.setProperty('--acc', sf.accento || CONFIG.defaults.accent);
     tile.append(iconNode(sf, 'circle'), el('span', 'tile-name', sf.sfida));
     grid.appendChild(tile);
   });
@@ -586,17 +597,18 @@ function drawCard(sf) {
 }
 
 // Per-card view state: lives as long as the card; a new card resets flip, Hilfe and feature state.
-let lastDrawAt = 0;    // timestamp of the last draw; [altra_carta] ignores clicks within DOUBLE_TAP_MS of it (double tap = ONE card)
-const DOUBLE_TAP_MS = 400;
+let lastDrawAt = 0;    // timestamp of the last draw; [altra_carta] ignores clicks within CONFIG.defaults.doubleTapMs of it (double tap = ONE card)
 function newCardState(sf) {
   lastDrawAt = Date.now();
   return { sfida: sf.sfida, idx: drawCard(sf), flipped: false, hilfe: null, fx: {} };
 }
 let growFrom = null;   // tile rect (viewport coords) for the grow-from-tile animation; consumed by renderCarta
 let fadeGrid = false;  // true after [chiudi]: the grid fades in
+let fadeCard = false;  // true for a newly drawn card (tile / [altra_carta]): only then does the card fade in
 function openCard(sf, fromRect) {
   state.card = newCardState(sf);
   growFrom = fromRect || null;
+  fadeCard = true;
   go('carta');
 }
 const reducedMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -609,7 +621,7 @@ function growCard(wrap, from) {
   const fx = f.left + f.width / 2, fy = f.top + f.height / 2;
   const k = from.width / f.width;   // ONE uniform scale (no stretched text); centre starts at the tile's centre
   const dx = from.left + from.width / 2 - fx, dy = from.top + from.height / 2 - fy;
-  const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-grow-time')) || 350;
+  const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-grow-time')) || CONFIG.defaults.growMs;
   wrap.style.transformOrigin = (fx - w.left) + 'px ' + (fy - w.top) + 'px';
   const anim = wrap.animate([
     { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ')', opacity: 0.6 },
@@ -618,29 +630,29 @@ function growCard(wrap, from) {
   anim.onfinish = anim.oncancel = () => { wrap.style.transformOrigin = ''; };
 }
 
-function stripe() {
-  const row = el('div', 'stripe');
-  row.setAttribute('aria-hidden', 'true');
-  const cols = ['g', 'w', 'r'];
-  for (let i = 0; i < 15; i++) row.appendChild(el('i', cols[i % 3]));
-  return row;
+function titleNode(sf) {
+  const box = el('div', 'card-title');
+  box.appendChild(el('span', 'card-title-text', sf.sfida));   // the span is line-clamped to 2 lines
+  return box;
 }
 
 /* One face of the card ('front' | 'back'). Back = same template as the front (DECISIONS 10):
-   sfondo -> same background; no sfondo -> cream card with CSS header. The immagine override
-   only replaces the FRONT; its back is sfondo or the plain CSS-header card. */
+   sfondo -> same background; no sfondo (or a template that failed to load) -> cream card with the CSS frame,
+   centred title and category icon. The immagine override only replaces the FRONT; its back is sfondo or the
+   plain CSS card. card = null -> the category face with the nessuna_carta message in the text area. */
 function buildFace(sf, card, side) {
+  const D = CONFIG.defaults;
   const c = el('div', 'card card-' + side);
   // per-category text style via CSS custom properties (no per-category CSS rules)
   const fam = sf.carattere ? '"' + sf.carattere.replace(/"/g, '') + '", var(--font-fallback)' : 'var(--font-fallback)';
   c.style.setProperty('--card-font', fam);
   if (sf.colore_testo) c.style.setProperty('--card-color', sf.colore_testo);
   c.style.setProperty('--card-align', { sinistra: 'left', centro: 'center', destra: 'right' }[sf.allineamento] || 'center');
-  c.dataset.max = String(sf.dimensione || 28);
-  c.style.setProperty('--card-fs', (sf.dimensione || 28) + 'px');
-  c.style.setProperty('--acc', sf.accento || 'var(--green)');
+  c.dataset.max = String(sf.dimensione || D.fontMax);
+  c.style.setProperty('--card-fs', (sf.dimensione || D.fontMax) + 'px');
+  c.style.setProperty('--acc', sf.accento || D.accent);
 
-  if (side === 'front' && card.immagine) {
+  if (card && side === 'front' && card.immagine) {
     // a) full Canva card image as the front
     c.classList.add('card-image');
     const img = document.createElement('img');
@@ -651,21 +663,17 @@ function buildFace(sf, card, side) {
     c.appendChild(img);
     return c;
   }
-  if (sf.sfondo) {
-    // b) category template image: app draws only prompt + buttons
+  if (sf.sfondo && !sf.sfondoBroken) {
+    // b) category template image: app draws only the text area content + pills
     c.classList.add('card-tpl');
     c.style.backgroundImage = 'url("' + CONFIG.dirs.sfondi + encodeURIComponent(sf.sfondo) + '")';
   } else {
-    // c) CSS header: icon circle + title + tricolore stripe
-    const head = el('div', 'card-head');
-    const top = el('div', 'card-head-top');
-    top.append(iconNode(sf, 'circle'), el('div', 'card-title', sf.sfida));
-    head.append(top, stripe());
-    c.appendChild(head);
+    // c) CSS variant: tricolore frame (::before), centred title, icon circle
+    c.append(iconNode(sf, 'circle card-icon'), titleNode(sf));
   }
   const body = el('div', 'card-body');
   const pr = el('div', 'card-prompt');
-  pr.appendChild(el('span', 'card-text', side === 'front' ? card.testo : card.risposta));
+  pr.appendChild(el('span', 'card-text', !card ? t('nessuna_carta') : side === 'front' ? card.testo : card.risposta));
   body.appendChild(pr);
   c.appendChild(body);
   return c;
@@ -701,9 +709,7 @@ function renderOpts(face, card) {
 function buildCard(sf, card) {
   const flip = el('div', 'card-flip');
   if (!card) {
-    const c = el('div', 'card card-empty');
-    c.appendChild(el('p', 'card-msg', t('nessuna_carta')));
-    flip.appendChild(c);
+    flip.appendChild(buildFace(sf, null, 'front'));
     return flip;
   }
   const front = buildFace(sf, card, 'front');
@@ -778,18 +784,51 @@ function attachSwipe(flip, onSwipe) {
   flip.addEventListener('click', e => { if (suppress) { suppress = false; e.stopPropagation(); e.preventDefault(); } }, true);
 }
 
-// Auto-shrink: start at dimensione (max), reduce 1px until the prompt fits (min 14px). Runs on both faces.
-function fitCard() {
-  document.querySelectorAll('.card-prompt').forEach(p => {
-    const c = p.closest('.card');
-    let fs = Number(c.dataset.max) || 28;
-    c.style.setProperty('--card-fs', fs + 'px');
-    while (fs > 14 && p.scrollHeight > p.clientHeight) {
-      fs--;
-      c.style.setProperty('--card-fs', fs + 'px');
+// Auto-fit, per face: ONE parameter s in [0,1] scales the prompt (fontMin..dimensione) and the Hilfe options
+// (optFontMin..+optFontRange) together; binary search for the largest s where the text area neither overflows
+// vertically (media + prompt + options all count) nor has a word wider than the line (measured with
+// overflow-wrap: normal). Nothing fits at s = 0 -> .fit-break (words may break); still too tall ->
+// .fit-scroll on the body (the area scrolls, with a shadow cue). Text is never silently clipped.
+function fitFace(c) {
+  const p = c.querySelector('.card-prompt'), body = c.querySelector('.card-body');
+  if (!p || !body) return;
+  const D = CONFIG.defaults;
+  const max = Math.max(Number(c.dataset.max) || D.fontMax, D.fontMin);
+  const set = s => {
+    c.style.setProperty('--card-fs', (D.fontMin + s * (max - D.fontMin)) + 'px');
+    c.style.setProperty('--opt-fs', (D.optFontMin + s * D.optFontRange) + 'px');
+  };
+  const fits = () => p.scrollWidth <= p.clientWidth && body.scrollHeight <= body.clientHeight;
+  c.classList.remove('fit-break');
+  body.classList.remove('fit-scroll', 'more-below');
+  set(1);
+  if (fits()) return;
+  set(0);
+  if (fits()) {
+    let lo = 0, hi = 1;   // fits at lo, not at hi
+    for (let i = 0; i < 12; i++) {
+      const mid = (lo + hi) / 2;
+      set(mid);
+      if (fits()) lo = mid; else hi = mid;
     }
-  });
+    set(lo);
+    return;
+  }
+  // nothing fits at s = 0: a word wider than the line may now break (only at the minimum size: a split word is
+  // never combined with a larger font); too tall even so -> the text area scrolls.
+  if (p.scrollWidth > p.clientWidth) c.classList.add('fit-break');
+  if (!fits()) {
+    body.classList.add('fit-scroll');
+    moreCue(body);
+  }
 }
+// .more-below (shadow at the bottom edge of a scrolling text area) while there is more content below
+function moreCue(body) {
+  const upd = () => body.classList.toggle('more-below', body.scrollTop + body.clientHeight < body.scrollHeight - 1);
+  if (!body.dataset.cue) { body.dataset.cue = '1'; body.addEventListener('scroll', upd, { passive: true }); }
+  upd();
+}
+function fitCard() { document.querySelectorAll('.card-flip .card').forEach(fitFace); }
 window.addEventListener('resize', fitCard);
 
 /* ==========================================================================
@@ -901,6 +940,7 @@ function renderCarta(app) {
   app.appendChild(topField(false));
   const wrap = el('div', 'card-wrap');
   const flip = buildCard(sf, card);
+  if (fadeCard) { flip.classList.add('card-new'); fadeCard = false; }
   wrap.appendChild(flip);
   app.appendChild(wrap);
   if (growFrom) { growCard(wrap, growFrom); growFrom = null; }
@@ -919,8 +959,9 @@ function renderCarta(app) {
   }
   const bar = el('div', 'pair bottom');
   const more = button(t('altra_carta'), 'btn', () => {
-    if (Date.now() - lastDrawAt < DOUBLE_TAP_MS) return;
+    if (Date.now() - lastDrawAt < CONFIG.defaults.doubleTapMs) return;
     state.card = newCardState(sf);
+    fadeCard = true;
     render();
   });
   more.disabled = !card;
@@ -952,6 +993,40 @@ document.addEventListener('keydown', e => {
 });
 
 /* ==========================================================================
+   PRELOAD - every image the app can show, fetched once after init so cards never pop in.
+   A sfondo that fails to load marks its sfida (sfondoBroken): its cards then render as the CSS variant.
+   Audio is deliberately NOT preloaded (large, and the player streams it on demand).
+   ========================================================================== */
+const preloaded = [];   // keeps the Image objects (and so their cache entries) alive
+function preloadAssets() {
+  const seen = new Set();
+  const fetchImg = (dir, name) => {
+    const url = dir + encodeURIComponent(name);
+    if (seen.has(url)) return;
+    seen.add(url);
+    const img = new Image();
+    img.src = url;
+    preloaded.push(img);
+  };
+  state.sfide.forEach(sf => {
+    if (sf.sfondo) {
+      const img = new Image();
+      img.addEventListener('error', () => {
+        sf.sfondoBroken = true;
+        if (state.screen === 'carta' && state.card && state.card.sfida === sf.sfida) render();   // card already on screen
+      });
+      img.src = CONFIG.dirs.sfondi + encodeURIComponent(sf.sfondo);
+      preloaded.push(img);
+    }
+    if (CONFIG.imageExt.test(sf.icona || '')) fetchImg(CONFIG.dirs.icone, sf.icona);
+  });
+  state.carte.forEach(c => {
+    if (c.immagine) fetchImg(CONFIG.dirs.carte, c.immagine);
+    if (c.media && mediaKind(c.media) === 'image') fetchImg(CONFIG.dirs.media, c.media);
+  });
+}
+
+/* ==========================================================================
    INIT
    ========================================================================== */
 async function init() {
@@ -965,7 +1040,9 @@ async function init() {
   state.sfide = validateSfide(sfide);
   state.carte = validateCarte(carte);
   render();
+  preloadAssets();
   await loadFonts();
+  fitCard();   // custom fonts are in: re-fit a card that is already on screen
   renderBanner();
   await checkFiles();
 }

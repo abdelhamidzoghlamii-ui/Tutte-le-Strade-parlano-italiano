@@ -130,7 +130,7 @@ body {
 }
 .tile:active { filter: brightness(0.95); }
 .tile-name {
-  font-size: 14px; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; text-align: center;
+  font-size: 14px; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; hyphens: auto; text-align: center;
   color: color-mix(in srgb, var(--acc) 78%, #000);
 }
 .circle {
@@ -143,6 +143,9 @@ body {
 /* ==========================================================================
    CARD STYLE - adjust from a Canva screenshot
    Everything that makes the card look like a physical card lives in this block.
+   ONE geometry for both variants (sfondo template / CSS frame), driven by custom properties on each .card
+   face (so a later batch can set them per category from inline styles). Units: --u = one pixel of the
+   750x1050 Canva template (scales with the card), text-top/bottom = fractions of the card height.
    ========================================================================== */
 :root {
   --card-ratio: 5 / 7;                 /* width / height of the card */
@@ -155,24 +158,13 @@ body {
   --frame-h-f: 0.054;
   --frame-dash-f: 0.03;
   --frame-angle: 115deg;
+  --frame-green: #009246;
+  --frame-white: #ffffff;
+  --frame-red: #ce2b37;
   --card-title-weight: 800;
   --card-shadow: 0 8px 20px rgba(60, 40, 0, 0.22), 0 2px 4px rgba(60, 40, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
-  /* sfondo (template image) variant: the app only fills the template's empty middle.
-     Fractions of the card height; they MUST match the templates in assets/sfondi/
-     (title ends at ~19% of the height, buttons sit in the bottom ~12%). */
-  --tpl-top: 0.20;
-  --tpl-bottom: 0.13;
   --card-grow-time: 350ms;             /* card grows from the tile (app.js reads this) */
-  --card-pad: 8px;
-  --card-head-gap: 10px;
-  --card-circle: 40px;                 /* icon circle in the header */
-  --card-title-size: 17px;
-  --stripe-green: #009246;
-  --stripe-white: #ffffff;
-  --stripe-red: #ce2b37;
-  --stripe-edge: #b9b09a;              /* thin edge so white dashes stay visible on cream */
-  --stripe-h: 10px;
-  --stripe-skew: -25deg;
+  --card-pad: 8px;                     /* text area inset inside the frame */
   --card-btn-bg: rgba(255, 255, 255, 0.88);   /* semi-opaque pill: readable on top of a template image */
   --card-btn-color: var(--ink);
   --card-btn-border: 2px solid var(--ink);
@@ -201,83 +193,117 @@ body {
   height: var(--card-h); aspect-ratio: var(--card-ratio); width: auto;
   transition: transform var(--card-flip-time) ease;
   touch-action: pan-y; -webkit-user-select: none; user-select: none;
-  animation: card-in 0.25s ease-out;
 }
+.card-flip.card-new { animation: card-in 0.25s ease-out; }   /* only a newly drawn card fades in, never a re-render */
 .card-flip.flipped { transform: rotateY(180deg); }
+/* Face geometry (per-face custom properties; defaults here, a later batch overrides them inline per category).
+   Text area = from --text-top to (1 - --text-bottom) of the card height, inside the frame horizontally.
+   The reference icon (bottom right) sits at ~78-88% of the height, so the bottom 22% is free for it and the pills. */
 .card {
+  --u: calc(var(--card-h) / 1050);     /* one pixel of the 750x1050 template */
+  --text-top: 0.20;
+  --text-bottom: 0.22;
+  /* category icon (CSS variant only; sfondo templates carry their own). Sizes/offsets in u. */
+  --icon-size: 100;
+  --icon-edge: 85;                     /* distance from the left/right edge */
+  --icon-top: 70;                      /* alto: distance from the top */
+  --icon-bottom: 128;                  /* basso: distance from the bottom (icon spans ~78-88% of the height) */
   position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden;
   -webkit-backface-visibility: hidden; backface-visibility: hidden;
   background: var(--card-cream) center / cover no-repeat;
   border: var(--card-edge); border-radius: var(--card-radius); box-shadow: var(--card-shadow);
   isolation: isolate;
-  padding: calc(var(--frame-h) + var(--card-pad)) calc(var(--frame-w) + var(--card-pad));
+  padding: calc(var(--card-h) * var(--text-top)) calc(var(--frame-w) + var(--card-pad)) calc(var(--card-h) * var(--text-bottom));
 }
 /* tricolore frame (CSS variant only; the template/immagine variants bring their own artwork) */
 .card:not(.card-tpl):not(.card-image)::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
-    repeating-linear-gradient(var(--frame-angle), var(--stripe-green) 0 var(--frame-dash), var(--stripe-white) var(--frame-dash) calc(var(--frame-dash) * 2), var(--stripe-red) calc(var(--frame-dash) * 2) calc(var(--frame-dash) * 3)) top / 100% var(--frame-h) no-repeat,
-    repeating-linear-gradient(var(--frame-angle), var(--stripe-green) 0 var(--frame-dash), var(--stripe-white) var(--frame-dash) calc(var(--frame-dash) * 2), var(--stripe-red) calc(var(--frame-dash) * 2) calc(var(--frame-dash) * 3)) bottom / 100% var(--frame-h) no-repeat,
-    linear-gradient(var(--stripe-green), var(--stripe-green)) left / var(--frame-w) 100% no-repeat,
-    linear-gradient(var(--stripe-red), var(--stripe-red)) right / var(--frame-w) 100% no-repeat;
+    repeating-linear-gradient(var(--frame-angle), var(--frame-green) 0 var(--frame-dash), var(--frame-white) var(--frame-dash) calc(var(--frame-dash) * 2), var(--frame-red) calc(var(--frame-dash) * 2) calc(var(--frame-dash) * 3)) top / 100% var(--frame-h) no-repeat,
+    repeating-linear-gradient(var(--frame-angle), var(--frame-green) 0 var(--frame-dash), var(--frame-white) var(--frame-dash) calc(var(--frame-dash) * 2), var(--frame-red) calc(var(--frame-dash) * 2) calc(var(--frame-dash) * 3)) bottom / 100% var(--frame-h) no-repeat,
+    linear-gradient(var(--frame-green), var(--frame-green)) left / var(--frame-w) 100% no-repeat,
+    linear-gradient(var(--frame-red), var(--frame-red)) right / var(--frame-w) 100% no-repeat;
 }
 .card-back { transform: rotateY(180deg); cursor: pointer; }
-/* sfondo variant (front AND back): template fills the face, text area = its empty middle */
-.card-tpl {
-  background-size: 100% 100%; background-origin: border-box;
-  /* bottom: never less than the 44px buttons (+10px) so Hilfe options stay clear of [aiuto] / [soluzione] */
-  padding: calc(var(--card-h) * var(--tpl-top)) calc(var(--frame-w) + var(--card-pad)) max(calc(var(--card-h) * var(--tpl-bottom)), 58px);
-}
-.card-tpl .card-body { padding: 0; }
+/* sfondo variant (front AND back): the template fills the face */
+.card-tpl { background-size: 100% 100%; background-origin: border-box; }
 @keyframes card-in { from { opacity: 0; } to { opacity: 1; } }
-.card-head { flex: none; display: flex; flex-direction: column; gap: var(--card-head-gap); }
-.card-head-top { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.card .circle { width: var(--card-circle); height: var(--card-circle); font-size: calc(var(--card-circle) * 0.5); }
+/* CSS variant: title centred between the top frame and the text area ... */
 .card-title {
-  flex: 1; min-width: 0; font-weight: var(--card-title-weight); font-size: var(--card-title-size); line-height: 1.15;
-  text-transform: uppercase; overflow-wrap: anywhere; text-align: center; text-wrap: balance;
+  position: absolute; z-index: 1;
+  left: calc(var(--frame-w) + var(--card-pad)); right: calc(var(--frame-w) + var(--card-pad));
+  top: var(--frame-h); height: calc(var(--card-h) * var(--text-top) - var(--frame-h));
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: calc(44 * var(--u)); font-weight: var(--card-title-weight); line-height: 1.1;
+  text-transform: uppercase; overflow-wrap: anywhere; text-wrap: balance;
 }
-/* CSS variant: like the Canva cards the title is centred and the category icon sits bottom-right (above the buttons).
-   (The tricolore stripe element stays in the DOM; the frame carries the tricolore, so it is hidden here.) */
-.card-head .stripe { display: none; }
-.card:not(.card-tpl) .card-head .circle {
-  position: absolute; right: calc(var(--frame-w) + 8px); bottom: 50px;   /* bottom-right, just above the button row */
+.card-title-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }   /* max 2 lines, then an ellipsis */
+/* ... and the category icon (accent circle) bottom-right by default; icon-pos-<alto|basso>-<sinistra|centro|destra> moves it */
+.card .card-icon {
+  position: absolute; z-index: 1; width: calc(var(--icon-size) * var(--u)); height: calc(var(--icon-size) * var(--u));
+  font-size: calc(var(--icon-size) * var(--u) * 0.5);
+  right: calc(var(--icon-edge) * var(--u)); bottom: calc(var(--icon-bottom) * var(--u));
 }
-.card:not(.card-tpl):not(.card-image) .card-body { padding-bottom: calc(94px - var(--frame-h) - var(--card-pad)); }   /* keeps text/Hilfe clear of the icon */
-.stripe { display: flex; gap: 5px; height: var(--stripe-h); padding: 0 4px; }
-.stripe i {
-  flex: 1; display: block; transform: skewX(var(--stripe-skew));
-  border: 1px solid var(--stripe-edge); border-radius: 2px;
+.icon-pos-alto-sinistra .card-icon, .icon-pos-alto-centro .card-icon, .icon-pos-alto-destra .card-icon { top: calc(var(--icon-top) * var(--u)); bottom: auto; }
+.icon-pos-alto-sinistra .card-icon, .icon-pos-basso-sinistra .card-icon { left: calc(var(--icon-edge) * var(--u)); right: auto; }
+.icon-pos-alto-centro .card-icon, .icon-pos-basso-centro .card-icon { left: 50%; right: auto; transform: translateX(-50%); }
+/* text area contents, in order: [media] [prompt] [Hilfe options] */
+.card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+.card-body.fit-scroll { overflow-y: auto; }   /* last resort of fitCard(): text is never clipped, the area scrolls */
+/* cue that more is below: a shadow over the bottom edge, shown (.more-below, set by app.js) until scrolled to the end */
+.card-body.fit-scroll::after {
+  content: ""; flex: none; position: sticky; bottom: 0; height: 24px; margin-top: -24px; pointer-events: none; opacity: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));
 }
-.stripe .g { background: var(--stripe-green); border-color: var(--stripe-green); }
-.stripe .w { background: var(--stripe-white); }
-.stripe .r { background: var(--stripe-red); border-color: var(--stripe-red); }
-.card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 6px 2px 36px; }
+.card-body.fit-scroll.more-below::after { opacity: 1; }
 .card-prompt {
-  flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; overflow-wrap: anywhere;
+  flex: 1 0 auto; min-width: 0; min-height: calc(2 * 1.2 * 14px);   /* 2 lines at the minimum font size (14px) */
+  display: flex; flex-direction: column; overflow: hidden; overflow-wrap: normal;
   font-family: var(--card-font, var(--font-fallback));
   color: var(--card-color, var(--ink));
   text-align: var(--card-align, center);
   font-size: var(--card-fs, 28px); line-height: 1.2;
 }
+.fit-break .card-prompt { overflow-wrap: anywhere; }   /* fitCard(): a word is wider than the line even at the minimum size */
 .card-text { margin: auto 0; }   /* auto margins: vertically centred, overflow only goes downwards */
 .card-image { padding: 0; background-color: var(--card-cream); }
 .card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+/* pills: bottom 6px; sketch: [aiuto] bottom-left, [soluzione] bottom-right. The icon (ours and the templates') sits at
+   ~78-88% of the height, bottom-right: the right pill clears it only if 128u >= 51px (pill top), i.e. card height >= ~420px.
+   Shorter cards (container query on .card-wrap, threshold 430px height; width 307px = height 430 via the 5:7 ratio)
+   put both pills on the left; with a bottom-left icon (icon-pos-basso-sinistra) they go right, bottom-centre: spread. */
 .card-actions {
-  position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; gap: 8px; pointer-events: none;
+  position: absolute; left: 10px; right: 10px; bottom: 6px; display: flex; gap: 6px; pointer-events: none;
+}
+.card-actions .btn-soluzione { margin-left: auto; }
+@container (max-height: 430px) {
+  .card-actions .btn-soluzione { margin-left: 0; }
+  .icon-pos-basso-sinistra .card-actions { justify-content: flex-end; }
+  .icon-pos-basso-centro .card-actions { justify-content: space-between; }
+}
+@container (max-width: 307px) {
+  .card-actions .btn-soluzione { margin-left: 0; }
+  .icon-pos-basso-sinistra .card-actions { justify-content: flex-end; }
+  .icon-pos-basso-centro .card-actions { justify-content: space-between; }
+}
+/* very small cards (landscape phones, card < 360px high): both pills must fit left of the icon, so they get tighter */
+@container (max-height: 360px) {
+  .card-actions { gap: 4px; }
+  .card-actions .card-btn { font-size: 13px; padding: 6px 7px; }
+}
+@container (max-width: 257px) {
+  .card-actions { gap: 4px; }
+  .card-actions .card-btn { font-size: 13px; padding: 6px 7px; }
 }
 .card-btn {
-  pointer-events: auto; font: inherit; font-size: var(--card-btn-size); font-weight: 700; padding: 6px 14px; min-height: 44px;
+  pointer-events: auto; font: inherit; font-size: var(--card-btn-size); font-weight: 700; padding: 6px 10px; min-height: 44px;
   background: var(--card-btn-bg); color: var(--card-btn-color); border: var(--card-btn-border);
   border-radius: var(--card-btn-radius); cursor: pointer;
 }
-.card-actions .btn-soluzione { margin-left: auto; }
-.card-empty { align-items: center; justify-content: center; text-align: center; }
-.card-msg { margin: 0; font-size: 20px; font-weight: 700; color: #6b5d33; padding: 0 12px; }
 /* Hilfe: the 3 option buttons */
-.card-opts { flex: none; display: flex; flex-direction: column; gap: 5px; }
+.card-opts { flex: none; display: flex; flex-direction: column; gap: 4px; }
 .card-opt {
-  font: inherit; font-size: var(--card-btn-size); line-height: 1.15; padding: 4px 9px; min-height: 44px; text-align: left;
+  font: inherit; font-size: var(--opt-fs, var(--card-btn-size)); line-height: 1.15; padding: 3px 9px; min-height: 44px; text-align: left;
   overflow-wrap: anywhere; color: var(--card-btn-color); background: var(--card-btn-bg);
   border: var(--card-btn-border); border-radius: 12px; cursor: pointer;
 }
@@ -285,7 +311,7 @@ body {
 .card-opt.right { background: var(--card-right-bg); border-color: var(--card-right-border); }
 .card-opt.wrong { background: var(--card-wrong-bg); border-color: var(--card-wrong-border); }
 .card-opt.dim { opacity: 0.6; }
-.card-image .card-opts { position: absolute; left: 10px; right: 10px; bottom: 52px; }
+.card-image .card-opts { position: absolute; left: 10px; right: 10px; bottom: calc(6px + 44px + 8px); }   /* above the pills */
 /* grid fades in after [chiudi] */
 .tiles.fade-in { animation: card-in 0.25s ease-out; }
 /* END CARD STYLE */
@@ -303,7 +329,7 @@ body.screen-carta .topfield { white-space: nowrap; overflow: hidden; text-overfl
   .pair.bottom > .btn { min-height: 44px; font-size: 16px; padding-top: 6px; padding-bottom: 6px; }
   .tiles { gap: 8px; }
   .tile { flex-direction: row; justify-content: flex-start; gap: 6px; min-height: 60px; padding: 6px; border-radius: 14px; }
-  .tile-name { text-align: left; font-size: 12px; min-width: 0; overflow-wrap: normal; }
+  .tile-name { text-align: left; font-size: 12px; min-width: 0; overflow-wrap: anywhere; hyphens: auto; }   /* long words break as a last resort, never clip */
   .tile .circle { width: 34px; height: 34px; font-size: 17px; border-width: 2px; }
 }
 /* tall screens: big tiles, bigger icon circle */
@@ -326,15 +352,15 @@ body.screen-carta .topfield { white-space: nowrap; overflow: hidden; text-overfl
 .timer-msg:empty { display: none; }
 .card-timer.timeup { background: var(--red); border-color: #8f1b24; color: #fff; animation: timeup-pulse 0.5s ease-in-out 6; }
 @keyframes timeup-pulse { 50% { transform: scale(1.05); } }
-.card-media { flex: none; align-self: center; max-width: 100%; margin-bottom: 6px; }
-.card-media-img { max-height: calc(var(--card-h) * 0.33); object-fit: contain; border-radius: 10px; }
-.card-media-audio { width: 100%; height: 40px; }
+.card-media { flex: 0 1 auto; align-self: center; max-width: 100%; }
+.card-media-img { min-height: 40px; max-height: calc(var(--card-h) * 0.33); object-fit: contain; border-radius: 10px; }   /* shrinks first */
+.card-media-audio { flex: none; width: 100%; height: 40px; }
 .card-media-missing {
   padding: 6px 10px; font-size: 13px; color: #6b5d33; background: rgba(0, 0, 0, 0.06);
   border: 1px dashed #a09060; border-radius: 10px; text-align: center;
 }
 @media (prefers-reduced-motion: reduce) {
-  .card-flip { transition: none; animation: none; }
+  .card-flip, .card-flip.card-new { transition: none; animation: none; }
   .tiles.fade-in { animation: none; }
   .card-timer.timeup { animation: none; }
 }

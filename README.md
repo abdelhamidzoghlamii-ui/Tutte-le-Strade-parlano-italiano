@@ -45,8 +45,9 @@ Ogni riga è una categoria (una casella nel menu del gioco, nello stesso ordine 
    in `assets/sfondi/` con **esattamente lo stesso nome** del file provvisorio. Non devi cambiare
    nient'altro.
    **Misure:** stessa dimensione dei modelli provvisori, in verticale, **esattamente 750 × 1050 px**.
-   Lascia **senza testo** circa il 20% in alto (i primi ~210 px) e circa il 13% in basso (gli ultimi
-   ~137 px): l'app scrive il testo della carta nel mezzo e mette i pulsanti in basso.
+   Lascia **libero** circa il 20% in alto (i primi ~210 px) e circa il 22% in basso (gli ultimi
+   ~231 px): l'app scrive il testo della carta nel mezzo e mette i pulsanti in basso. L'icona della
+   categoria va in basso a destra, dentro quella fascia (circa tra 820 e 915 px dall'alto).
 2. Colonne:
    - **sfida** — nome della categoria. **icona** — una emoji, oppure il nome di un'immagine messa
      in `assets/icone/`. **accento** — un colore (es. `#009246`).
