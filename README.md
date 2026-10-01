@@ -89,6 +89,8 @@ del file e il numero della riga. Correggi e ricarica il file.
 - Built with Claude Code on the web; workflow in `CLAUDE.md`, spec in `BUILD_BRIEF.md`, UX sketch in
   `docs/skizze-app.pdf`.
 - Run locally: `python -m http.server` in the repo root → http://localhost:8000
+- Tests: `node tests/run.mjs [filter] [--shots]` (needs Playwright + Chromium; dev only, not used by the site).
+  Screenshots with `--shots` go to `tests/out/shots/` (git-ignored).
 - Hosting: GitHub Pages from `main` (root). Settings → Pages → Deploy from a branch → `main` / root.
 - Live URL: https://abdelhamidzoghlamii-ui.github.io/Tutte-le-Strade-parlano-italiano/
 - QR code to the Pages URL: `docs/qr.png` (regenerate if the URL changes). `.nojekyll` at the root makes Pages serve files as-is.
