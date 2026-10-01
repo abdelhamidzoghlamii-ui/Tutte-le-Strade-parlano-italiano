@@ -538,8 +538,9 @@ function renderGioco(app) {
   app.appendChild(topField(!state.setup.stesso));
   app.appendChild(el('h2', 'scegli', t('scegli_categoria')));
   const grid = el('div', 'tiles');
+  if (fadeGrid) { grid.classList.add('fade-in'); fadeGrid = false; }
   state.sfide.forEach(sf => {
-    const tile = button('', 'tile', () => openCard(sf));
+    const tile = button('', 'tile', () => openCard(sf, tile.getBoundingClientRect()));
     tile.style.setProperty('--acc', sf.accento || 'var(--green)');
     tile.append(iconNode(sf, 'circle'), el('span', 'tile-name', sf.sfida));
     grid.appendChild(tile);
@@ -587,9 +588,30 @@ function drawCard(sf) {
 function newCardState(sf) {
   return { sfida: sf.sfida, idx: drawCard(sf), flipped: false, hilfe: null, fx: {} };
 }
-function openCard(sf) {
+let growFrom = null;   // tile rect (viewport coords) for the grow-from-tile animation; consumed by renderCarta
+let fadeGrid = false;  // true after [chiudi]: the grid fades in
+function openCard(sf, fromRect) {
   state.card = newCardState(sf);
+  growFrom = fromRect || null;
   go('carta');
+}
+const reducedMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+// FLIP: the wrapper (.card-wrap, NOT .card-flip which rotates) animates from the tile's rect to its final place.
+function growCard(wrap, from) {
+  const flip = wrap.querySelector('.card-flip');
+  if (!flip || !wrap.animate || reducedMotion()) return;
+  const f = flip.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+  if (!f.width || !f.height || !from.width) return;
+  const fx = f.left + f.width / 2, fy = f.top + f.height / 2;
+  const k = from.width / f.width;   // ONE uniform scale (no stretched text); centre starts at the tile's centre
+  const dx = from.left + from.width / 2 - fx, dy = from.top + from.height / 2 - fy;
+  const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--card-grow-time')) || 350;
+  wrap.style.transformOrigin = (fx - w.left) + 'px ' + (fy - w.top) + 'px';
+  const anim = wrap.animate([
+    { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ')', opacity: 0.6 },
+    { transform: 'none', opacity: 1 }
+  ], { duration: ms, easing: 'ease-out' });
+  anim.onfinish = anim.oncancel = () => { wrap.style.transformOrigin = ''; };
 }
 
 function stripe() {
@@ -837,7 +859,8 @@ CARD_FEATURES.push({
 /* ---- feature: media (carte.csv `media`): image above the prompt, or an audio player. ---- */
 CARD_FEATURES.push({
   name: 'media',
-  applies: card => !!card.media && !!mediaKind(card.media),
+  // skipped when the card has its own full `immagine` (the media would overlap the card image)
+  applies: card => !!card.media && !!mediaKind(card.media) && !card.immagine,
   render(ctx) {
     const url = CONFIG.dirs.media + encodeURIComponent(ctx.card.media);
     const isAudio = mediaKind(ctx.card.media) === 'audio';
@@ -877,6 +900,7 @@ function renderCarta(app) {
   const flip = buildCard(sf, card);
   wrap.appendChild(flip);
   app.appendChild(wrap);
+  if (growFrom) { growCard(wrap, growFrom); growFrom = null; }
   if (card) {
     const below = el('div', 'card-below');
     const body = flip.querySelector('.card-front .card-body') || flip.querySelector('.card-front');
@@ -893,7 +917,7 @@ function renderCarta(app) {
   const bar = el('div', 'pair bottom');
   const more = button(t('altra_carta'), 'btn', () => { state.card = newCardState(sf); render(); });
   more.disabled = !card;
-  bar.append(button(t('chiudi'), 'btn btn-secondary', () => go('gioco')), more);
+  bar.append(button(t('chiudi'), 'btn btn-secondary', () => { fadeGrid = true; go('gioco'); }), more);
   app.appendChild(bar);
   fitCard();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);
