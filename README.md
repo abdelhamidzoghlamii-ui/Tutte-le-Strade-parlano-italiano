@@ -39,6 +39,11 @@ Aggiungere una carta = aggiungere una riga. Correggerla = modificare la riga.
 Ogni riga è una categoria (una casella nel menu del gioco, nello stesso ordine del file).
 1. In Canva crea **un solo modello** di carta per la categoria. Scaricalo come **PNG** e mettilo in
    `assets/sfondi/`. Tutte le carte della categoria useranno questo modello.
+   I file che trovi ora in `assets/sfondi/` sono **modelli provvisori** (con la scritta
+   PLACEHOLDER). Per sostituirne uno: esporta da Canva il tuo PNG in verticale 5:7 (per esempio
+   750×1050 px), con l'intestazione in alto e il centro vuoto (lì l'app scrive il testo), e caricalo
+   in `assets/sfondi/` con **esattamente lo stesso nome** del file provvisorio. Non devi cambiare
+   nient'altro.
 2. Colonne:
    - **sfida** — nome della categoria. **icona** — una emoji, oppure il nome di un'immagine messa
      in `assets/icone/`. **accento** — un colore (es. `#009246`).

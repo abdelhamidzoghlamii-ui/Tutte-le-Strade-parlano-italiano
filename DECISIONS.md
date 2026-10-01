@@ -62,3 +62,20 @@ Append-only. Never edit old entries.
 - Deferred (lead review): media image on an `immagine`-variant card may overlap the card image
   (unlikely combination); vertical fit at 320x640 with the timer slot and real-touch swipe are
   checked in slice 8.
+
+## 2026-10-01 — Placeholder templates + slice 8 (lead)
+- Canva reference download blocked by the build proxy (403); Abdel pushes docs/riferimenti/ from his laptop.
+- Placeholder templates generated (750×1050, 5:7), named by category slug (lowercase, accents stripped,
+  non-alphanumerics -> '-'); replace by uploading a PNG with the same name. sfide.csv `sfondo` filled.
+- Taken from docs/riferimenti: tricolore frame (green left, red right, diagonal green/white/red stripes
+  top and bottom), off-white #f8f8f1 face, centred bold uppercase title, category icon bottom-right, hand-written
+  prompt in the middle, palette green #0a9246 / red #ce2b37. The CSS-header variant uses the same frame
+  (stripe element stays in the DOM, hidden by CSS) with the icon circle bottom-centre so it never collides with
+  Hilfe options or the buttons.
+- sfondo-variant text area is set by CSS variables in the CARD STYLE block (--tpl-top 0.20, --tpl-bottom 0.13,
+  fractions of card height); they must match the templates.
+- Grow-from-tile via FLIP on the .card-wrap wrapper (not .card-flip), 350 ms, WAAPI; none under
+  prefers-reduced-motion. [chiudi]: no card animation, the grid fades in (0.25 s).
+- Item 6: a card with `immagine` set skips its `media` entirely (simplest, console-free); revisit if that
+  combination is ever used.
+- Small screens (max-height 740px): compact tiles (icon left of the name), smaller reserved space around the card.

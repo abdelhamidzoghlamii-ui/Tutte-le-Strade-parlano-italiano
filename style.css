@@ -130,21 +130,34 @@ body {
 :root {
   --card-ratio: 5 / 7;                 /* width / height of the card */
   --card-reserved: 215px;              /* vertical space used by top field + controls + paddings */
-  --card-radius: 22px;
-  --card-cream: #fff6dc;
-  --card-border: 2px solid #e6d9b0;
-  --card-shadow: 0 6px 18px rgba(60, 40, 0, 0.28), 0 1px 2px rgba(60, 40, 0, 0.3);
-  --card-pad: 12px;
+  --card-radius: 14px;
+  --card-cream: #f8f8f1;               /* off-white of the Canva cards (docs/riferimenti) */
+  --card-edge: 1px solid rgba(60, 40, 0, 0.18);   /* hairline edge of the physical card */
+  /* tricolore frame of the Canva cards (CSS variant): green left, red right, diagonal stripes top/bottom.
+     Sizes are fractions of the card height, taken from the reference cards (docs/riferimenti). */
+  --frame-w-f: 0.04;
+  --frame-h-f: 0.054;
+  --frame-dash-f: 0.03;
+  --frame-angle: 115deg;
+  --card-title-weight: 800;
+  --card-shadow: 0 8px 20px rgba(60, 40, 0, 0.22), 0 2px 4px rgba(60, 40, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  /* sfondo (template image) variant: the app only fills the template's empty middle.
+     Fractions of the card height; they MUST match the templates in assets/sfondi/
+     (title ends at ~19% of the height, buttons sit in the bottom ~12%). */
+  --tpl-top: 0.20;
+  --tpl-bottom: 0.13;
+  --card-grow-time: 350ms;             /* card grows from the tile (app.js reads this) */
+  --card-pad: 8px;
   --card-head-gap: 10px;
   --card-circle: 40px;                 /* icon circle in the header */
-  --card-title-size: 15px;
+  --card-title-size: 17px;
   --stripe-green: #009246;
   --stripe-white: #ffffff;
   --stripe-red: #ce2b37;
   --stripe-edge: #b9b09a;              /* thin edge so white dashes stay visible on cream */
   --stripe-h: 10px;
   --stripe-skew: -25deg;
-  --card-btn-bg: #fff;
+  --card-btn-bg: rgba(255, 255, 255, 0.88);   /* semi-opaque pill: readable on top of a template image */
   --card-btn-color: var(--ink);
   --card-btn-border: 2px solid var(--ink);
   --card-btn-radius: 999px;
@@ -162,6 +175,9 @@ body {
 .card-flip {
   position: relative; transform-style: preserve-3d;
   --card-h: min(calc((100vw - 32px) / (5 / 7)), calc(100dvh - var(--card-reserved)));
+  --frame-w: calc(var(--card-h) * var(--frame-w-f));
+  --frame-h: calc(var(--card-h) * var(--frame-h-f));
+  --frame-dash: calc(var(--card-h) * var(--frame-dash-f));
   height: var(--card-h); aspect-ratio: var(--card-ratio); max-width: 100%;
   transition: transform var(--card-flip-time) ease;
   touch-action: pan-y; -webkit-user-select: none; user-select: none;
@@ -172,17 +188,39 @@ body {
   position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden;
   -webkit-backface-visibility: hidden; backface-visibility: hidden;
   background: var(--card-cream) center / cover no-repeat;
-  border: var(--card-border); border-radius: var(--card-radius); box-shadow: var(--card-shadow);
-  padding: var(--card-pad);
+  border: var(--card-edge); border-radius: var(--card-radius); box-shadow: var(--card-shadow);
+  isolation: isolate;
+  padding: calc(var(--frame-h) + var(--card-pad)) calc(var(--frame-w) + var(--card-pad));
+}
+/* tricolore frame (CSS variant only; the template/immagine variants bring their own artwork) */
+.card:not(.card-tpl):not(.card-image)::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    repeating-linear-gradient(var(--frame-angle), var(--stripe-green) 0 var(--frame-dash), var(--stripe-white) var(--frame-dash) calc(var(--frame-dash) * 2), var(--stripe-red) calc(var(--frame-dash) * 2) calc(var(--frame-dash) * 3)) top / 100% var(--frame-h) no-repeat,
+    repeating-linear-gradient(var(--frame-angle), var(--stripe-green) 0 var(--frame-dash), var(--stripe-white) var(--frame-dash) calc(var(--frame-dash) * 2), var(--stripe-red) calc(var(--frame-dash) * 2) calc(var(--frame-dash) * 3)) bottom / 100% var(--frame-h) no-repeat,
+    linear-gradient(var(--stripe-green), var(--stripe-green)) left / var(--frame-w) 100% no-repeat,
+    linear-gradient(var(--stripe-red), var(--stripe-red)) right / var(--frame-w) 100% no-repeat;
 }
 .card-back { transform: rotateY(180deg); cursor: pointer; }
+/* sfondo variant (front AND back): template fills the face, text area = its empty middle */
+.card-tpl {
+  background-size: 100% 100%; background-origin: border-box;
+  padding: calc(var(--card-h) * var(--tpl-top)) calc(var(--frame-w) + var(--card-pad)) calc(var(--card-h) * var(--tpl-bottom));
+}
+.card-tpl .card-body { padding: 0; }
 @keyframes card-in { from { opacity: 0; } to { opacity: 1; } }
 .card-head { flex: none; display: flex; flex-direction: column; gap: var(--card-head-gap); }
-.card-head-top { display: flex; align-items: center; gap: 10px; }
+.card-head-top { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .card .circle { width: var(--card-circle); height: var(--card-circle); font-size: calc(var(--card-circle) * 0.5); }
 .card-title {
-  flex: 1; min-width: 0; font-weight: 800; font-size: var(--card-title-size); line-height: 1.15;
-  text-transform: uppercase; overflow-wrap: anywhere;
+  flex: 1; min-width: 0; font-weight: var(--card-title-weight); font-size: var(--card-title-size); line-height: 1.15;
+  text-transform: uppercase; overflow-wrap: anywhere; text-align: center; text-wrap: balance;
+}
+/* CSS variant: like the Canva cards the title is centred and the category icon sits bottom-right.
+   (The tricolore stripe element stays in the DOM; the frame carries the tricolore, so it is hidden here.) */
+.card-head .stripe { display: none; }
+.card:not(.card-tpl) .card-head .circle {
+  position: absolute; left: 50%; margin-left: calc(var(--card-circle) / -2); bottom: calc(var(--frame-h) + 4px);
 }
 .stripe { display: flex; gap: 5px; height: var(--stripe-h); padding: 0 4px; }
 .stripe i {
@@ -192,7 +230,7 @@ body {
 .stripe .g { background: var(--stripe-green); border-color: var(--stripe-green); }
 .stripe .w { background: var(--stripe-white); }
 .stripe .r { background: var(--stripe-red); border-color: var(--stripe-red); }
-.card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 8px 2px 40px; }
+.card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 6px 2px 36px; }
 .card-prompt {
   flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; overflow-wrap: anywhere;
   font-family: var(--card-font, var(--font-fallback));
@@ -216,7 +254,7 @@ body {
 /* Hilfe: the 3 option buttons */
 .card-opts { flex: none; display: flex; flex-direction: column; gap: 5px; }
 .card-opt {
-  font: inherit; font-size: var(--card-btn-size); line-height: 1.2; padding: 5px 10px; text-align: left;
+  font: inherit; font-size: var(--card-btn-size); line-height: 1.15; padding: 4px 9px; text-align: left;
   overflow-wrap: anywhere; color: var(--card-btn-color); background: var(--card-btn-bg);
   border: var(--card-btn-border); border-radius: 12px; cursor: pointer;
 }
@@ -225,7 +263,29 @@ body {
 .card-opt.wrong { background: var(--card-wrong-bg); border-color: var(--card-wrong-border); }
 .card-opt.dim { opacity: 0.6; }
 .card-image .card-opts { position: absolute; left: 10px; right: 10px; bottom: 52px; }
+/* grid fades in after [chiudi] */
+.tiles.fade-in { animation: card-in 0.25s ease-out; }
+/* small screens: less vertical space reserved around the card so it fits without page scroll */
+@media (max-height: 740px) {
+  :root { --card-reserved: 158px; --card-btn-size: 12.5px; }
+  .card-wrap { margin-top: 8px; }
+  .card-wrap.has-below { --card-reserved: 244px; }
+  .card-below { margin-top: 6px; }
+}
 /* END CARD STYLE */
+
+/* ---- Small screens: everything must fit without page scroll (card screen) / compact grid ---- */
+@media (max-height: 740px) {
+  #app { padding-top: 46px; padding-bottom: 12px; }
+  .topfield { padding: 8px 12px; font-size: 17px; }
+  .scegli { margin: 8px 0 6px; font-size: 18px; }
+  .pair.bottom { margin-top: 8px; }
+  .pair.bottom > .btn { min-height: 44px; font-size: 16px; padding-top: 6px; padding-bottom: 6px; }
+  .tiles { gap: 8px; }
+  .tile { flex-direction: row; justify-content: flex-start; gap: 6px; min-height: 60px; padding: 6px; border-radius: 14px; }
+  .tile-name { text-align: left; font-size: 12px; min-width: 0; overflow-wrap: normal; }
+  .tile .circle { width: 34px; height: 34px; font-size: 17px; border-width: 2px; }
+}
 
 /* ---- Card features (timer, media) ---- */
 .card-below { margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -251,5 +311,11 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .card-flip { transition: none; animation: none; }
+  .tiles.fade-in { animation: none; }
   .card-timer.timeup { animation: none; }
+}
+@media (max-width: 340px) {
+  .tile { gap: 4px; padding: 5px; }
+  .tile .circle { width: 28px; height: 28px; font-size: 14px; }
+  .tile-name { font-size: 10.5px; }
 }
