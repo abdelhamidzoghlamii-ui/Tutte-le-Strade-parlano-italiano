@@ -19,24 +19,40 @@ body {
   line-height: 1.4;
 }
 
-/* Validation banner */
+/* Validation banner: a collapsible <details> (summary = title + count) with the close button beside it */
 #banner {
   flex: none;
   position: sticky; top: 0; z-index: 100;
-  display: grid; grid-template-columns: 1fr auto; align-items: start; column-gap: 10px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: 10px;
   max-height: 40vh; overflow-y: auto;
   background: #fff3cd; color: #5c4400;
   border-bottom: 3px solid #e0a800;
-  padding: 10px 14px;
+  padding: 4px 14px;
   font-size: 14px;
 }
 #banner[hidden] { display: none; }
-#banner h2 { margin: 0 0 6px; font-size: 16px; }
-#banner ul { grid-column: 1 / -1; margin: 0 0 4px; padding-left: 20px; }
+#banner details { min-width: 0; }
+#banner summary {
+  min-height: 44px; display: flex; align-items: center; cursor: pointer;
+  font-size: 16px; font-weight: 700; overflow-wrap: anywhere;
+}
+#banner ul { margin: 0 0 6px; padding-left: 20px; }
 #banner li { margin-bottom: 3px; overflow-wrap: anywhere; }
-#banner button {
-  font: inherit; min-width: 44px; min-height: 44px; padding: 6px 14px; border: 1px solid #a07a00;
-  background: #fff; border-radius: 6px; cursor: pointer;
+#banner li.more { list-style: none; margin-left: -20px; font-style: italic; }
+.banner-close {
+  font: inherit; font-size: 14px; min-width: 44px; min-height: 44px; padding: 6px 14px; border: 1px solid #a07a00;
+  background: #fff; color: #5c4400; border-radius: 6px; cursor: pointer;
+}
+
+/* Text for screen readers only (live regions, glyph words) */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+/* Message in place of an empty list (no valid levels / categories) */
+.empty-msg {
+  grid-column: 1 / -1; margin: 0; padding: 16px; text-align: center; font-weight: 700; overflow-wrap: anywhere;
+  background: #fff3cd; color: #5c4400; border: 2px dashed #e0a800; border-radius: 16px;
 }
 
 /* App column */
@@ -386,3 +402,20 @@ body.screen-carta .topfield { white-space: nowrap; overflow: hidden; text-overfl
   body.screen-carta .pair.bottom { grid-row: 5; }
   body.screen-carta #app > .card-wrap { grid-column: 1; grid-row: 1 / span 6; max-width: none; justify-self: stretch; margin-top: 0; }
 }
+
+/* ---- Keyboard focus: dark ring outside + white ring inside it (visible on dark buttons / the dark backdrop) ---- */
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.btn:focus-visible, .tile:focus-visible, .card-btn:focus-visible, .card-opt:focus-visible, .btn-timer:focus-visible,
+.topfield-btn:focus-visible, .name-input:focus-visible, .banner-close:focus-visible { box-shadow: 0 0 0 2px #fff; }
+.btn.marked:focus-visible { box-shadow: 0 0 0 3px #fff inset, 0 0 0 2px #fff; }
+/* #lang clips (overflow: hidden): its buttons get an inset ring */
+.lang-btn:focus-visible { outline-offset: -5px; box-shadow: none; }
+.lang-btn.active:focus-visible { outline-color: #fff; }
+#banner summary:focus-visible { outline-offset: 0; }
+.card-back:focus-visible { outline-offset: -8px; }
+/* elements only focused by script (headings, top field, card front) show no ring */
+[tabindex="-1"]:focus, [tabindex="-1"]:focus-visible { outline: none; }
+
+/* Hilfe: result glyphs */
+.card-opt .glyph { display: inline-block; margin-right: 0.4em; font-weight: 800; }
+.card-opt[aria-disabled="true"] { cursor: default; }

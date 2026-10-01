@@ -180,6 +180,20 @@ export default async function (t) {
     s.done();
   });
 
+  t.test('layout banner at 320x568: the (collapsed) banner leaves the card at least 300px tall', async ({ browser }) => {
+    const s = soft();
+    const page = await newPage(browser, { w: 320, h: 568, lang: 'de', fixture: 'banner', touch: true });
+    await page.waitForSelector('#banner:not([hidden])');
+    await startGroup(page, 0);
+    await openCategory(page, T_PLURALE);
+    const open = await page.evaluate(() => document.querySelector('#banner details').open);
+    s.check(!open, 'banner should be collapsed on the card screen');
+    const r = await check(page, s, 'banner-card', { card: true });
+    s.check(r.cardH >= 300, 'card only ' + Math.round(r.cardH) + 'px tall with the banner (need >= 300)');
+    await shot(page, '320x568-de-banner-card-collapsed');
+    s.done();
+  });
+
   t.test('layout double tap on [altra_carta] draws exactly one card', async ({ browser }) => {
     const page = await newPage(browser, { w: 390, h: 844, lang: 'it', fixture: 'many', touch: true });
     await startGroup(page, 0);

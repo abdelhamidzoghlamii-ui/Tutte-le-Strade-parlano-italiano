@@ -1,0 +1,57 @@
+﻿chiave,de,it
+nuova_partita,Neues Spiel anfangen,Iniziare una nuova partita
+stesso_livello,Haben alle Spieler ungefähr das gleiche Niveau?,Tutti i giocatori hanno più o meno lo stesso livello?
+si,Ja,Sì
+no,Nein,No
+quale_livello,Welches Niveau haben die Spieler?,Che livello hanno i giocatori?
+quanti_giocatori,Wie viele Spieler spielen?,Quanti giocatori giocano?
+giocatore,Spieler,Giocatore
+livello,Niveau,Livello
+inizia,Spiel starten,Inizia la partita
+scegli_categoria,Wähle die Kategorie,Scegli la categoria
+aiuto,Hilfe,Aiuto
+soluzione,Lösung,Soluzione
+esci,Spiel verlassen,Esci dal gioco
+impostazioni,Einstellungen ändern,Cambia impostazioni
+chiudi,Schließen,Chiudi
+altra_carta,Andere Karte,Un'altra carta
+nessuna_carta,Keine Karte für dieses Niveau,Nessuna carta per questo livello
+scegli_giocatore,Spieler wählen,Scegli il giocatore
+lingua,Sprache,Lingua
+titolo,Tutte le strade... parlano italiano!,Tutte le strade... parlano italiano!
+conferma_esci,Spiel wirklich verlassen?,Vuoi davvero uscire dal gioco?
+annulla,Abbrechen,Annulla
+timer_avvia,Timer starten,Avvia il timer
+timer_pausa,Pause,Pausa
+timer_riprendi,Weiter,Riprendi
+tempo_scaduto,Die Zeit ist um!,Tempo scaduto!
+media_mancante,Datei nicht gefunden,File non trovato
+avvisi_titolo,Probleme in den Dateien,Problemi nei file
+err_file_csv,Datei konnte nicht geladen werden,impossibile caricare il file
+err_codifica,Datei nicht als CSV UTF-8 gespeichert (Umlaute können falsch aussehen),il file non è salvato come CSV UTF-8 (gli accenti possono essere sbagliati)
+err_colonna,Spalte '{valore}' fehlt,manca la colonna '{valore}'
+err_csv_riga,Zeile kann nicht gelesen werden ({valore}),riga non leggibile ({valore})
+err_duplicato,'{valore}' kommt mehrfach vor,'{valore}' è scritto più volte
+err_vuoto,Name fehlt,il nome è vuoto
+err_sfida,Die Kategorie '{valore}' existiert nicht,la categoria '{valore}' non esiste
+err_livello,Das Niveau '{valore}' existiert nicht,il livello '{valore}' non esiste
+err_nessun_livello,Kein gültiges Niveau angegeben,nessun livello valido
+err_opzioni,Hilfe braucht genau 3 Antworten,l'aiuto richiede esattamente 3 opzioni
+err_testo,Weder Text noch Bild vorhanden,non c'è né testo né immagine
+err_timer,Timer muss eine ganze Zahl sein (Sekunden),il timer deve essere un numero intero (secondi)
+err_dimensione,Schriftgröße muss eine Zahl sein,la dimensione deve essere un numero
+err_allineamento,"Ausrichtung muss sinistra, centro oder destra sein","l'allineamento deve essere sinistra, centro o destra"
+err_ordine,Reihenfolge muss eine Zahl sein,l'ordine deve essere un numero
+err_traduzione,Deutscher oder italienischer Text fehlt,manca il testo tedesco o italiano
+err_chiave,Der Text '{valore}' fehlt,manca il testo '{valore}'
+err_file,Datei '{valore}' nicht gefunden,il file '{valore}' non è stato trovato
+err_font,Schriftdatei '{valore}' nicht gefunden,il file del carattere '{valore}' non è stato trovato
+err_media_tipo,Dateityp wird nicht unterstützt: '{valore}',tipo di file non supportato: '{valore}'
+riga,Zeile,riga
+err_colonna_opzionale,Spalte '{valore}' fehlt (gilt als leer),manca la colonna '{valore}' (considerata vuota)
+err_file_vuoto,Datei enthält keine gültigen Zeilen,il file non contiene righe valide
+err_altri,… und {valore} weitere,… e altri {valore}
+err_colore,'{valore}' ist keine gültige Farbe,'{valore}' non è un colore valido
+err_forse,(vielleicht '{valore}'?),(forse '{valore}'?)
+giusto,richtig,giusto
+sbagliato,falsch,sbagliato

@@ -48,3 +48,10 @@ err_file;Datei '{valore}' nicht gefunden;il file '{valore}' non è stato trovato
 err_font;Schriftdatei '{valore}' nicht gefunden;il file del carattere '{valore}' non è stato trovato
 err_media_tipo;Dateityp wird nicht unterstützt: '{valore}';tipo di file non supportato: '{valore}'
 riga;Zeile;riga
+err_colonna_opzionale;Spalte '{valore}' fehlt (gilt als leer);manca la colonna '{valore}' (considerata vuota)
+err_file_vuoto;Datei enthält keine gültigen Zeilen;il file non contiene righe valide
+err_altri;… und {valore} weitere;… e altri {valore}
+err_colore;'{valore}' ist keine gültige Farbe;'{valore}' non è un colore valido
+err_forse;(vielleicht '{valore}'?);(forse '{valore}'?)
+giusto;richtig;giusto
+sbagliato;falsch;sbagliato

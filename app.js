@@ -17,12 +17,19 @@ const CONFIG = {
     media: 'assets/media/',
     fonts: 'assets/fonts/'
   },
+  // required = key columns (a file without one is rejected: err_colonna); optional = known columns that may be
+  // missing (ONE warning per file, err_colonna_opzionale; the column counts as blank in every row).
+  // A new column of a later batch = one more name in the right `optional` list.
   columns: {
-    carte: ['sfida', 'livelli', 'testo', 'opzioni', 'media', 'immagine', 'risposta'],
-    sfide: ['sfida', 'icona', 'accento', 'sfondo', 'timer', 'carattere', 'dimensione', 'colore_testo', 'allineamento'],
-    livelli: ['livello', 'nome_de', 'colore', 'ordine'],
-    testi: ['chiave', 'de', 'it']
+    carte: { required: ['sfida', 'livelli', 'testo'], optional: ['opzioni', 'media', 'immagine', 'risposta'] },
+    sfide: { required: ['sfida'], optional: ['icona', 'accento', 'sfondo', 'timer', 'carattere', 'dimensione', 'colore_testo', 'allineamento'] },
+    livelli: { required: ['livello'], optional: ['nome_de', 'colore', 'ordine'] },
+    testi: { required: ['chiave', 'de', 'it'], optional: [] }
   },
+  fileOrder: ['testi', 'livelli', 'sfide', 'carte'],   // banner order (then by row)
+  bannerMaxPerFile: 10,                                // banner lines per file; the rest = one err_altri line
+  bannerOpenScreens: ['start', 'stesso', 'livello', 'quanti', 'giocatori'],   // banner expanded here, collapsed elsewhere
+  didYouMeanMax: 2,                                    // max Levenshtein distance for "forse ...?"
   delimiters: [';', ',', '\t'],
   imageExt: /\.(png|jpe?g|gif|svg|webp)$/i,
   // media column: extension decides image vs audio player
@@ -51,7 +58,8 @@ const CONFIG = {
     'riga', 'err_file_csv', 'err_codifica', 'err_colonna', 'err_csv_riga', 'err_duplicato', 'err_vuoto',
     'err_sfida', 'err_livello', 'err_nessun_livello', 'err_opzioni', 'err_testo', 'err_timer',
     'err_dimensione', 'err_allineamento', 'err_ordine', 'err_traduzione', 'err_chiave',
-    'err_file', 'err_font', 'err_media_tipo'
+    'err_file', 'err_font', 'err_media_tipo',
+    'err_colonna_opzionale', 'err_file_vuoto', 'err_altri', 'err_colore', 'err_forse', 'giusto', 'sbagliato'
   ]
 };
 
@@ -103,6 +111,7 @@ function problemText(p) {
   let m;
   if (state.testi[p.key]) m = t(p.key, p.vars);
   else m = p.key + (p.vars.valore != null ? ': ' + p.vars.valore : '');   // fallback if testi_ui failed
+  if (p.vars.forse) m += ' ' + (state.testi.err_forse ? t('err_forse', { valore: p.vars.forse }) : '(' + p.vars.forse + '?)');
   return p.file + (p.riga != null ? ' ' + t('riga') + ' ' + p.riga : '') + ': ' + m;
 }
 
@@ -150,11 +159,15 @@ async function loadCsv(name) {
     return null;
   }
   const fields = (res.meta && res.meta.fields) || [];
-  const missing = CONFIG.columns[name].filter(c => !fields.includes(c));
+  const cols = CONFIG.columns[name];
+  const missing = cols.required.filter(c => !fields.includes(c));
   if (missing.length) {
     missing.forEach(c => problem(file, null, 'err_colonna', { valore: c }));
     return null;
   }
+  // missing optional columns: ONE warning for the file, the column is blank in every row
+  const absent = cols.optional.filter(c => !fields.includes(c));
+  if (absent.length) problem(file, null, 'err_colonna_opzionale', { valore: absent.join(', ') });
   const isEmpty = d => Object.values(d).every(v => v === '' || v == null || (Array.isArray(v) && !v.length));
   (res.errors || []).forEach(er => {
     if (er.code === 'UndetectableDelimiter') return;
@@ -163,13 +176,52 @@ async function loadCsv(name) {
     problem(file, er.row != null ? er.row + 2 : null, 'err_csv_riga', { valore: er.message });
   });
   const rows = [];
-  res.data.forEach((d, i) => { if (!isEmpty(d)) rows.push({ riga: i + 2, d }); });
-  return { file, rows };
+  res.data.forEach((d, i) => {
+    if (isEmpty(d)) return;
+    absent.forEach(c => { d[c] = ''; });
+    rows.push({ riga: i + 2, d });
+  });
+  return { file, rows, absent };
 }
 
 // 'image' | 'audio' | null, decided by the file extension
 const mediaKind = name => CONFIG.mediaImageExt.test(name) ? 'image' : CONFIG.mediaAudioExt.test(name) ? 'audio' : null;
 const splitMulti = s => (s || '').split('|').map(x => x.trim()).filter(Boolean);
+// CSS colour check; an invalid colour is reported (err_colore) and the default is used (blank)
+const validColor = v => typeof CSS === 'undefined' || !CSS.supports || CSS.supports('color', v);
+function checkColor(file, riga, obj, field) {
+  if (obj[field] && !validColor(obj[field])) {
+    problem(file, riga, 'err_colore', { valore: obj[field] });
+    obj[field] = '';
+  }
+}
+
+// "did you mean": name equal ignoring case, accents and (multiple) spaces; else the closest by Levenshtein distance
+const normName = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+function levenshtein(a, b) {
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[b.length];
+}
+function didYouMean(value, names) {
+  const n = normName(value);
+  if (!n) return null;
+  const same = names.find(x => normName(x) === n);
+  if (same) return same;
+  let best = null, bestD = Infinity;
+  names.forEach(x => {
+    const m = normName(x), d = levenshtein(n, m);
+    // d < length: on very short names a distance of 2 would match anything
+    if (d <= CONFIG.didYouMeanMax && d < Math.min(n.length, m.length) && d < bestD) { best = x; bestD = d; }
+  });
+  return best;
+}
 
 /* ==========================================================================
    VALIDATE (BUILD_BRIEF section 7) - skip bad rows, never crash
@@ -186,9 +238,12 @@ function validateLivelli(csv) {
     seen.add(d.livello);
     let ordine = Infinity;
     if (d.ordine !== '' && isFinite(Number(d.ordine))) ordine = Number(d.ordine);
-    else problem(csv.file, riga, 'err_ordine');
-    out.push({ livello: d.livello, nome_de: d.nome_de, colore: d.colore, ordine, riga });
+    else if (!csv.absent.includes('ordine')) problem(csv.file, riga, 'err_ordine');   // missing column: already warned once
+    const lv = { livello: d.livello, nome_de: d.nome_de, colore: d.colore, ordine, riga };
+    checkColor(csv.file, riga, lv, 'colore');
+    out.push(lv);
   });
+  if (!out.length) problem(csv.file, null, 'err_file_vuoto');
   return out.sort((a, b) => (a.ordine === b.ordine ? 0 : a.ordine < b.ordine ? -1 : 1));
 }
 
@@ -208,24 +263,32 @@ function validateSfide(csv) {
     else { problem(csv.file, riga, 'err_dimensione'); s.dimensione = null; }
     if (d.allineamento === '') s.allineamento = CONFIG.defaults.alignment;
     else if (!CONFIG.alignments.includes(d.allineamento)) { problem(csv.file, riga, 'err_allineamento'); s.allineamento = CONFIG.defaults.alignment; }
+    checkColor(csv.file, riga, s, 'accento');
+    checkColor(csv.file, riga, s, 'colore_testo');
     addRef(csv.file, riga, CONFIG.dirs.sfondi, d.sfondo);
     if (CONFIG.imageExt.test(d.icona)) addRef(csv.file, riga, CONFIG.dirs.icone, d.icona);
     out.push(s);
   });
+  if (!out.length) problem(csv.file, null, 'err_file_vuoto');
   return out;
 }
 
 function validateCarte(csv) {
   const out = [];
   if (!csv) return out;
-  const sfide = new Set(state.sfide.map(s => s.sfida));
-  const livelli = new Set(state.livelli.map(l => l.livello));
+  const sfNames = state.sfide.map(s => s.sfida), lvNames = state.livelli.map(l => l.livello);
+  const sfide = new Set(sfNames), livelli = new Set(lvNames);
   csv.rows.forEach(({ riga, d }) => {
-    if (!sfide.has(d.sfida)) return problem(csv.file, riga, 'err_sfida', { valore: d.sfida });
+    // no sfide / no levels at all: that file is already reported once, so no per-card cascade (the cards are dropped)
+    if (!sfide.has(d.sfida)) {
+      if (sfide.size) problem(csv.file, riga, 'err_sfida', { valore: d.sfida, forse: didYouMean(d.sfida, sfNames) });
+      return;
+    }
+    if (!livelli.size) return;
     const lv = [];
     splitMulti(d.livelli).forEach(v => {
       if (livelli.has(v)) lv.push(v);
-      else problem(csv.file, riga, 'err_livello', { valore: v });
+      else problem(csv.file, riga, 'err_livello', { valore: v, forse: didYouMean(v, lvNames) });
     });
     if (!lv.length) return problem(csv.file, riga, 'err_nessun_livello');
     if (!d.testo && !d.immagine) return problem(csv.file, riga, 'err_testo');
@@ -296,25 +359,51 @@ async function loadFonts() {
 /* ==========================================================================
    RENDER - banner, language switch, one function per screen, single render()
    ========================================================================== */
+/* Banner: a collapsible <details>. Summary = "<avvisi_titolo> (N)" + the close button (a sibling, not nested in the
+   summary). Open by default on the start/setup screens, collapsed on gioco/carta (it must not shrink the card);
+   a manual toggle holds until the screen changes. Problems are shown by file (CONFIG.fileOrder), then by row;
+   at most CONFIG.bannerMaxPerFile lines per file, then one err_altri line. */
+let bannerOpen = true, bannerScreen = null;
+function fileRank(file) {
+  const i = CONFIG.fileOrder.findIndex(n => CONFIG.paths[n].split('/').pop() === file);
+  return i < 0 ? CONFIG.fileOrder.length : i;
+}
+function sortedProblems() {
+  return state.problems.map((p, i) => ({ p, i }))
+    .sort((a, b) => fileRank(a.p.file) - fileRank(b.p.file) || (a.p.riga == null ? -1 : a.p.riga) - (b.p.riga == null ? -1 : b.p.riga) || a.i - b.i)
+    .map(x => x.p);
+}
 function renderBanner() {
-  const el = document.getElementById('banner');
-  el.textContent = '';
-  if (!state.problems.length || state.problems.length <= state.dismissedAt) { el.hidden = true; return; }
-  const h = document.createElement('h2');
-  h.textContent = t('avvisi_titolo');
+  const box = document.getElementById('banner');
+  const act = document.activeElement;
+  const fid = act && box.contains(act) ? act.dataset.fid : null;
+  if (bannerScreen !== state.screen) { bannerScreen = state.screen; bannerOpen = CONFIG.bannerOpenScreens.includes(state.screen); }
+  box.textContent = '';
+  if (!state.problems.length || state.problems.length <= state.dismissedAt) { box.hidden = true; return; }
+  const title = t('avvisi_titolo') + ' (' + state.problems.length + ')';
+  box.setAttribute('role', 'region');
+  box.setAttribute('aria-label', title);
+  const det = document.createElement('details');
+  det.open = bannerOpen;
+  det.addEventListener('toggle', () => { bannerOpen = det.open; });
+  const sum = el('summary', null, title);
+  sum.dataset.fid = 'banner-toggle';
   const ul = document.createElement('ul');
-  state.problems.forEach(p => {
+  let shown = 0, curFile = null, rest = 0;
+  const flush = () => { if (rest) ul.appendChild(el('li', 'more', t('err_altri', { valore: rest }))); rest = 0; };
+  sortedProblems().forEach(p => {
     p.msg = problemText(p);
-    const li = document.createElement('li');
-    li.textContent = p.msg;
-    ul.appendChild(li);
+    if (p.file !== curFile) { flush(); curFile = p.file; shown = 0; }
+    if (shown >= CONFIG.bannerMaxPerFile) { rest++; return; }
+    shown++;
+    ul.appendChild(el('li', null, p.msg));
   });
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.textContent = t('chiudi');
-  btn.addEventListener('click', () => { state.dismissedAt = state.problems.length; renderBanner(); });
-  el.append(h, btn, ul);
-  el.hidden = false;
+  flush();
+  det.append(sum, ul);
+  const btn = button(t('chiudi'), 'banner-close', () => { state.dismissedAt = state.problems.length; renderBanner(); focusMain(); }, 'banner-close');
+  box.append(det, btn);
+  box.hidden = false;
+  if (fid) focusFid(fid);
 }
 
 function el(tag, cls, text) {
@@ -323,20 +412,26 @@ function el(tag, cls, text) {
   if (text != null) e.textContent = text;
   return e;
 }
-function button(label, cls, onClick) {
+// fid = stable id (data-fid): render() uses it to put the focus back on the same control after a re-render
+function button(label, cls, onClick, fid) {
   const b = el('button', cls, label);
   b.type = 'button';
   b.addEventListener('click', onClick);
+  if (fid) b.dataset.fid = fid;
   return b;
 }
 function marked(b, yes) { if (yes) { b.classList.add('marked'); b.setAttribute('aria-pressed', 'true'); } return b; }
-function levelBtn(l, cls, onClick) {
-  const b = button(levelName(l), cls, onClick);
+function levelBtn(l, cls, onClick, fid) {
+  const b = button(levelName(l), cls, onClick, fid);
   if (l.colore) b.style.background = l.colore;
   return b;
 }
 const findLevel = id => state.livelli.find(l => l.livello === id) || null;
 const playerName = i => state.setup.giocatori[i].nome || (t('giocatore') + ' ' + (i + 1));
+// shown in place of an empty list (no valid levels / no categories): "<file>: <err_file_vuoto>"
+function emptyNote(name) {
+  return el('p', 'empty-msg', CONFIG.paths[name].split('/').pop() + ': ' + t('err_file_vuoto'));
+}
 
 // Language switch: lives in its own <header class="topbar"> row at the top of every screen (in flow, never overlaps content).
 function langBox() {
@@ -345,7 +440,7 @@ function langBox() {
   box.setAttribute('role', 'group');
   box.setAttribute('aria-label', t('lingua'));
   ['de', 'it'].forEach(code => {
-    const b = button(code.toUpperCase(), 'lang-btn', () => setLang(code));
+    const b = button(code.toUpperCase(), 'lang-btn', () => setLang(code), 'lang-' + code);
     b.setAttribute('aria-pressed', String(state.lang === code));
     if (state.lang === code) b.classList.add('active');
     box.appendChild(b);
@@ -376,7 +471,7 @@ function goSettings() { state.popup = null; state.dialog = null; go('stesso'); }
 function renderStart(app) {
   const box = el('div', 'start');
   box.append(el('h1', null, t('titolo')),
-    button(t('nuova_partita'), 'btn', () => { resetSetup(); go('stesso'); }));
+    button(t('nuova_partita'), 'btn', () => { resetSetup(); go('stesso'); }, 'nuova'));
   app.appendChild(box);
 }
 
@@ -386,17 +481,18 @@ function renderStesso(app) {
   app.append(el('div', 'question', t('stesso_livello')),
     stack);
   stack.append(
-    marked(button(t('si'), 'btn btn-yes', () => { s.stesso = true; go('livello'); }), s.stesso === true),
-    marked(button(t('no'), 'btn btn-no', () => { s.stesso = false; go('quanti'); }), s.stesso === false));
+    marked(button(t('si'), 'btn btn-yes', () => { s.stesso = true; go('livello'); }, 'si'), s.stesso === true),
+    marked(button(t('no'), 'btn btn-no', () => { s.stesso = false; go('quanti'); }, 'no'), s.stesso === false));
 }
 
 function renderLivello(app) {
   const s = state.setup;
   const stack = el('div', 'stack');
-  state.livelli.forEach(l => {
-    stack.appendChild(marked(levelBtn(l, 'btn btn-level', () => { s.livello = l.livello; s.stesso = true; go('gioco'); }),
+  state.livelli.forEach((l, i) => {
+    stack.appendChild(marked(levelBtn(l, 'btn btn-level', () => { s.livello = l.livello; s.stesso = true; go('gioco'); }, 'level-' + i),
       s.livello === l.livello));
   });
+  if (!state.livelli.length) stack.appendChild(emptyNote('livelli'));
   app.append(el('div', 'question', t('quale_livello')), stack);
 }
 
@@ -408,7 +504,7 @@ function renderQuanti(app) {
       while (g.length < n) g.push({ nome: '', livello: null });
       g.length = n;
       go('giocatori');
-    }), g.length === n));
+    }, 'num-' + n), g.length === n));
   }
   app.append(el('div', 'question', t('quanti_giocatori')), grid);
 }
@@ -416,6 +512,8 @@ function renderQuanti(app) {
 function renderGiocatori(app) {
   const s = state.setup;
   const rows = el('div', 'rows');
+  rows.setAttribute('role', 'group');
+  rows.setAttribute('aria-label', t('giocatore'));
   s.giocatori.forEach((p, i) => {
     const row = el('div', 'prow');
     const inp = el('input', 'name-input');
@@ -424,9 +522,12 @@ function renderGiocatori(app) {
     inp.placeholder = t('giocatore') + ' ' + (i + 1);
     inp.maxLength = 40;
     inp.autocomplete = 'off';
+    inp.setAttribute('aria-label', t('giocatore') + ' ' + (i + 1));
+    inp.dataset.fid = 'name-' + i;
     inp.addEventListener('input', () => { p.nome = inp.value; });
     const l = findLevel(p.livello);
-    const lb = button(l ? levelName(l) : t('livello'), 'btn level-field', () => { state.popup = i; render(); });
+    const lb = button(l ? levelName(l) : t('livello'), 'btn level-field', () => openPopup(i, 'lvl-' + i), 'lvl-' + i);
+    lb.setAttribute('aria-label', t('giocatore') + ' ' + (i + 1) + ': ' + t('livello') + ' – ' + (l ? levelName(l) : ''));
     if (l && l.colore) lb.style.background = l.colore;
     if (!l) lb.classList.add('empty');
     row.append(inp, lb);
@@ -437,30 +538,45 @@ function renderGiocatori(app) {
     s.stesso = false;
     s.attivo = 0;
     go('gioco');
-  });
+  }, 'inizia');
   go_.disabled = !s.giocatori.every(p => findLevel(p.livello));
   app.append(rows, go_);
   if (state.popup != null && state.popup < s.giocatori.length) app.appendChild(levelPopup(state.popup));
 }
 
+/* ---- Dialogs (level popup, player popup, exit confirmation). Every dialog: role=dialog + aria-labelledby (its h2),
+   focus to the first button on open, Tab trapped inside, everything outside inert (see render), and on close the focus
+   goes back to the control that opened it (dialogOpener = its data-fid). ---- */
+let dialogOpener = null;
+function openPopup(i, openerFid) { dialogOpener = openerFid; state.popup = i; render(); }
+function openDialog(name, openerFid) { dialogOpener = openerFid; state.dialog = name; render(); }
 function closePopup() { state.popup = null; state.dialog = null; render(); }
 
-function levelPopup(i) {
+function dialogBack(name, panel, titleText) {
   const back = el('div', 'backdrop');
+  back.dataset.dlg = name;
   back.addEventListener('click', e => { if (e.target === back) closePopup(); });
-  const panel = el('div', 'panel');
+  const h = el('h2', null, titleText);
+  h.id = 'dlg-title';
   panel.setAttribute('role', 'dialog');
   panel.setAttribute('aria-modal', 'true');
-  panel.append(el('h2', null, t('livello')));
-  state.livelli.forEach(l => {
+  panel.setAttribute('aria-labelledby', h.id);
+  panel.prepend(h);
+  back.appendChild(panel);
+  return back;
+}
+
+function levelPopup(i) {
+  const panel = el('div', 'panel');
+  state.livelli.forEach((l, k) => {
     panel.appendChild(marked(levelBtn(l, 'btn btn-level', () => {
       state.setup.giocatori[i].livello = l.livello;
       closePopup();
-    }), state.setup.giocatori[i].livello === l.livello));
+    }, 'plevel-' + k), state.setup.giocatori[i].livello === l.livello));
   });
-  panel.appendChild(button(t('annulla'), 'btn btn-cancel', closePopup));
-  back.appendChild(panel);
-  return back;
+  if (!state.livelli.length) panel.appendChild(emptyNote('livelli'));
+  panel.appendChild(button(t('annulla'), 'btn btn-cancel', closePopup, 'annulla'));
+  return dialogBack('popup', panel, t('livello'));
 }
 
 /* ==========================================================================
@@ -504,46 +620,35 @@ function topField(clickable) {
   const l = p && findLevel(p.livello);
   const txt = playerName(s.attivo) + ' – ' + (l ? levelName(l) : '');
   if (!clickable) { const d = el('div', 'topfield', txt); d.title = txt; return d; }
-  const b = button(txt, 'topfield topfield-btn', () => { state.dialog = 'giocatore'; render(); });
+  const b = button(txt, 'topfield topfield-btn', () => openDialog('giocatore', 'topfield'), 'topfield');
   if (l && l.colore) b.style.background = l.colore;
   b.title = txt;
   return b;
 }
 
-function dialogBack(panel) {
-  const back = el('div', 'backdrop');
-  back.addEventListener('click', e => { if (e.target === back) closePopup(); });
-  panel.setAttribute('role', 'dialog');
-  panel.setAttribute('aria-modal', 'true');
-  back.appendChild(panel);
-  return back;
-}
-
 function playerPopup() {
   const panel = el('div', 'panel');
-  panel.appendChild(el('h2', null, t('scegli_giocatore')));
   state.setup.giocatori.forEach((p, i) => {
     const l = findLevel(p.livello);
     const b = button(playerName(i) + ' – ' + (l ? levelName(l) : ''), 'btn btn-level', () => {
       state.setup.attivo = i;
       closePopup();
-    });
+    }, 'player-' + i);
     if (l && l.colore) b.style.background = l.colore;
     panel.appendChild(marked(b, state.setup.attivo === i));
   });
-  panel.appendChild(button(t('annulla'), 'btn btn-cancel', closePopup));
-  return dialogBack(panel);
+  panel.appendChild(button(t('annulla'), 'btn btn-cancel', closePopup, 'annulla'));
+  return dialogBack('giocatore', panel, t('scegli_giocatore'));
 }
 
 function exitPopup() {
   const panel = el('div', 'panel');
-  panel.appendChild(el('h2', null, t('conferma_esci')));
   const pair = el('div', 'pair');
   // setup is kept until [nuova_partita]
-  pair.append(button(t('si'), 'btn btn-yes', () => { state.dialog = null; go('start'); }),
-    button(t('annulla'), 'btn btn-cancel', closePopup));
+  pair.append(button(t('si'), 'btn btn-yes', () => { state.dialog = null; go('start'); }, 'esci-si'),
+    button(t('annulla'), 'btn btn-cancel', closePopup, 'annulla'));
   panel.appendChild(pair);
-  return dialogBack(panel);
+  return dialogBack('esci', panel, t('conferma_esci'));
 }
 
 function renderGioco(app) {
@@ -551,16 +656,19 @@ function renderGioco(app) {
   app.appendChild(el('h2', 'scegli', t('scegli_categoria')));
   const grid = el('div', 'tiles');
   if (fadeGrid) { grid.classList.add('fade-in'); fadeGrid = false; }
-  state.sfide.forEach(sf => {
-    const tile = button('', 'tile', () => openCard(sf, tile.getBoundingClientRect()));
+  state.sfide.forEach((sf, i) => {
+    const tile = button('', 'tile', () => openCard(sf, tile.getBoundingClientRect()), 'tile-' + i);
     tile.style.setProperty('--acc', sf.accento || CONFIG.defaults.accent);
-    tile.append(iconNode(sf, 'circle'), el('span', 'tile-name', sf.sfida));
+    const name = el('span', 'tile-name', sf.sfida);
+    name.lang = 'it';   // category names are Italian content
+    tile.append(iconNode(sf, 'circle'), name);
     grid.appendChild(tile);
   });
+  if (!state.sfide.length) grid.appendChild(emptyNote('sfide'));
   app.appendChild(grid);
   const bar = el('div', 'pair bottom');
-  bar.append(button(t('esci'), 'btn btn-secondary', () => { state.dialog = 'esci'; render(); }),
-    button(t('impostazioni'), 'btn btn-secondary', goSettings));
+  bar.append(button(t('esci'), 'btn btn-secondary', () => openDialog('esci', 'esci'), 'esci'),
+    button(t('impostazioni'), 'btn btn-secondary', goSettings, 'impostazioni'));
   app.appendChild(bar);
   if (state.dialog === 'giocatore' && !state.setup.stesso) app.appendChild(playerPopup());
   else if (state.dialog === 'esci') app.appendChild(exitPopup());
@@ -643,6 +751,7 @@ function titleNode(sf) {
 function buildFace(sf, card, side) {
   const D = CONFIG.defaults;
   const c = el('div', 'card card-' + side);
+  c.lang = 'it';   // card content (title, prompt, answer) is Italian; the UI buttons on the face override this (.card-actions)
   // per-category text style via CSS custom properties (no per-category CSS rules)
   const fam = sf.carattere ? '"' + sf.carattere.replace(/"/g, '') + '", var(--font-fallback)' : 'var(--font-fallback)';
   c.style.setProperty('--card-font', fam);
@@ -658,6 +767,7 @@ function buildFace(sf, card, side) {
     const img = document.createElement('img');
     img.className = 'card-img';
     img.alt = card.testo || '';
+    img.lang = 'it';
     img.src = CONFIG.dirs.carte + encodeURIComponent(card.immagine);
     img.addEventListener('error', () => { img.hidden = true; });
     c.appendChild(img);
@@ -685,25 +795,53 @@ function renderOpts(face, card) {
   const old = face.querySelector('.card-opts');
   if (old) old.remove();
   const h = state.card.hilfe;
-  if (!h) return;
+  if (!h) return null;
   const box = el('div', 'card-opts');
   box.setAttribute('role', 'group');
-  h.order.forEach(i => {
-    const b = button(card.opzioni[i], 'card-opt', () => {
+  box.setAttribute('aria-label', t('aiuto'));
+  // polite live region (created once with the box, filled on the pick): announces the result
+  const live = el('div', 'sr-only');
+  live.setAttribute('role', 'status');
+  live.setAttribute('aria-live', 'polite');
+  const btns = h.order.map((i, pos) => {
+    const b = button('', 'card-opt', () => {
       if (h.picked != null) return;
       h.picked = i;
-      renderOpts(face, card);
+      paint();
+      live.textContent = i === 0 ? t('giusto') : t('sbagliato') + '. ' + t('giusto') + ': ' + card.opzioni[0];
       fitCard();
-    });
-    if (h.picked != null) {
-      b.disabled = true;
-      if (i === 0) b.classList.add('right');
-      else if (i === h.picked) b.classList.add('wrong');
-      else b.classList.add('dim');
-    }
+    }, 'opt-' + pos);
+    const tx = el('span', 'opt-text', card.opzioni[i]);
+    tx.lang = 'it';
+    b.appendChild(tx);
     box.appendChild(b);
+    return b;
   });
+  // After a pick: the correct option shows a check, a wrongly tapped one a cross (glyphs aria-hidden, a visually
+  // hidden word says the same). The options stay focusable (aria-disabled, not disabled) so the focus is not lost.
+  function paint() {
+    btns.forEach((b, pos) => {
+      const i = h.order[pos];
+      b.querySelectorAll('.glyph, .sr-only').forEach(n => n.remove());
+      b.classList.remove('right', 'wrong', 'dim');
+      if (h.picked == null) return;
+      b.setAttribute('aria-disabled', 'true');
+      let key = null;
+      if (i === 0) { b.classList.add('right'); key = 'giusto'; }
+      else if (i === h.picked) { b.classList.add('wrong'); key = 'sbagliato'; }
+      else b.classList.add('dim');
+      if (key) {
+        const g = el('span', 'glyph', key === 'giusto' ? '✓' : '✗');
+        g.setAttribute('aria-hidden', 'true');
+        b.prepend(g);
+        b.appendChild(el('span', 'sr-only', ', ' + t(key)));
+      }
+    });
+  }
+  paint();
+  box.appendChild(live);
   (face.querySelector('.card-body') || face).appendChild(box);
+  return box;
 }
 
 function buildCard(sf, card) {
@@ -722,31 +860,35 @@ function buildCard(sf, card) {
       a.remove();
       renderOpts(front, card);
       fitCard();
-    });
+      focusFid('opt-0');   // the button that had the focus is gone: move on to the first option
+    }, 'aiuto');
     if (!state.card.hilfe) acts.appendChild(a);
   }
   if (card.risposta) {
-    const b = button(t('soluzione'), 'card-btn btn-soluzione', () => setFlipped(flip, sf, card, true));
+    const b = button(t('soluzione'), 'card-btn btn-soluzione', () => setFlipped(flip, sf, card, true), 'soluzione');
     acts.appendChild(b);
   }
+  acts.lang = state.lang;   // the pills are UI text, not Italian card content
   front.appendChild(acts);
   renderOpts(front, card);   // restores Hilfe after a re-render (e.g. language switch)
 
   if (card.risposta) {
     attachSwipe(flip, () => setFlipped(flip, sf, card, !state.card.flipped));
-    if (state.card.flipped) setFlipped(flip, sf, card, true);
+    if (state.card.flipped) setFlipped(flip, sf, card, true, false);
   }
   return flip;
 }
 
 // Back face is built on the first flip. Front tap never flips; back tap flips back.
-function setFlipped(flip, sf, card, on) {
+// Focus: [soluzione] moves it to the back face (so a screen reader reads the answer), flipping back returns it to [soluzione].
+function setFlipped(flip, sf, card, on, moveFocus = true) {
   const front = flip.querySelector('.card-front');
   let back = flip.querySelector('.card-back');
   if (on && !back) {
     back = buildFace(sf, card, 'back');
     back.setAttribute('role', 'button');
     back.tabIndex = 0;
+    back.dataset.fid = 'back';
     back.addEventListener('click', () => setFlipped(flip, sf, card, false));
     back.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(flip, sf, card, false); }
@@ -758,6 +900,10 @@ function setFlipped(flip, sf, card, on) {
   flip.classList.toggle('flipped', on);
   front.inert = on;
   if (back) back.inert = !on;
+  if (moveFocus) {
+    const target = on ? back : flip.querySelector('.btn-soluzione');
+    if (target) target.focus({ preventScroll: true });
+  }
 }
 
 // Horizontal swipe (|dx| >= 50 and |dx| > |dy|) on the card. CSS touch-action: pan-y keeps vertical scroll.
@@ -869,7 +1015,7 @@ CARD_FEATURES.push({
       if (st.startedAt == null) { st.startedAt = Date.now(); st.started = true; }
       else { st.left = remaining(); st.startedAt = null; }
       paint();
-    });
+    }, 'timer');
     box.append(disp, btn, msg);
     let iv = setInterval(tick, 250);
 
@@ -879,6 +1025,7 @@ CARD_FEATURES.push({
     const fmt = ms => { const s = Math.ceil(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
     function paint() {
       disp.textContent = fmt(remaining());
+      if (st.done && document.activeElement === btn) { box.tabIndex = -1; box.focus({ preventScroll: true }); }   // the button is about to hide
       btn.hidden = st.done;
       btn.textContent = st.startedAt != null ? t('timer_pausa') : st.started ? t('timer_riprendi') : t('timer_avvia');
       box.classList.toggle('timeup', st.done);
@@ -910,6 +1057,7 @@ CARD_FEATURES.push({
     let audio = null;
     const missing = () => {
       const m = el('div', 'card-media card-media-missing', t('media_mancante'));
+      m.lang = state.lang;
       node.replaceWith(m);
       node = m;
       audio = null;
@@ -963,9 +1111,9 @@ function renderCarta(app) {
     state.card = newCardState(sf);
     fadeCard = true;
     render();
-  });
+  }, 'altra');
   more.disabled = !card;
-  bar.append(button(t('chiudi'), 'btn btn-secondary', () => { fadeGrid = true; go('gioco'); }), more);
+  bar.append(button(t('chiudi'), 'btn btn-secondary', () => { fadeGrid = true; go('gioco'); }, 'chiudi'), more);
   app.appendChild(bar);
   fitCard();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);
@@ -976,9 +1124,34 @@ const SCREENS = {
   quanti: renderQuanti, giocatori: renderGiocatori, gioco: renderGioco, carta: renderCarta
 };
 
+/* ---- Focus management ----
+   Same screen, same dialog: the focus goes back to the control (data-fid) that had it. New screen: it moves to the
+   screen's main element (heading / .question / top field / card front, made focusable with tabindex=-1). Dialog
+   open: first button; dialog closed: the opener. The focus never ends on <body> after an action. ---- */
+const focusFid = fid => {
+  const e = fid && document.querySelector('[data-fid="' + fid + '"]');
+  if (!e) return false;
+  e.focus({ preventScroll: true });
+  return document.activeElement === e;
+};
+const MAIN_FOCUS = {
+  start: '.start h1', stesso: '.question', livello: '.question', quanti: '.question',
+  giocatori: '.rows', gioco: '.topfield', carta: '.card-front'
+};
+function focusMain() {
+  const e = document.querySelector('#app ' + (MAIN_FOCUS[state.screen] || 'h1'));
+  if (!e) return;
+  if (e.tabIndex < 0) e.tabIndex = -1;
+  e.focus({ preventScroll: true });
+}
+let view = { screen: null, dlg: '' };   // what the last render() showed
+
 function render() {
   runCleanups();   // card features (timer, audio...) are torn down on every re-render / screen change
   const app = document.getElementById('app');
+  const act = document.activeElement;
+  const hadFocus = !!(act && act !== document.body && (app.contains(act) || document.getElementById('banner').contains(act)));
+  const fid = hadFocus ? act.dataset.fid : null;
   app.textContent = '';
   const bar = el('header', 'topbar');
   bar.appendChild(langBox());
@@ -986,10 +1159,40 @@ function render() {
   (SCREENS[state.screen] || renderStart)(app);
   document.body.className = 'screen-' + state.screen;   // after the screen ran: renderCarta may fall back to 'gioco'
   renderBanner();
+  const back = app.querySelector('.backdrop');
+  const dlg = back ? back.dataset.dlg : '';
+  setInertOutside(back);
+  if (state.screen !== view.screen) {
+    if (view.screen !== null) focusMain();   // not on the very first render: do not steal the focus on page load
+  } else if (dlg !== view.dlg) {
+    if (back) { const first = back.querySelector('button'); if (first) first.focus({ preventScroll: true }); }
+    else if (!focusFid(dialogOpener)) focusMain();
+  } else if (hadFocus && !(fid && focusFid(fid))) {
+    focusMain();
+  }
+  view = { screen: state.screen, dlg };
+}
+
+// While a dialog is open everything outside its backdrop is inert (no focus, no clicks, hidden from screen readers).
+function setInertOutside(back) {
+  const app = document.getElementById('app');
+  [...app.children].forEach(c => { c.inert = !!back && c !== back; });
+  document.getElementById('banner').inert = !!back;
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && (state.popup != null || state.dialog)) closePopup();
+  const dlgOpen = state.popup != null || state.dialog;
+  if (e.key === 'Escape' && dlgOpen) closePopup();
+  else if (e.key === 'Tab' && dlgOpen) {   // keep Tab / Shift+Tab inside the dialog panel
+    const panel = document.querySelector('.panel');
+    if (!panel) return;
+    const items = [...panel.querySelectorAll('button:not([disabled])')];
+    if (!items.length) return;
+    const i = items.indexOf(document.activeElement);
+    if (i < 0) { e.preventDefault(); items[e.shiftKey ? items.length - 1 : 0].focus(); }
+    else if (e.shiftKey && i === 0) { e.preventDefault(); items[items.length - 1].focus(); }
+    else if (!e.shiftKey && i === items.length - 1) { e.preventDefault(); items[0].focus(); }
+  }
 });
 
 /* ==========================================================================

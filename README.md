@@ -77,11 +77,21 @@ Esporta la carta come PNG, mettila in `assets/carte/` e scrivi il nome del file 
 1. Salva il file (CSV UTF-8) o esporta il PNG.
 2. Su **github.com** apri il progetto → entra nella cartella giusta → **Add file → Upload files**
    (trascina il file; se ha lo stesso nome lo sostituisce) → **Commit changes**.
-3. Aspetta circa un minuto e ricarica il gioco.
+3. Aspetta 1–2 minuti e ricarica il gioco. Un'immagine sostituita con lo stesso nome può comparire solo dopo circa 10 minuti (memoria del browser).
 
 ## Se qualcosa non va
 All'avvio il gioco mostra un avviso se trova un errore (es. un livello scritto male), con il nome
 del file e il numero della riga. Correggi e ricarica il file.
+- Se un nome è scritto quasi giusto (maiuscole, accenti, uno spazio o una lettera di troppo), l'avviso
+  propone quello giusto: "(forse 'Facile'?)".
+- Un colore scritto male (es. `rosso` invece di `#CE2B37`) dà un avviso e il gioco usa il colore standard.
+- Se manca una **colonna facoltativa** (per esempio `risposta` o `media` in `carte.csv`) c'è solo un
+  avviso e il gioco la considera vuota. Le colonne indispensabili sono: `sfida`, `livelli`, `testo`
+  (carte), `sfida` (sfide), `livello` (livelli), `chiave`, `de`, `it` (testi).
+- Se un file è vuoto (solo la riga delle intestazioni) l'avviso è uno solo e il gioco mostra il messaggio
+  al posto dei pulsanti.
+- L'avviso in alto si apre e si chiude toccando il titolo; sulle schermate di gioco è chiuso, per non
+  rimpicciolire la carta.
 
 ---
 
