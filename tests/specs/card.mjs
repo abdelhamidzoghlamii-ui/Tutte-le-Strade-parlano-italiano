@@ -290,7 +290,7 @@ export default async function (t) {
   });
 
   // h) no-card state shows the category
-  for (const [fixture, expectTpl] of [[null, true], ['cards-css', false]]) {
+  for (const [fixture, expectTpl] of [['sample', true], ['cards-css', false]]) {
     t.test(`card no-card state (${expectTpl ? 'template' : 'CSS'} variant): category face + message, no pills`, async ({ browser }) => {
       const s = soft();
       for (const [w, h] of [[320, 568], [390, 844], [844, 390]]) {

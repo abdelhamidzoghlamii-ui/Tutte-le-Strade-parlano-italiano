@@ -147,9 +147,9 @@ export default async function (t) {
       assert(lines[0].includes(lang === 'it' ? "l'icona entra nell'area del testo" : 'Icon ragt in den Textbereich') && lines[0].includes('testo_margine_basso'), lines[0]);
       assert(lines[1].includes('testo_margine_alto'), lines[1]);
     }
-    // repo data and the layout2a fixture's well-formed rows: no such warning
+    // sample data and the layout2a fixture's well-formed rows: no such warning
     const repo = await newPage(browser, { lang: 'it' });
-    eq(await repo.evaluate(() => window.__app.problems.filter(x => x.key === 'err_icona_testo').length), 0, 'repo data');
+    eq(await repo.evaluate(() => window.__app.problems.filter(x => x.key === 'err_icona_testo').length), 0, 'sample data');
     const fx = await newPage(browser, { lang: 'it', fixture: FX });
     eq(await fx.evaluate(() => window.__app.problems.filter(x => x.key === 'err_icona_testo').length), 0, 'layout2a fixture');
   });

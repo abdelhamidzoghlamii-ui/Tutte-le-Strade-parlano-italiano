@@ -1,5 +1,7 @@
 // Data loading and validation: CSV variants, missing/empty files, optional columns, bad rows, banner, performance.
 // Fixtures are real files in tests/fixtures/<name>/data/ (anything not overridden comes from the repo's data/).
+// newPage() defaults to the 'sample' fixture (frozen cards), so the suite does not depend on the content of data/carte.csv;
+// only the 'repo data' test below loads the real files (fixture: null).
 import {
   newPage, load, startGroup, chooseNumber, openCategory, soft, assert, eq
 } from '../lib.mjs';
@@ -14,10 +16,26 @@ const bannerHidden = page => page.evaluate(() => document.getElementById('banner
 const only = (list, file) => list.filter(p => p.file === file);
 
 export default async function (t) {
-  t.test('data comma-separated with BOM and CRLF (all 4 CSVs): same data as the repo, no banner', async ({ browser }) => {
+  t.test('repo data: no banner problems, every category × level has at least 1 card', async ({ browser }) => {
+    const page = await newPage(browser, { lang: 'it', fixture: null });
+    const p = await probs(page);
+    eq(p.length, 0, 'banner problems: ' + JSON.stringify(p.slice(0, 5)));
+    assert(await bannerHidden(page), 'banner must be hidden');
+    const r = await page.evaluate(() => {
+      const s = window.__app, empty = [];
+      for (const sf of s.sfide) for (const lv of s.livelli) {
+        if (!s.carte.some(c => c.sfida === sf.sfida && c.livelli.includes(lv.livello))) empty.push(sf.sfida + ' × ' + lv.livello);
+      }
+      return { empty, sfide: s.sfide.length, livelli: s.livelli.length };
+    });
+    assert(r.sfide > 0 && r.livelli > 0, 'sfide / livelli loaded');
+    eq(r.empty.length, 0, 'category × level without cards: ' + r.empty.join('; '));
+  });
+
+  t.test('data comma-separated with BOM and CRLF (all 4 CSVs): same data as the sample fixture, no banner', async ({ browser }) => {
     const base = await counts(await newPage(browser, { lang: 'it' }));
     const page = await newPage(browser, { lang: 'it', fixture: 'csvcomma' });
-    eq(JSON.stringify(await counts(page)), JSON.stringify(base), 'same counts as the semicolon files');
+    eq(JSON.stringify(await counts(page)), JSON.stringify(base), 'same counts as the sample (semicolon) files');
     eq((await probs(page)).length, 0, 'problems');
     assert(await bannerHidden(page), 'banner must be hidden');
     // accents / umlauts survive: header BOM did not leak into the first column name, values intact

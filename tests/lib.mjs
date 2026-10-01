@@ -20,7 +20,9 @@ export const tracked = [];   // every context opened by newPage (run.mjs closes 
 const readyTimeout = 10000;
 
 /* ---- page ---- */
-export async function newPage(browser, { w = 390, h = 844, lang = 'de', fixture = null, touch = false, goto = true } = {}) {
+export async function newPage(browser, { w = 390, h = 844, lang = 'de', fixture = 'sample', touch = false, goto = true } = {}) {
+  // fixture defaults to 'sample' (frozen copy of the cards) so no test depends on the content of data/carte.csv;
+  // pass fixture: null to load the real repo data
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: touch, isMobile: touch, deviceScaleFactor: 1 });
   tracked.push(ctx);
   const page = await ctx.newPage();
