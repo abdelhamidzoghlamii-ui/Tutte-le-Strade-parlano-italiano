@@ -86,3 +86,19 @@ Append-only. Never edit old entries.
 - QR (docs/qr.png) generated with the npm `qrcode` package in the scratchpad (not in the repo) and decoded to verify it equals the Pages URL.
 - The live Pages URL could not be checked from the build environment (github.io blocked); Abdel verifies on a phone (README release checklist).
 - PWA skipped for now. `.nojekyll` added.
+
+## 2026-10-01 — QA review + Phase 2A/2B (Abdel / lead)
+- Review findings 1–26 approved for fixing; work in 5 batches on the session branch, one PR.
+- D1: `icona_dimensione` = px on the 750×1050 Canva template, scaled to the card on screen.
+- D2: on template (sfondo) cards the app draws the category icon only when `icona_posizione` is set
+  (blank = the template brings its own icon).
+- D3: default text area = 20% top / 22% bottom of the card height (both variants); README updated.
+- D4: no history entries — Back keeps its normal browser behaviour. `overscroll-behavior-y: none`
+  stops accidental pull-to-refresh; recovery after leaving/reloading is the saved game (2B).
+- D5: Playwright test suite committed in `tests/` (dev only, `node tests/run.mjs`; not used by the site).
+- Item 27 (out of scope, content decision for Chiara): the board legend does not match sfide.csv —
+  the board has "indovina il rebus", "ordina da bere e/o da mangiare", "nomi, cose, città"; the app has
+  QUIZ DI CULTURA GENERALE (not on the board). Board icons could be exported as PNG into assets/icone/.
+- Batch 1 (lead): the language switch is a header row in flow; the card screen is locked to the viewport
+  and the card is sized by a size container (cqw/cqh), replacing the fixed `--card-reserved` heights.
+  Button green behind white text = #007a3a (4.5:1); #009246 stays for the tricolore.
