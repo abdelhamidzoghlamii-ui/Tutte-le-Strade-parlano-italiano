@@ -46,4 +46,5 @@ err_traduzione;Deutscher oder italienischer Text fehlt;manca il testo tedesco o 
 err_chiave;Der Text '{valore}' fehlt;manca il testo '{valore}'
 err_file;Datei '{valore}' nicht gefunden;il file '{valore}' non è stato trovato
 err_font;Schriftdatei '{valore}' nicht gefunden;il file del carattere '{valore}' non è stato trovato
+err_media_tipo;Dateityp wird nicht unterstützt: '{valore}';tipo di file non supportato: '{valore}'
 riga;Zeile;riga

@@ -25,6 +25,9 @@ const CONFIG = {
   },
   delimiters: [';', ',', '\t'],
   imageExt: /\.(png|jpe?g|gif|svg|webp)$/i,
+  // media column: extension decides image vs audio player
+  mediaImageExt: /\.(png|jpe?g|gif|webp|svg)$/i,
+  mediaAudioExt: /\.(mp3|m4a|aac|ogg|oga|wav|opus)$/i,
   alignments: ['sinistra', 'centro', 'destra'],
   // every key the app uses (all keys of testi_ui.csv)
   maxGiocatori: 6,
@@ -37,7 +40,7 @@ const CONFIG = {
     'riga', 'err_file_csv', 'err_codifica', 'err_colonna', 'err_csv_riga', 'err_duplicato', 'err_vuoto',
     'err_sfida', 'err_livello', 'err_nessun_livello', 'err_opzioni', 'err_testo', 'err_timer',
     'err_dimensione', 'err_allineamento', 'err_ordine', 'err_traduzione', 'err_chiave',
-    'err_file', 'err_font'
+    'err_file', 'err_font', 'err_media_tipo'
   ]
 };
 
@@ -153,6 +156,8 @@ async function loadCsv(name) {
   return { file, rows };
 }
 
+// 'image' | 'audio' | null, decided by the file extension
+const mediaKind = name => CONFIG.mediaImageExt.test(name) ? 'image' : CONFIG.mediaAudioExt.test(name) ? 'audio' : null;
 const splitMulti = s => (s || '').split('|').map(x => x.trim()).filter(Boolean);
 
 /* ==========================================================================
@@ -215,9 +220,11 @@ function validateCarte(csv) {
     if (!d.testo && !d.immagine) return problem(csv.file, riga, 'err_testo');
     let opzioni = splitMulti(d.opzioni);
     if (opzioni.length && opzioni.length !== 3) { problem(csv.file, riga, 'err_opzioni'); opzioni = []; }
-    addRef(csv.file, riga, CONFIG.dirs.media, d.media);
+    let media = d.media;
+    if (media && !mediaKind(media)) { problem(csv.file, riga, 'err_media_tipo', { valore: media }); media = ''; }
+    addRef(csv.file, riga, CONFIG.dirs.media, media);
     addRef(csv.file, riga, CONFIG.dirs.carte, d.immagine);
-    out.push(Object.assign({}, d, { livelli: lv, opzioni, riga }));
+    out.push(Object.assign({}, d, { livelli: lv, opzioni, media, riga }));
   });
   return out;
 }
@@ -576,16 +583,14 @@ function drawCard(sf) {
   return idx;
 }
 
+// Per-card view state: lives as long as the card; a new card resets flip, Hilfe and feature state.
+function newCardState(sf) {
+  return { sfida: sf.sfida, idx: drawCard(sf), flipped: false, hilfe: null, fx: {} };
+}
 function openCard(sf) {
-  state.card = { sfida: sf.sfida, idx: drawCard(sf) };
+  state.card = newCardState(sf);
   go('carta');
 }
-
-/* Per-category features (slice 7: timer, media). Each entry:
-   { applies(card, sfida) -> bool, render(container, card, sfida) }
-   Called after the card front is rendered; `container` is the card element.
-   Adding a feature = pushing one entry here. */
-const CARD_FEATURES = [];
 
 function stripe() {
   const row = el('div', 'stripe');
@@ -595,13 +600,11 @@ function stripe() {
   return row;
 }
 
-function buildCard(sf, card) {
-  const c = el('div', 'card');
-  if (!card) {
-    c.classList.add('card-empty');
-    c.appendChild(el('p', 'card-msg', t('nessuna_carta')));
-    return c;
-  }
+/* One face of the card ('front' | 'back'). Back = same template as the front (DECISIONS 10):
+   sfondo -> same background; no sfondo -> cream card with CSS header. The immagine override
+   only replaces the FRONT; its back is sfondo or the plain CSS-header card. */
+function buildFace(sf, card, side) {
+  const c = el('div', 'card card-' + side);
   // per-category text style via CSS custom properties (no per-category CSS rules)
   const fam = sf.carattere ? '"' + sf.carattere.replace(/"/g, '') + '", var(--font-fallback)' : 'var(--font-fallback)';
   c.style.setProperty('--card-font', fam);
@@ -611,7 +614,7 @@ function buildCard(sf, card) {
   c.style.setProperty('--card-fs', (sf.dimensione || 28) + 'px');
   c.style.setProperty('--acc', sf.accento || 'var(--green)');
 
-  if (card.immagine) {
+  if (side === 'front' && card.immagine) {
     // a) full Canva card image as the front
     c.classList.add('card-image');
     const img = document.createElement('img');
@@ -620,65 +623,275 @@ function buildCard(sf, card) {
     img.src = CONFIG.dirs.carte + encodeURIComponent(card.immagine);
     img.addEventListener('error', () => { img.hidden = true; });
     c.appendChild(img);
+    return c;
+  }
+  if (sf.sfondo) {
+    // b) category template image: app draws only prompt + buttons
+    c.classList.add('card-tpl');
+    c.style.backgroundImage = 'url("' + CONFIG.dirs.sfondi + encodeURIComponent(sf.sfondo) + '")';
   } else {
-    if (sf.sfondo) {
-      // b) category template image: app draws only prompt + buttons
-      c.classList.add('card-tpl');
-      c.style.backgroundImage = 'url("' + CONFIG.dirs.sfondi + encodeURIComponent(sf.sfondo) + '")';
-    } else {
-      // c) CSS header: icon circle + title + tricolore stripe
-      const head = el('div', 'card-head');
-      const top = el('div', 'card-head-top');
-      top.append(iconNode(sf, 'circle'), el('div', 'card-title', sf.sfida));
-      head.append(top, stripe());
-      c.appendChild(head);
-    }
-    const body = el('div', 'card-body');
-    const pr = el('div', 'card-prompt');
-    pr.appendChild(el('span', 'card-text', card.testo));
-    body.appendChild(pr);
-    c.appendChild(body);
+    // c) CSS header: icon circle + title + tricolore stripe
+    const head = el('div', 'card-head');
+    const top = el('div', 'card-head-top');
+    top.append(iconNode(sf, 'circle'), el('div', 'card-title', sf.sfida));
+    head.append(top, stripe());
+    c.appendChild(head);
   }
-  const acts = el('div', 'card-actions');
-  if (card.opzioni.length === 3) {
-    // slice 6: Hilfe (multiple choice) - click handler added there
-    acts.appendChild(button(t('aiuto'), 'card-btn btn-aiuto', () => { /* slice 6 */ }));
-  }
-  if (card.risposta) {
-    // slice 6: flip to the back (also on swipe) - click handler added there
-    const b = button(t('soluzione'), 'card-btn btn-soluzione', () => { /* slice 6 */ });
-    b.style.marginLeft = 'auto';
-    acts.appendChild(b);
-  }
-  c.appendChild(acts);
-  CARD_FEATURES.forEach(f => {
-    try { if (f.applies(card, sf)) f.render(c, card, sf); } catch (e) { console.error(e); }
-  });
+  const body = el('div', 'card-body');
+  const pr = el('div', 'card-prompt');
+  pr.appendChild(el('span', 'card-text', side === 'front' ? card.testo : card.risposta));
+  body.appendChild(pr);
+  c.appendChild(body);
   return c;
 }
 
-// Auto-shrink: start at dimensione (max), reduce 1px until the prompt fits (min 14px).
-function fitCard() {
-  const p = document.querySelector('.card-prompt');
-  if (!p) return;
-  const c = p.closest('.card');
-  let fs = Number(c.dataset.max) || 28;
-  c.style.setProperty('--card-fs', fs + 'px');
-  while (fs > 14 && p.scrollHeight > p.clientHeight) {
-    fs--;
-    c.style.setProperty('--card-fs', fs + 'px');
+/* ---- Hilfe (multiple choice). State in state.card.hilfe = { order:[option idx], picked:idx|null };
+   option 0 is the correct one (first in the CSV), order is the shuffled display order. ---- */
+function renderOpts(face, card) {
+  const old = face.querySelector('.card-opts');
+  if (old) old.remove();
+  const h = state.card.hilfe;
+  if (!h) return;
+  const box = el('div', 'card-opts');
+  box.setAttribute('role', 'group');
+  h.order.forEach(i => {
+    const b = button(card.opzioni[i], 'card-opt', () => {
+      if (h.picked != null) return;
+      h.picked = i;
+      renderOpts(face, card);
+      fitCard();
+    });
+    if (h.picked != null) {
+      b.disabled = true;
+      if (i === 0) b.classList.add('right');
+      else if (i === h.picked) b.classList.add('wrong');
+      else b.classList.add('dim');
+    }
+    box.appendChild(b);
+  });
+  (face.querySelector('.card-body') || face).appendChild(box);
+}
+
+function buildCard(sf, card) {
+  const flip = el('div', 'card-flip');
+  if (!card) {
+    const c = el('div', 'card card-empty');
+    c.appendChild(el('p', 'card-msg', t('nessuna_carta')));
+    flip.appendChild(c);
+    return flip;
   }
+  const front = buildFace(sf, card, 'front');
+  flip.appendChild(front);
+
+  const acts = el('div', 'card-actions');
+  if (card.opzioni.length === 3) {
+    const a = button(t('aiuto'), 'card-btn btn-aiuto', () => {
+      state.card.hilfe = { order: shuffle([0, 1, 2]), picked: null };
+      a.remove();
+      renderOpts(front, card);
+      fitCard();
+    });
+    if (!state.card.hilfe) acts.appendChild(a);
+  }
+  if (card.risposta) {
+    const b = button(t('soluzione'), 'card-btn btn-soluzione', () => setFlipped(flip, sf, card, true));
+    b.style.marginLeft = 'auto';
+    acts.appendChild(b);
+  }
+  front.appendChild(acts);
+  renderOpts(front, card);   // restores Hilfe after a re-render (e.g. language switch)
+
+  if (card.risposta) {
+    attachSwipe(flip, () => setFlipped(flip, sf, card, !state.card.flipped));
+    if (state.card.flipped) setFlipped(flip, sf, card, true);
+  }
+  return flip;
+}
+
+// Back face is built on the first flip. Front tap never flips; back tap flips back.
+function setFlipped(flip, sf, card, on) {
+  const front = flip.querySelector('.card-front');
+  let back = flip.querySelector('.card-back');
+  if (on && !back) {
+    back = buildFace(sf, card, 'back');
+    back.setAttribute('role', 'button');
+    back.tabIndex = 0;
+    back.addEventListener('click', () => setFlipped(flip, sf, card, false));
+    back.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(flip, sf, card, false); }
+    });
+    flip.appendChild(back);
+    fitCard();
+  }
+  state.card.flipped = on;
+  flip.classList.toggle('flipped', on);
+  front.inert = on;
+  if (back) back.inert = !on;
+}
+
+// Horizontal swipe (|dx| >= 50 and |dx| > |dy|) on the card. CSS touch-action: pan-y keeps vertical scroll.
+function attachSwipe(flip, onSwipe) {
+  let sx = 0, sy = 0, suppress = false;
+  const stop = () => {
+    window.removeEventListener('pointerup', up);
+    window.removeEventListener('pointercancel', stop);
+  };
+  function up(e) {
+    stop();
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) { suppress = true; onSwipe(); }
+  }
+  flip.addEventListener('pointerdown', e => {
+    if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    if (e.target.closest && e.target.closest('audio')) return;
+    suppress = false;
+    sx = e.clientX; sy = e.clientY;
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', stop);
+  });
+  // the click that ends a swipe on the back must not flip it straight back
+  flip.addEventListener('click', e => { if (suppress) { suppress = false; e.stopPropagation(); e.preventDefault(); } }, true);
+}
+
+// Auto-shrink: start at dimensione (max), reduce 1px until the prompt fits (min 14px). Runs on both faces.
+function fitCard() {
+  document.querySelectorAll('.card-prompt').forEach(p => {
+    const c = p.closest('.card');
+    let fs = Number(c.dataset.max) || 28;
+    c.style.setProperty('--card-fs', fs + 'px');
+    while (fs > 14 && p.scrollHeight > p.clientHeight) {
+      fs--;
+      c.style.setProperty('--card-fs', fs + 'px');
+    }
+  });
 }
 window.addEventListener('resize', fitCard);
+
+/* ==========================================================================
+   CARD_FEATURES - per-category / per-card features. Adding a feature = adding one entry.
+   Entry: { name, applies(card, sfida) -> bool, render(ctx) -> cleanup fn | undefined }
+   ctx = { card, sfida,
+           front : element inside the front face's content area (prepend/append extras here),
+           below : slot OUTSIDE the flipping card, between card and controls (visible when flipped),
+           store : per-card object for this feature's state; survives a re-render (language switch)
+                   and is discarded with the card,
+           refit(): re-run the prompt auto-shrink after changing the front's layout }
+   All cleanups run before any other card is rendered and when leaving the card screen.
+   ========================================================================== */
+const CARD_FEATURES = [];
+let cardCleanups = [];
+function runCleanups() {
+  const fns = cardCleanups;
+  cardCleanups = [];
+  fns.forEach(fn => { try { fn(); } catch (e) { console.error(e); } });
+}
+
+/* ---- feature: timer (sfide.csv `timer` = seconds). Counts from timestamps, starts on tap (DECISIONS 16).
+   On language switch the card is re-rendered: timer state is KEPT (it lives in ctx.store and is
+   timestamp based), so a running timer simply continues; the interval is cleared and recreated. ---- */
+CARD_FEATURES.push({
+  name: 'timer',
+  applies: (card, sfida) => !!sfida.timer,
+  render(ctx) {
+    const st = ctx.store;
+    const total = ctx.sfida.timer * 1000;
+    if (st.left == null) Object.assign(st, { left: total, startedAt: null, started: false, done: false });
+    const box = el('div', 'card-timer');
+    const disp = el('div', 'timer-display');
+    const msg = el('div', 'timer-msg');
+    msg.setAttribute('role', 'status');
+    const btn = button('', 'btn-timer', () => {
+      if (st.done) return;
+      if (st.startedAt == null) { st.startedAt = Date.now(); st.started = true; }
+      else { st.left = remaining(); st.startedAt = null; }
+      paint();
+    });
+    box.append(disp, btn, msg);
+    let iv = setInterval(tick, 250);
+
+    function remaining() {
+      return st.startedAt == null ? st.left : Math.max(0, st.left - (Date.now() - st.startedAt));
+    }
+    const fmt = ms => { const s = Math.ceil(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+    function paint() {
+      disp.textContent = fmt(remaining());
+      btn.hidden = st.done;
+      btn.textContent = st.startedAt != null ? t('timer_pausa') : st.started ? t('timer_riprendi') : t('timer_avvia');
+      box.classList.toggle('timeup', st.done);
+      msg.textContent = st.done ? t('tempo_scaduto') : '';
+    }
+    function tick() {
+      if (!st.done && st.startedAt != null && remaining() <= 0) {
+        st.done = true; st.left = 0; st.startedAt = null;
+        clearInterval(iv); iv = null;
+        try { if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 600]); } catch (e) { /* unsupported */ }
+      }
+      paint();
+    }
+    tick();
+    ctx.below.appendChild(box);
+    return () => { if (iv != null) clearInterval(iv); iv = null; };
+  }
+});
+
+/* ---- feature: media (carte.csv `media`): image above the prompt, or an audio player. ---- */
+CARD_FEATURES.push({
+  name: 'media',
+  applies: card => !!card.media && !!mediaKind(card.media),
+  render(ctx) {
+    const url = CONFIG.dirs.media + encodeURIComponent(ctx.card.media);
+    const isAudio = mediaKind(ctx.card.media) === 'audio';
+    let node = isAudio ? document.createElement('audio') : document.createElement('img');
+    let audio = null;
+    const missing = () => {
+      const m = el('div', 'card-media card-media-missing', t('media_mancante'));
+      node.replaceWith(m);
+      node = m;
+      audio = null;
+      ctx.refit();
+    };
+    node.className = 'card-media ' + (isAudio ? 'card-media-audio' : 'card-media-img');
+    if (isAudio) {
+      audio = node;
+      node.controls = true;
+      node.preload = 'none';
+      node.setAttribute('preload', 'none');
+    } else {
+      node.alt = '';
+      node.addEventListener('load', ctx.refit);
+    }
+    node.addEventListener('error', missing);
+    node.src = url;
+    ctx.front.insertBefore(node, ctx.front.firstChild);
+    ctx.refit();
+    return () => { if (audio) { try { audio.pause(); } catch (e) { /* ignore */ } } };
+  }
+});
 
 function renderCarta(app) {
   const sf = state.card && state.sfide.find(x => x.sfida === state.card.sfida);
   if (!sf) { state.screen = 'gioco'; return renderGioco(app); }
   const card = state.card.idx != null ? state.carte[state.card.idx] : null;
   app.appendChild(topField(false));
-  app.appendChild(el('div', 'card-wrap', null)).appendChild(buildCard(sf, card));
+  const wrap = el('div', 'card-wrap');
+  const flip = buildCard(sf, card);
+  wrap.appendChild(flip);
+  app.appendChild(wrap);
+  if (card) {
+    const below = el('div', 'card-below');
+    const body = flip.querySelector('.card-front .card-body') || flip.querySelector('.card-front');
+    CARD_FEATURES.forEach(f => {
+      try {
+        if (!f.applies(card, sf)) return;
+        const store = (state.card.fx[f.name] = state.card.fx[f.name] || {});
+        const cleanup = f.render({ card, sfida: sf, front: body, below, store, refit: fitCard });
+        if (typeof cleanup === 'function') cardCleanups.push(cleanup);
+      } catch (e) { console.error(e); }
+    });
+    if (below.children.length) { wrap.classList.add('has-below'); app.appendChild(below); }
+  }
   const bar = el('div', 'pair bottom');
-  const more = button(t('altra_carta'), 'btn', () => { state.card.idx = drawCard(sf); render(); });
+  const more = button(t('altra_carta'), 'btn', () => { state.card = newCardState(sf); render(); });
   more.disabled = !card;
   bar.append(button(t('chiudi'), 'btn btn-secondary', () => go('gioco')), more);
   app.appendChild(bar);
@@ -692,6 +905,7 @@ const SCREENS = {
 };
 
 function render() {
+  runCleanups();   // card features (timer, audio...) are torn down on every re-render / screen change
   const app = document.getElementById('app');
   app.textContent = '';
   (SCREENS[state.screen] || renderStart)(app);
