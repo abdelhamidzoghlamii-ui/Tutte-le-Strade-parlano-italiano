@@ -51,3 +51,14 @@ Append-only. Never edit old entries.
 - CARD_FEATURES registry = the hook for per-category features (timer, media).
 - Grow-from-tile animation deferred to slice 8; Hilfe and flip actions in slice 6.
 - [esci] returns to the start screen; setup is kept until [nuova_partita].
+
+## 2026-09-30 — Slices 6+7 (lead)
+- Front tap does not flip (only [soluzione] or a horizontal swipe); a tap on the back flips back.
+- Immagine variant back = category sfondo if any, else cream card with CSS header.
+- Hilfe state survives flipping; resets on a new card.
+- Timer lives outside the flipping card so it stays visible on the back; counts from timestamps.
+- Feature registry contract: applies/render(ctx)/cleanup; cleanups run on every card change or exit.
+- Timer on language switch: state is kept (timestamp based, stored per card); the card re-renders and the timer continues.
+- Deferred (lead review): media image on an `immagine`-variant card may overlap the card image
+  (unlikely combination); vertical fit at 320x640 with the timer slot and real-touch swipe are
+  checked in slice 8.

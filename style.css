@@ -149,18 +149,34 @@ body {
   --card-btn-border: 2px solid var(--ink);
   --card-btn-radius: 999px;
   --card-btn-size: 14px;
+  --card-right-bg: #c9f0d4;            /* Hilfe: correct option */
+  --card-right-border: #009246;
+  --card-wrong-bg: #f8c9cd;            /* Hilfe: wrongly tapped option */
+  --card-wrong-border: #ce2b37;
+  --card-flip-time: 0.5s;
 }
 .card-wrap { display: flex; justify-content: center; margin-top: 12px; }
+.card-wrap { perspective: 1400px; }
+.card-wrap.has-below { --card-reserved: 285px; }   /* room for the timer slot under the card */
+/* .card-flip = the 3D element (rotates); .card = one face (front / back) */
+.card-flip {
+  position: relative; transform-style: preserve-3d;
+  --card-h: min(calc((100vw - 32px) / (5 / 7)), calc(100dvh - var(--card-reserved)));
+  height: var(--card-h); aspect-ratio: var(--card-ratio); max-width: 100%;
+  transition: transform var(--card-flip-time) ease;
+  touch-action: pan-y; -webkit-user-select: none; user-select: none;
+  animation: card-in 0.25s ease-out;
+}
+.card-flip.flipped { transform: rotateY(180deg); }
 .card {
-  position: relative; display: flex; flex-direction: column; overflow: hidden;
-  height: min(calc((100vw - 32px) / (5 / 7)), calc(100dvh - var(--card-reserved)));
-  aspect-ratio: var(--card-ratio); max-width: 100%;
+  position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
   background: var(--card-cream) center / cover no-repeat;
   border: var(--card-border); border-radius: var(--card-radius); box-shadow: var(--card-shadow);
   padding: var(--card-pad);
-  animation: card-in 0.25s ease-out;
 }
-@keyframes card-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+.card-back { transform: rotateY(180deg); cursor: pointer; }
+@keyframes card-in { from { opacity: 0; } to { opacity: 1; } }
 .card-head { flex: none; display: flex; flex-direction: column; gap: var(--card-head-gap); }
 .card-head-top { display: flex; align-items: center; gap: 10px; }
 .card .circle { width: var(--card-circle); height: var(--card-circle); font-size: calc(var(--card-circle) * 0.5); }
@@ -176,9 +192,9 @@ body {
 .stripe .g { background: var(--stripe-green); border-color: var(--stripe-green); }
 .stripe .w { background: var(--stripe-white); }
 .stripe .r { background: var(--stripe-red); border-color: var(--stripe-red); }
-.card-body { flex: 1; min-height: 0; display: flex; padding: 8px 2px 40px; }
+.card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 8px 2px 40px; }
 .card-prompt {
-  flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; overflow-wrap: anywhere;
+  flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; overflow-wrap: anywhere;
   font-family: var(--card-font, var(--font-fallback));
   color: var(--card-color, var(--ink));
   text-align: var(--card-align, center);
@@ -197,4 +213,43 @@ body {
 }
 .card-empty { align-items: center; justify-content: center; text-align: center; }
 .card-msg { margin: 0; font-size: 20px; font-weight: 700; color: #6b5d33; padding: 0 12px; }
+/* Hilfe: the 3 option buttons */
+.card-opts { flex: none; display: flex; flex-direction: column; gap: 5px; }
+.card-opt {
+  font: inherit; font-size: var(--card-btn-size); line-height: 1.2; padding: 5px 10px; text-align: left;
+  overflow-wrap: anywhere; color: var(--card-btn-color); background: var(--card-btn-bg);
+  border: var(--card-btn-border); border-radius: 12px; cursor: pointer;
+}
+.card-opt:disabled { cursor: default; color: var(--card-btn-color); }
+.card-opt.right { background: var(--card-right-bg); border-color: var(--card-right-border); }
+.card-opt.wrong { background: var(--card-wrong-bg); border-color: var(--card-wrong-border); }
+.card-opt.dim { opacity: 0.6; }
+.card-image .card-opts { position: absolute; left: 10px; right: 10px; bottom: 52px; }
 /* END CARD STYLE */
+
+/* ---- Card features (timer, media) ---- */
+.card-below { margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.card-timer {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 12px; row-gap: 4px;
+  width: 100%; max-width: 420px; padding: 8px 12px; background: #fff; border: 3px solid var(--ink); border-radius: 16px;
+}
+.timer-display { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.btn-timer {
+  font: inherit; font-size: 16px; font-weight: 700; min-height: 44px; padding: 6px 14px; min-width: 0;
+  background: var(--green); color: #fff; border: 0; border-radius: 999px; cursor: pointer; overflow-wrap: anywhere;
+}
+.timer-msg { grid-column: 1 / -1; font-weight: 800; font-size: 20px; text-align: center; }
+.timer-msg:empty { display: none; }
+.card-timer.timeup { background: var(--red); border-color: #8f1b24; color: #fff; animation: timeup-pulse 0.5s ease-in-out 6; }
+@keyframes timeup-pulse { 50% { transform: scale(1.05); } }
+.card-media { flex: none; align-self: center; max-width: 100%; margin-bottom: 6px; }
+.card-media-img { max-height: calc(var(--card-h) * 0.33); object-fit: contain; border-radius: 10px; }
+.card-media-audio { width: 100%; height: 40px; }
+.card-media-missing {
+  padding: 6px 10px; font-size: 13px; color: #6b5d33; background: rgba(0, 0, 0, 0.06);
+  border: 1px dashed #a09060; border-radius: 10px; text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-flip { transition: none; animation: none; }
+  .card-timer.timeup { animation: none; }
+}
