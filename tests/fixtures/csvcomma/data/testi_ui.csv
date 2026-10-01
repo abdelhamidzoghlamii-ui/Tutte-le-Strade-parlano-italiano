@@ -55,9 +55,9 @@ err_colore,'{valore}' ist keine gültige Farbe,'{valore}' non è un colore valid
 err_forse,(vielleicht '{valore}'?),(forse '{valore}'?)
 giusto,richtig,giusto
 sbagliato,falsch,sbagliato
-err_posizione,Icon-Position ungültig: alto-/basso- + sinistra/centro/destra verwenden,posizione dell'icona non valida: usa alto-/basso- + sinistra/centro/destra
-err_icona_dimensione,Icon-Größe muss eine Zahl von {min} bis {max} sein,la dimensione dell'icona deve essere un numero da {min} a {max}
-err_margine,"Textränder müssen Zahlen von {min} bis {max} sein, zusammen höchstens {somma}","i margini del testo devono essere numeri da {min} a {max}, insieme al massimo {somma}"
+err_posizione,Icon-Position '{valore}' ungültig: alto-/basso- + sinistra/centro/destra verwenden,posizione dell'icona '{valore}' non valida: usa alto-/basso- + sinistra/centro/destra
+err_icona_dimensione,Icon-Größe '{valore}' ungültig: muss eine Zahl von {min} bis {max} sein,dimensione dell'icona '{valore}' non valida: deve essere un numero da {min} a {max}
+err_margine,"Textränder ungültig ({valore}): müssen Zahlen von {min} bis {max} sein, zusammen höchstens {somma}","margini del testo non validi ({valore}): devono essere numeri da {min} a {max}, insieme al massimo {somma}"
 torna_al_gioco,Zurück zum Spiel,Torna al gioco
 anteprima_titolo,Kartenvorschau,Anteprima delle carte
 anteprima_dimensione,Größe,Dimensione
@@ -72,3 +72,12 @@ anteprima_standard_modello,Standard (kein App-Icon: die Vorlage bringt es mit),s
 err_icona_testo,Das Icon ragt in den Textbereich (oder lässt keinen Platz für den Titel): {margine} erhöhen oder icona_dimensione verkleinern,l'icona entra nell'area del testo (o non lascia spazio al titolo): aumenta {margine} o riduci icona_dimensione
 partita_in_corso,Laufendes Spiel – fortsetzen?,Partita in corso — continuare?
 continua,Fortsetzen,Continua
+tocca_a,Am Zug:,Tocca a:
+livello_di,Niveau von {valore},Livello di {valore}
+nascondi,Ausblenden,Nascondi
+err_salvataggio,Der Spielstand kann auf diesem Gerät nicht gespeichert werden,la partita non può essere salvata su questo dispositivo
+modifica_titolo,Spieler bearbeiten,Modifica i giocatori
+rimuovi,Entfernen,Rimuovi
+aggiungi_giocatore,Spieler hinzufügen,Aggiungi giocatore
+salva,Speichern,Salva
+conferma_nuova,Neues Spiel beginnen? Die aktuellen Spieler gehen verloren.,Iniziare una nuova partita? I giocatori attuali andranno persi.

@@ -116,11 +116,11 @@ export default async function (t) {
       const lines = await page.locator('#banner li').allTextContents();
       eq(lines.length, 4, 'banner lines');
       if (lang === 'it') {
-        assert(lines[0].includes("posizione dell'icona non valida: usa alto-/basso- + sinistra/centro/destra"), lines[0]);
+        assert(lines[0].includes("posizione dell'icona 'sopra' non valida: usa alto-/basso- + sinistra/centro/destra"), lines[0]);
         assert(lines[1].includes('da 20 a 400'), lines[1]);
         assert(lines[2].includes('da 0 a 45') && lines[3].includes('al massimo 80'), lines[2] + ' | ' + lines[3]);
       } else {
-        assert(lines[0].includes('Icon-Position ungültig'), lines[0]);
+        assert(lines[0].includes("Icon-Position 'sopra' ungültig"), lines[0]);
         assert(lines[1].includes('von 20 bis 400'), lines[1]);
       }
       // the invalid cells fall back to the defaults (null = default), valid neighbours are kept

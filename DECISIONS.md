@@ -125,3 +125,21 @@ Append-only. Never edit old entries.
 - LEGGI LO SCIOGLILINGUA: only traditional texts found in several Italian collections (web search); 41 texts, short
   ones at Facile, long ones at Difficile, some shared by two or three levels to reach 20 per level.
 - Tests no longer depend on the content of data/carte.csv: the old sample cards are frozen in tests/fixtures/sample.
+
+## 2026-10-01 — Phone test U1–U6 + Jules review (Abdel / lead)
+- U1: no group mode any more. A game is always a list of players (names optional, default "Spieler n" /
+  "Giocatore n"). "Same level? Sì" = one level picked once and prefilled for every player.
+- U2 (reverses decision 13): turns. The top field shows whose turn it is (name + level); closing a card passes
+  the turn to the next player (wraps); [altra_carta] keeps the player; the popup can still pick anyone.
+- U3: the top-field popup changes only the current player's level (or switches player).
+- U4: [impostazioni] mid-game edits players (names, levels, add/remove) with Salva/Annulla and keeps the game;
+  a fresh setup is a separate [nuova_partita] button there (with confirm).
+- U5: Hilfe options can be hidden again ([Ausblenden/Nascondi]); order and locked answer are kept.
+- U6 (reverses D4): Back closes the dialog, then the card, then on the grid asks "Spiel verlassen?". Uses
+  history entries created in user actions. Browser limit: entries made without a user interaction (e.g. right
+  after a reload/resume) may be skipped by the browser, so the first Back after a reload can still leave the page.
+- Saved game v2; older saves are discarded silently (no prompt).
+- Jules reviews (jules/review-opus-…, jules/review-claude-…): report-only branches, nothing cherry-picked or merged.
+  Taken: hyphenation as last-resort fit (J-4), banner line when saving fails (J-5), invalid value in layout
+  messages (J-9). Rejected/not reproducible: double draw, quoted headers, forced-colors focus, banner severity,
+  timer drift, removing [DA CONFERMARE]. Card findings referred to the old sample cards (replaced in PR #9).
