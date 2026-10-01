@@ -34,7 +34,10 @@ export async function newPage(browser, { w = 390, h = 844, lang = 'de', fixture 
   return page;
 }
 
+// A saved game would put the resume prompt on top of the start screen, so load() first forgets it (the page is put on the
+// 'start' screen first: its own pagehide save would otherwise write it again). persist.mjs navigates with page.goto instead.
 export async function load(page) {
+  await page.evaluate(() => { try { if (window.__app) window.__app.screen = 'start'; localStorage.removeItem('tlspi-partita'); } catch (e) { /* about:blank */ } });
   await page.goto(page.fixtureBase);
   await page.waitForSelector('#app .start', { timeout: readyTimeout });
   await page.evaluate(() => document.fonts && document.fonts.ready);

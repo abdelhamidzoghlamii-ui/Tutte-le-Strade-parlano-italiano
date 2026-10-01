@@ -70,3 +70,5 @@ anteprima_area;Textbereich und Icon zeigen;Mostra area testo e icona
 anteprima_standard;Standard ({valore});standard ({valore})
 anteprima_standard_modello;Standard (kein App-Icon: die Vorlage bringt es mit);standard (nessuna icona dell'app: ce l'ha già il modello)
 err_icona_testo;Das Icon ragt in den Textbereich (oder lässt keinen Platz für den Titel): {margine} erhöhen oder icona_dimensione verkleinern;l'icona entra nell'area del testo (o non lascia spazio al titolo): aumenta {margine} o riduci icona_dimensione
+partita_in_corso;Laufendes Spiel – fortsetzen?;Partita in corso — continuare?
+continua;Fortsetzen;Continua

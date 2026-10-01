@@ -112,6 +112,8 @@ Esporta la carta come PNG, mettila in `assets/carte/` e scrivi il nome del file 
    (trascina il file; se ha lo stesso nome lo sostituisce) → **Commit changes**.
 3. Aspetta 1–2 minuti e ricarica il gioco. Un'immagine sostituita con lo stesso nome può comparire solo dopo circa 10 minuti (memoria del browser).
 
+Se ricarichi la pagina, il gioco chiede se continuare la partita (vale per 24 ore).
+
 ## Se qualcosa non va
 All'avvio il gioco mostra un avviso se trova un errore (es. un livello scritto male), con il nome
 del file e il numero della riga. Correggi e ricarica il file.
@@ -135,6 +137,8 @@ del file e il numero della riga. Correggi e ricarica il file.
 - Run locally: `python -m http.server` in the repo root → http://localhost:8000
 - Tests: `node tests/run.mjs [filter] [--shots]` (needs Playwright + Chromium; dev only, not used by the site).
   Screenshots with `--shots` go to `tests/out/shots/` (git-ignored).
+- Saved game: ONE localStorage key `tlspi-partita` (JSON `{v:1, savedAt, lang, screen, setup, pools, last, card}`; cards are stored by content `sfida␟testo␟immagine`, not by row). Not saved: timer, flip, popups, the preview. The key `lang` stays separate.
+- Rules: written on every game/setup screen, on name input, after Hilfe, on pagehide; discarded when unparsable, `v` ≠ 1, older than 24 h (`CONFIG.saveMaxAgeMs`), dated in the future, or on an unknown screen; cleared by [nuova_partita] and by a confirmed exit; the start screen and `?anteprima` never touch it; blocked storage is ignored.
 - Hosting: GitHub Pages from `main` (root). Settings → Pages → Deploy from a branch → `main` / root.
 - Live URL: https://abdelhamidzoghlamii-ui.github.io/Tutte-le-Strade-parlano-italiano/
 - QR code to the Pages URL: `docs/qr.png` (regenerate if the URL changes). `.nojekyll` at the root makes Pages serve files as-is.

@@ -65,6 +65,13 @@ const CONFIG = {
   },
   // every key the app uses (all keys of testi_ui.csv)
   maxGiocatori: 6,
+  // saved game (localStorage, one key): see saveGame() / loadSave(). Rules are in README (technical part).
+  storageKey: 'tlspi-partita',
+  saveMaxAgeMs: 24 * 60 * 60 * 1000,    // an older save is discarded
+  saveFutureMs: 5 * 60 * 1000,          // a save dated further in the future than this is discarded (clock nonsense)
+  saveVersion: 1,
+  saveScreens: ['stesso', 'livello', 'quanti', 'giocatori', 'gioco', 'carta'],   // only these are saved / restored
+  nameMax: 40,                          // player name length (input maxLength, and the cut on restore)
   REQUIRED_KEYS: [
     'nuova_partita', 'stesso_livello', 'si', 'no', 'quale_livello', 'quanti_giocatori', 'giocatore',
     'livello', 'inizia', 'scegli_categoria', 'aiuto', 'soluzione', 'esci', 'impostazioni', 'chiudi',
@@ -79,7 +86,7 @@ const CONFIG = {
     'err_posizione', 'err_icona_dimensione', 'err_margine', 'err_icona_testo',
     'torna_al_gioco', 'anteprima_titolo', 'anteprima_dimensione', 'anteprima_piccola', 'anteprima_media',
     'anteprima_grande', 'anteprima_aiuto', 'anteprima_retro', 'anteprima_area', 'anteprima_standard',
-    'anteprima_standard_modello'
+    'anteprima_standard_modello', 'partita_in_corso', 'continua'
   ]
 };
 
@@ -529,7 +536,7 @@ function setLang(code) {
   render();
 }
 
-function go(screen) { state.screen = screen; render(); }
+function go(screen) { untouched = false; state.screen = screen; render(); }
 
 function resetSetup() {
   state.setup = { stesso: null, livello: null, giocatori: [{ nome: '', livello: null }], attivo: 0 };
@@ -541,11 +548,170 @@ function resetSetup() {
 }
 function goSettings() { state.popup = null; state.dialog = null; go('stesso'); }
 
+/* ==========================================================================
+   SAVED GAME (localStorage, ONE key: CONFIG.storageKey). The game survives a reload: init offers to continue (resume
+   dialog), restoreGame() rebuilds the state defensively. Saved: lang, screen, setup, no-repeat pools / last drawn card
+   and the open card (+ Hilfe). Never saved: timer/feature state, flip, popups/dialogs, the preview. Cards are stored by
+   content (cardId), not by row number, so carte.csv may change between sessions. All storage access is try/catch.
+   ========================================================================== */
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* blocked or full: the game keeps working */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+};
+const cardId = c => [c.sfida, c.testo, c.immagine].join('\u241f');   // content-based id of a card
+const clearSave = () => store.del(CONFIG.storageKey);
+let untouched = false;   // true right after [nuova_partita]: nothing is saved until the player does something (go())
+let pendingSave = null;  // a valid save found at startup, waiting for the resume dialog
+
+function saveGame() {
+  if (untouched || !CONFIG.saveScreens.includes(state.screen)) return;   // start screen and preview never save
+  const ids = list => list.map(i => state.carte[i]).filter(Boolean).map(cardId);
+  const pools = {}, last = {};
+  Object.keys(state.pools).forEach(k => { pools[k] = ids(state.pools[k]); });
+  Object.keys(state.last).forEach(k => { const c = state.carte[state.last[k]]; if (c) last[k] = cardId(c); });
+  let card = null;
+  const cs = state.card;
+  if (state.screen === 'carta' && cs) {
+    const c = cs.idx != null ? state.carte[cs.idx] : null;
+    if (cs.idx == null || c) {
+      card = { sfida: cs.sfida, id: c ? cardId(c) : null, hilfe: cs.hilfe ? { order: cs.hilfe.order.slice(), picked: cs.hilfe.picked } : null };
+    }
+  }
+  const s = state.setup;
+  store.set(CONFIG.storageKey, JSON.stringify({
+    v: CONFIG.saveVersion, savedAt: Date.now(), lang: state.lang, screen: state.screen,
+    setup: { stesso: s.stesso, livello: s.livello, giocatori: s.giocatori.map(p => ({ nome: p.nome, livello: p.livello })), attivo: s.attivo },
+    pools, last, card
+  }));
+}
+window.addEventListener('pagehide', saveGame);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveGame(); });
+
+// The saved game, or null (and the key is removed) when it is unusable: unparsable, wrong version, too old, from the
+// future, unknown screen.
+function loadSave() {
+  const raw = store.get(CONFIG.storageKey);
+  if (raw == null) return null;
+  let s = null;
+  try { s = JSON.parse(raw); } catch (e) { /* garbage */ }
+  const now = Date.now();
+  const ok = s && typeof s === 'object' && s.v === CONFIG.saveVersion && Number.isFinite(s.savedAt) &&
+    now - s.savedAt <= CONFIG.saveMaxAgeMs && s.savedAt - now <= CONFIG.saveFutureMs && CONFIG.saveScreens.includes(s.screen);
+  if (!ok) { clearSave(); return null; }
+  return s;
+}
+
+// Rebuilds the state from a save against the CURRENT csv data; anything that no longer fits is dropped or sent back to
+// the screen where it can be fixed. Throws on a structurally broken save (the caller then starts clean).
+function applySave(sv) {
+  const lvOk = v => (typeof v === 'string' && findLevel(v)) ? v : null;
+  const su = sv.setup;
+  if (!su || typeof su !== 'object' || !Array.isArray(su.giocatori) || su.giocatori.length < 1 || su.giocatori.length > CONFIG.maxGiocatori) {
+    throw new Error('bad setup');
+  }
+  const giocatori = su.giocatori.map(p => ({
+    nome: p && typeof p.nome === 'string' ? p.nome.slice(0, CONFIG.nameMax) : '',
+    livello: p ? lvOk(p.livello) : null
+  }));
+  const attivo = Number.isInteger(su.attivo) ? Math.min(Math.max(su.attivo, 0), giocatori.length - 1) : 0;
+  state.setup = { stesso: su.stesso === true || su.stesso === false ? su.stesso : null, livello: lvOk(su.livello), giocatori, attivo };
+  state.popup = null;
+  state.dialog = null;
+  if (sv.lang === 'de' || sv.lang === 'it') {
+    state.lang = sv.lang;
+    document.documentElement.lang = sv.lang;
+    store.set('lang', sv.lang);
+  }
+
+  let screen = sv.screen;
+  if (screen === 'gioco' || screen === 'carta') {
+    if (state.setup.stesso === true) { if (!state.setup.livello) screen = 'livello'; }
+    else if (!giocatori.every(p => p.livello)) screen = 'giocatori';
+  }
+
+  // pools / last: card ids -> current indexes, only cards that still exist and still belong to that sfida + level
+  const byId = new Map();
+  state.carte.forEach((c, i) => { const id = cardId(c); if (!byId.has(id)) byId.set(id, i); });
+  const valid = (id, sfida, lv) => {
+    const i = byId.get(id);
+    const c = i != null && state.carte[i];
+    return c && c.sfida === sfida && c.livelli.includes(lv) ? i : null;
+  };
+  const splitKey = k => { const n = k.lastIndexOf('|'); return n < 0 ? null : [k.slice(0, n), k.slice(n + 1)]; };
+  const known = k => { const p = splitKey(k); return p && state.sfide.some(x => x.sfida === p[0]) && findLevel(p[1]) ? p : null; };
+  state.pools = {};
+  state.last = {};
+  if (sv.pools && typeof sv.pools === 'object') {
+    Object.keys(sv.pools).forEach(k => {
+      const p = known(k);
+      if (!p || !Array.isArray(sv.pools[k])) return;
+      const out = [];
+      sv.pools[k].forEach(id => { const i = valid(id, p[0], p[1]); if (i != null && !out.includes(i)) out.push(i); });
+      state.pools[k] = out;
+    });
+  }
+  if (sv.last && typeof sv.last === 'object') {
+    Object.keys(sv.last).forEach(k => {
+      const p = known(k);
+      const i = p ? valid(sv.last[k], p[0], p[1]) : null;
+      if (i != null) state.last[k] = i;
+    });
+  }
+
+  // the open card
+  state.card = null;
+  if (screen === 'carta') {
+    const c = sv.card;
+    const sf = c && typeof c === 'object' ? state.sfide.find(x => x.sfida === c.sfida) : null;
+    if (!sf) screen = 'gioco';
+    else if (c.id === null) state.card = { sfida: sf.sfida, idx: null, flipped: false, hilfe: null, fx: {} };
+    else {
+      const idx = valid(c.id, sf.sfida, curLevelId());
+      if (idx == null) screen = 'gioco';
+      else {
+        const h = c.hilfe;
+        const hilfeOk = h && typeof h === 'object' && state.carte[idx].opzioni.length === 3 && Array.isArray(h.order) && h.order.length === 3 &&
+          [0, 1, 2].every(n => h.order.includes(n)) && (h.picked === null || h.picked === 0 || h.picked === 1 || h.picked === 2);
+        state.card = { sfida: sf.sfida, idx, flipped: false, hilfe: hilfeOk ? { order: h.order.slice(), picked: h.picked } : null, fx: {} };
+        fadeCard = true;
+      }
+    }
+  }
+  state.screen = screen;
+}
+
+function resumeGame() {
+  const sv = pendingSave;
+  pendingSave = null;
+  try {
+    applySave(sv);
+    render();   // saves the sanitized state
+  } catch (e) {
+    clearSave();
+    resetSetup();
+    state.screen = 'start';
+    render();
+  }
+}
+
+// [nuova_partita] (start screen and resume dialog): forget the save, empty setup. Nothing is saved again until the
+// player does something.
+function newGame() {
+  clearSave();
+  pendingSave = null;
+  resetSetup();
+  untouched = true;
+  state.screen = 'stesso';
+  render();
+}
+
 function renderStart(app) {
   const box = el('div', 'start');
   box.append(el('h1', null, t('titolo')),
-    button(t('nuova_partita'), 'btn', () => { resetSetup(); go('stesso'); }, 'nuova'));
+    button(t('nuova_partita'), 'btn', newGame, 'nuova'));
   app.appendChild(box);
+  if (state.dialog === 'riprendi') app.appendChild(resumePopup());
 }
 
 function renderStesso(app) {
@@ -593,11 +759,11 @@ function renderGiocatori(app) {
     inp.type = 'text';
     inp.value = p.nome;
     inp.placeholder = t('giocatore') + ' ' + (i + 1);
-    inp.maxLength = 40;
+    inp.maxLength = CONFIG.nameMax;
     inp.autocomplete = 'off';
     inp.setAttribute('aria-label', t('giocatore') + ' ' + (i + 1));
     inp.dataset.fid = 'name-' + i;
-    inp.addEventListener('input', () => { p.nome = inp.value; });
+    inp.addEventListener('input', () => { p.nome = inp.value; saveGame(); });
     const l = findLevel(p.livello);
     const lb = button(l ? levelName(l) : t('livello'), 'btn level-field', () => openPopup(i, 'lvl-' + i), 'lvl-' + i);
     lb.setAttribute('aria-label', t('giocatore') + ' ' + (i + 1) + ': ' + t('livello') + ' – ' + (l ? levelName(l) : ''));
@@ -625,10 +791,10 @@ function openPopup(i, openerFid) { dialogOpener = openerFid; state.popup = i; re
 function openDialog(name, openerFid) { dialogOpener = openerFid; state.dialog = name; render(); }
 function closePopup() { state.popup = null; state.dialog = null; render(); }
 
-function dialogBack(name, panel, titleText) {
+function dialogBack(name, panel, titleText, closable = true) {
   const back = el('div', 'backdrop');
   back.dataset.dlg = name;
-  back.addEventListener('click', e => { if (e.target === back) closePopup(); });
+  if (closable) back.addEventListener('click', e => { if (e.target === back) closePopup(); });   // the resume dialog is not closable
   const h = el('h2', null, titleText);
   h.id = 'dlg-title';
   panel.setAttribute('role', 'dialog');
@@ -718,10 +884,20 @@ function exitPopup() {
   const panel = el('div', 'panel');
   const pair = el('div', 'pair');
   // setup is kept until [nuova_partita]
-  pair.append(button(t('si'), 'btn btn-yes', () => { state.dialog = null; go('start'); }, 'esci-si'),
+  pair.append(button(t('si'), 'btn btn-yes', () => { state.dialog = null; clearSave(); go('start'); }, 'esci-si'),
     button(t('annulla'), 'btn btn-cancel', closePopup, 'annulla'));
   panel.appendChild(pair);
   return dialogBack('esci', panel, t('conferma_esci'));
+}
+
+// Shown on the start screen when a valid save exists: one of the two buttons must be chosen (no Escape / backdrop close).
+function resumePopup() {
+  const panel = el('div', 'panel');
+  const stack = el('div', 'stack');
+  stack.append(button(t('continua'), 'btn btn-yes', resumeGame, 'continua'),
+    button(t('nuova_partita'), 'btn btn-cancel', newGame, 'nuova-dlg'));
+  panel.appendChild(stack);
+  return dialogBack('riprendi', panel, t('partita_in_corso'), false);
 }
 
 function renderGioco(app) {
@@ -894,6 +1070,7 @@ function renderOpts(face, card, cs = state.card) {
       paint();
       live.textContent = i === 0 ? t('giusto') : t('sbagliato') + '. ' + t('giusto') + ': ' + card.opzioni[0];
       fitCard();
+      saveGame();
     }, 'opt-' + pos);
     const tx = el('span', 'opt-text', card.opzioni[i]);
     tx.lang = 'it';
@@ -946,6 +1123,7 @@ function buildCard(sf, card, cs = state.card, preview = false) {
       a.remove();
       renderOpts(front, card, cs);
       fitCard();
+      saveGame();
       focusFid('opt-0');   // the button that had the focus is gone: move on to the first option
     }, 'aiuto');
     if (!cs.hilfe) acts.appendChild(a);
@@ -1383,7 +1561,8 @@ function render() {
   const dlg = back ? back.dataset.dlg : '';
   setInertOutside(back);
   if (state.screen !== view.screen) {
-    if (view.screen !== null) focusMain();   // not on the very first render: do not steal the focus on page load
+    if (back) { const first = back.querySelector('button'); if (first) first.focus({ preventScroll: true }); }   // resume dialog on page load
+    else if (view.screen !== null) focusMain();   // not on the very first render: do not steal the focus on page load
   } else if (dlg !== view.dlg) {
     if (back) { const first = back.querySelector('button'); if (first) first.focus({ preventScroll: true }); }
     else if (!focusFid(dialogOpener)) focusMain();
@@ -1391,6 +1570,7 @@ function render() {
     focusMain();
   }
   view = { screen: state.screen, dlg };
+  saveGame();
 }
 
 // While a dialog is open everything outside its backdrop is inert (no focus, no clicks, hidden from screen readers).
@@ -1402,7 +1582,7 @@ function setInertOutside(back) {
 
 document.addEventListener('keydown', e => {
   const dlgOpen = state.popup != null || state.dialog;
-  if (e.key === 'Escape' && dlgOpen) closePopup();
+  if (e.key === 'Escape' && dlgOpen) { if (state.dialog !== 'riprendi') closePopup(); }
   else if (e.key === 'Tab' && dlgOpen) {   // keep Tab / Shift+Tab inside the dialog panel
     const panel = document.querySelector('.panel');
     if (!panel) return;
@@ -1463,7 +1643,11 @@ async function init() {
   state.sfide = validateSfide(sfide);
   state.carte = validateCarte(carte);
   liveRegion();
-  if (new URLSearchParams(location.search).has('anteprima')) state.screen = 'anteprima';   // index.html?anteprima (also ?anteprima=1)
+  if (new URLSearchParams(location.search).has('anteprima')) state.screen = 'anteprima';   // index.html?anteprima (also ?anteprima=1): never reads or writes the save
+  else {
+    pendingSave = loadSave();
+    if (pendingSave) state.dialog = 'riprendi';   // start screen + resume dialog
+  }
   render();
   preloadAssets();
   await loadFonts();
