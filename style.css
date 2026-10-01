@@ -216,12 +216,13 @@ body {
   flex: 1; min-width: 0; font-weight: var(--card-title-weight); font-size: var(--card-title-size); line-height: 1.15;
   text-transform: uppercase; overflow-wrap: anywhere; text-align: center; text-wrap: balance;
 }
-/* CSS variant: like the Canva cards the title is centred and the category icon sits bottom-right.
+/* CSS variant: like the Canva cards the title is centred and the category icon sits bottom-right (above the buttons).
    (The tricolore stripe element stays in the DOM; the frame carries the tricolore, so it is hidden here.) */
 .card-head .stripe { display: none; }
 .card:not(.card-tpl) .card-head .circle {
-  position: absolute; left: 50%; margin-left: calc(var(--card-circle) / -2); bottom: calc(var(--frame-h) + 4px);
+  position: absolute; right: calc(var(--frame-w) + 8px); bottom: 50px;   /* bottom-right, just above the button row */
 }
+.card:not(.card-tpl):not(.card-image) .card-body { padding-bottom: calc(94px - var(--frame-h) - var(--card-pad)); }   /* keeps text/Hilfe clear of the icon */
 .stripe { display: flex; gap: 5px; height: var(--stripe-h); padding: 0 4px; }
 .stripe i {
   flex: 1; display: block; transform: skewX(var(--stripe-skew));
