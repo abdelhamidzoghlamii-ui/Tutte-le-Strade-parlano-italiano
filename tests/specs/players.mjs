@@ -26,6 +26,14 @@ const bottom = (page, n) => page.locator('.pair.bottom .btn').nth(n);
 const chiudi = async page => { await bottom(page, 0).click(); await page.waitForSelector('.tiles'); };
 const altra = page => bottom(page, 1);
 
+// grid -> [impostazioni] -> [nuova_partita] -> [si]: fresh setup (stesso screen)
+async function newGameViaEdit(page) {
+  await page.click('[data-fid="impostazioni"]');
+  await page.click('[data-fid="nuova"]');
+  await page.click('[data-fid="nuova-si"]');
+  await page.waitForSelector('.question');
+}
+
 async function reloadResume(page) {
   await page.goto(page.fixtureBase);
   await page.waitForSelector('#app .start');
@@ -61,7 +69,7 @@ export default function (t) {
     await page.waitForSelector('.tiles');
     eq(await attivo(page), 0);
     // game -> settings -> Sì -> another level re-prefills everybody (the explicit "same level" answer)
-    await bottom(page, 1).click();
+    await newGameViaEdit(page);   // [impostazioni] = edit players; the setup screens are reached through [nuova_partita]
     await page.click('.btn-yes');
     await page.locator('.btn-level').nth(FACILE).click();
     await page.locator('.btn-num').nth(2).click();
@@ -101,7 +109,7 @@ export default function (t) {
     await page.click('[data-fid="lang-it"]');
     assert((await top(page)).includes('Giocatore 1'), 'Giocatore 1: ' + await top(page));
     // a typed name wins, whitespace-only is not a name... only the empty string is the placeholder (existing behaviour)
-    await page.click('[data-fid="impostazioni"]');
+    await newGameViaEdit(page);
     await page.click('.btn-no');
     await page.locator('.btn-num').nth(1).click();
     eq(await page.locator('.name-input').nth(1).getAttribute('placeholder'), 'Giocatore 2');

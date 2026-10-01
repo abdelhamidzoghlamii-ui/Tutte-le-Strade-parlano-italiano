@@ -76,3 +76,8 @@ tocca_a,Am Zug:,Tocca a:
 livello_di,Niveau von {valore},Livello di {valore}
 nascondi,Ausblenden,Nascondi
 err_salvataggio,Der Spielstand kann auf diesem Gerät nicht gespeichert werden,la partita non può essere salvata su questo dispositivo
+modifica_titolo,Spieler bearbeiten,Modifica i giocatori
+rimuovi,Entfernen,Rimuovi
+aggiungi_giocatore,Spieler hinzufügen,Aggiungi giocatore
+salva,Speichern,Salva
+conferma_nuova,Neues Spiel beginnen? Die aktuellen Spieler gehen verloren.,Iniziare una nuova partita? I giocatori attuali andranno persi.

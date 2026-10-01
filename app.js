@@ -87,8 +87,10 @@ const CONFIG = {
     'torna_al_gioco', 'anteprima_titolo', 'anteprima_dimensione', 'anteprima_piccola', 'anteprima_media',
     'anteprima_grande', 'anteprima_aiuto', 'anteprima_retro', 'anteprima_area', 'anteprima_standard',
     'anteprima_standard_modello', 'partita_in_corso', 'continua',
-    'tocca_a', 'livello_di', 'nascondi', 'err_salvataggio'
-  ]
+    'tocca_a', 'livello_di', 'nascondi', 'err_salvataggio',
+    'modifica_titolo', 'rimuovi', 'aggiungi_giocatore', 'salva', 'conferma_nuova'
+  ],
+  historyFallbackMs: 1500               // a programmatic history traversal without a popstate this long is given up (see syncHistory)
 };
 
 const state = {
@@ -96,8 +98,9 @@ const state = {
   screen: 'start',
   setup: { stesso: null, livello: null, giocatori: [{ nome: '', livello: null }], attivo: 0 },
   pools: {},
-  popup: null,    // index of the player whose level popup is open
-  dialog: null,   // 'giocatore' | 'esci' on the game screen
+  edit: null,     // 'modifica' screen: DRAFT { giocatori: [{nome, livello, orig}] } (orig = index in setup.giocatori, null = new). Never saved.
+  popup: null,    // index of the player whose level popup is open (in the draft on 'modifica')
+  dialog: null,   // 'giocatore' | 'esci' on the game screen, 'nuova' on 'modifica', 'riprendi' on start
   card: null,     // {sfida, idx} current card (idx = index in state.carte, or null = none)
   last: {},       // pool key -> last drawn card index (no immediate repeat)
   livelli: [],
@@ -546,10 +549,36 @@ function resetSetup() {
   state.pools = {};
   state.last = {};
   state.card = null;
+  state.edit = null;
   state.popup = null;
   state.dialog = null;
 }
-function goSettings() { state.popup = null; state.dialog = null; go('stesso'); }
+
+/* [impostazioni] mid-game = edit the players (screen 'modifica'), NOT a new setup. The edits go into a draft copy that
+   [salva] applies and [annulla] / Back throws away; turn and no-repeat pools are kept. */
+function openEdit() {
+  const s = state.setup;
+  state.popup = null;
+  state.dialog = null;
+  state.edit = { giocatori: s.giocatori.map((p, i) => ({ nome: p.nome, livello: p.livello, orig: i })) };
+  go('modifica');
+}
+const editComplete = () => !!state.edit && state.edit.giocatori.every(p => findLevel(p.livello));
+function cancelEdit() { state.edit = null; state.popup = null; state.dialog = null; go('gioco'); }
+function saveEdit() {
+  if (!editComplete()) return;
+  const s = state.setup, e = state.edit.giocatori, n = s.giocatori.length;
+  // the turn stays with the active player; if they were removed it goes to the one who came next in the OLD order
+  // (wrapping), found in the new list; none of the old players left (all replaced) -> the first player
+  let attivo = -1;
+  for (let k = 0; k < n && attivo < 0; k++) attivo = e.findIndex(p => p.orig === (s.attivo + k) % n);
+  s.giocatori = e.map(p => ({ nome: p.nome, livello: p.livello }));
+  s.attivo = attivo < 0 ? 0 : attivo;
+  state.edit = null;
+  state.popup = null;
+  state.dialog = null;
+  go('gioco');
+}
 
 /* ==========================================================================
    SAVED GAME (localStorage, ONE key: CONFIG.storageKey). The game survives a reload: init offers to continue (resume
@@ -569,14 +598,15 @@ let pendingSave = null;  // a valid save found at startup, waiting for the resum
 let saveWarned = false;  // the failed-write warning (err_salvataggio) is shown once per session
 
 function saveGame() {
-  if (untouched || !CONFIG.saveScreens.includes(state.screen)) return;   // start screen and preview never save
+  const screen = state.screen === 'modifica' ? 'gioco' : state.screen;   // 'modifica' counts as the grid; the draft is never saved
+  if (untouched || !CONFIG.saveScreens.includes(screen)) return;   // start screen and preview never save
   const ids = list => list.map(i => state.carte[i]).filter(Boolean).map(cardId);
   const pools = {}, last = {};
   Object.keys(state.pools).forEach(k => { pools[k] = ids(state.pools[k]); });
   Object.keys(state.last).forEach(k => { const c = state.carte[state.last[k]]; if (c) last[k] = cardId(c); });
   let card = null;
   const cs = state.card;
-  if (state.screen === 'carta' && cs) {
+  if (screen === 'carta' && cs) {
     const c = cs.idx != null ? state.carte[cs.idx] : null;
     if (cs.idx == null || c) {
       card = { sfida: cs.sfida, id: c ? cardId(c) : null, hilfe: cs.hilfe ? { order: cs.hilfe.order.slice(), picked: cs.hilfe.picked, hidden: !!cs.hilfe.hidden } : null };
@@ -584,7 +614,7 @@ function saveGame() {
   }
   const s = state.setup;
   const ok = store.set(CONFIG.storageKey, JSON.stringify({
-    v: CONFIG.saveVersion, savedAt: Date.now(), lang: state.lang, screen: state.screen,
+    v: CONFIG.saveVersion, savedAt: Date.now(), lang: state.lang, screen,
     setup: { stesso: s.stesso, livello: s.livello, giocatori: s.giocatori.map(p => ({ nome: p.nome, livello: p.livello })), attivo: s.attivo },
     pools, last, card
   }));
@@ -621,6 +651,7 @@ function applySave(sv) {
   }));
   const attivo = Number.isInteger(su.attivo) ? Math.min(Math.max(su.attivo, 0), giocatori.length - 1) : 0;
   state.setup = { stesso: su.stesso === true || su.stesso === false ? su.stesso : null, livello: lvOk(su.livello), giocatori, attivo };
+  state.edit = null;
   state.popup = null;
   state.dialog = null;
   if (sv.lang === 'de' || sv.lang === 'it') {
@@ -811,13 +842,16 @@ function dialogBack(name, panel, titleText, closable = true) {
   return back;
 }
 
+// the players the level popup edits: the draft on 'modifica', the setup list otherwise
+const popupPlayers = () => (state.screen === 'modifica' && state.edit ? state.edit.giocatori : state.setup.giocatori);
 function levelPopup(i) {
   const panel = el('div', 'panel');
+  const list = popupPlayers();
   state.livelli.forEach((l, k) => {
     panel.appendChild(marked(levelBtn(l, 'btn btn-level', () => {
-      state.setup.giocatori[i].livello = l.livello;
+      list[i].livello = l.livello;
       closePopup();
-    }, 'plevel-' + k), state.setup.giocatori[i].livello === l.livello));
+    }, 'plevel-' + k), list[i].livello === l.livello));
   });
   if (!state.livelli.length) panel.appendChild(emptyNote('livelli'));
   panel.appendChild(button(t('annulla'), 'btn btn-cancel', closePopup, 'annulla'));
@@ -929,10 +963,70 @@ function renderGioco(app) {
   app.appendChild(grid);
   const bar = el('div', 'pair bottom');
   bar.append(button(t('esci'), 'btn btn-secondary', () => openDialog('esci', 'esci'), 'esci'),
-    button(t('impostazioni'), 'btn btn-secondary', goSettings, 'impostazioni'));
+    button(t('impostazioni'), 'btn btn-secondary', openEdit, 'impostazioni'));
   app.appendChild(bar);
   if (state.dialog === 'giocatore') app.appendChild(playerPopup());
   else if (state.dialog === 'esci') app.appendChild(exitPopup());
+}
+
+// Confirmation before [nuova_partita] on the edit screen: the current players are lost.
+function newGamePopup() {
+  const panel = el('div', 'panel');
+  const pair = el('div', 'pair');
+  pair.append(button(t('si'), 'btn btn-yes', newGame, 'nuova-si'),
+    button(t('annulla'), 'btn btn-cancel', closePopup, 'annulla'));
+  panel.appendChild(pair);
+  return dialogBack('nuova', panel, t('conferma_nuova'));
+}
+
+// 'modifica': one row per player in the DRAFT (name, level field -> level popup, [rimuovi]), [aggiungi_giocatore] (hidden
+// at CONFIG.maxGiocatori), [salva] / [annulla], and a separate [nuova_partita] (with confirmation).
+function renderModifica(app) {
+  const e = state.edit;
+  if (!e) { state.screen = 'gioco'; return renderGioco(app); }
+  const list = e.giocatori;
+  app.appendChild(el('div', 'question', t('modifica_titolo')));
+  const rows = el('div', 'rows');
+  rows.setAttribute('role', 'group');
+  rows.setAttribute('aria-label', t('giocatore'));
+  list.forEach((p, i) => {
+    const row = el('div', 'prow edit');
+    const inp = el('input', 'name-input');
+    inp.type = 'text';
+    inp.value = p.nome;
+    inp.placeholder = t('giocatore') + ' ' + (i + 1);
+    inp.maxLength = CONFIG.nameMax;
+    inp.autocomplete = 'off';
+    inp.setAttribute('aria-label', t('giocatore') + ' ' + (i + 1));
+    inp.dataset.fid = 'ename-' + i;
+    inp.addEventListener('input', () => { p.nome = inp.value; });
+    const l = findLevel(p.livello);
+    const lb = button(l ? levelName(l) : t('livello'), 'btn level-field', () => openPopup(i, 'elvl-' + i), 'elvl-' + i);
+    lb.setAttribute('aria-label', t('giocatore') + ' ' + (i + 1) + ': ' + t('livello') + ' – ' + (l ? levelName(l) : ''));
+    if (l && l.colore) lb.style.background = l.colore;
+    if (!l) lb.classList.add('empty');
+    const rm = button(t('rimuovi'), 'btn btn-remove', () => { list.splice(i, 1); render(); }, 'erem-' + i);
+    rm.disabled = list.length <= 1;
+    rm.setAttribute('aria-label', t('rimuovi') + ': ' + t('giocatore') + ' ' + (i + 1));
+    row.append(inp, lb, rm);
+    rows.appendChild(row);
+  });
+  app.appendChild(rows);
+  if (list.length < CONFIG.maxGiocatori) {
+    app.appendChild(button(t('aggiungi_giocatore'), 'btn btn-secondary btn-add', () => {
+      const act = list.find(p => p.orig === state.setup.attivo);   // a new player gets the current player's level
+      list.push({ nome: '', livello: act ? act.livello : curLevelId(), orig: null });
+      render();
+    }, 'aggiungi'));
+  }
+  const pair = el('div', 'pair edit-actions');
+  const ok = button(t('salva'), 'btn', saveEdit, 'salva');
+  ok.disabled = !editComplete();
+  pair.append(ok, button(t('annulla'), 'btn btn-cancel', cancelEdit, 'annulla-edit'));
+  app.appendChild(pair);
+  app.appendChild(button(t('nuova_partita'), 'btn btn-secondary btn-new', () => openDialog('nuova', 'nuova'), 'nuova'));
+  if (state.popup != null && state.popup < list.length) app.appendChild(levelPopup(state.popup));
+  else if (state.dialog === 'nuova') app.appendChild(newGamePopup());
 }
 
 /* ---- Card drawing: no-repeat pool per category + level ---- */
@@ -1403,6 +1497,12 @@ function announce(text, lang) {
   liveTimer = setTimeout(() => { live.textContent = text; }, CONFIG.defaults.liveDelayMs);
 }
 
+function closeCard() {
+  state.setup.attivo = (state.setup.attivo + 1) % state.setup.giocatori.length;   // closing a card passes the turn
+  fadeGrid = true;
+  go('gioco');
+}
+
 function renderCarta(app) {
   const sf = state.card && state.sfide.find(x => x.sfida === state.card.sfida);
   if (!sf) { state.screen = 'gioco'; return renderGioco(app); }
@@ -1430,11 +1530,7 @@ function renderCarta(app) {
     else announce(t('nessuna_carta'), state.lang);
   }, 'altra');
   more.disabled = !card;
-  bar.append(button(t('chiudi'), 'btn btn-secondary', () => {
-    state.setup.attivo = (state.setup.attivo + 1) % state.setup.giocatori.length;   // closing a card passes the turn
-    fadeGrid = true;
-    go('gioco');
-  }, 'chiudi'), more);
+  bar.append(button(t('chiudi'), 'btn btn-secondary', closeCard, 'chiudi'), more);
   app.appendChild(bar);
   fitCard();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);
@@ -1539,7 +1635,7 @@ function renderAnteprima(app) {
 
 const SCREENS = {
   start: renderStart, stesso: renderStesso, livello: renderLivello,
-  quanti: renderQuanti, giocatori: renderGiocatori, gioco: renderGioco, carta: renderCarta,
+  quanti: renderQuanti, giocatori: renderGiocatori, gioco: renderGioco, modifica: renderModifica, carta: renderCarta,
   anteprima: renderAnteprima
 };
 
@@ -1555,7 +1651,7 @@ const focusFid = fid => {
 };
 const MAIN_FOCUS = {
   start: '.start h1', stesso: '.question', livello: '.question', quanti: '.question',
-  giocatori: '.rows', gioco: '.topfield', carta: '.card-front', anteprima: '.pv-title'
+  giocatori: '.rows', gioco: '.topfield', modifica: '.question', carta: '.card-front', anteprima: '.pv-title'
 };
 function focusMain() {
   const e = document.querySelector('#app ' + (MAIN_FOCUS[state.screen] || 'h1'));
@@ -1592,6 +1688,7 @@ function render() {
   }
   view = { screen: state.screen, dlg };
   saveGame();
+  syncHistory();
 }
 
 // While a dialog is open everything outside its backdrop is inert (no focus, no clicks, hidden from screen readers).
@@ -1599,6 +1696,68 @@ function setInertOutside(back) {
   const app = document.getElementById('app');
   [...app.children].forEach(c => { c.inert = !!back && c !== back; });
   document.getElementById('banner').inert = !!back;
+}
+
+/* ==========================================================================
+   BROWSER / ANDROID BACK. Back never leaves the game by accident: it closes the dialog, closes the card (= [chiudi], the
+   turn passes), cancels the edit screen, or asks for the exit confirmation on the grid. History entries are pushed
+   only for those layers; start, the setup screens and the preview (?anteprima never touches history) are plain browser
+   history, so Back on the start screen leaves the site.
+
+   Keeping the depth sane: ONE rule instead of per-button bookkeeping. wantedDepth() derives from the app state how many
+   entries of ours should be on the stack (grid = 1 "base"; card or edit screen = +1; an open dialog/popup = +1). After
+   every render(), syncHistory() compares that with histDepth (also stored in each entry's state, so it survives a
+   reload and a multi-step jump): too few -> pushState, too many -> history.go(-n). So a UI that closes with its own
+   button removes its entry by itself (no dangling entries, no double actions), and when the user presses Back the
+   handler acts from the CURRENT app state (not from the entry) and the same sync repairs the stack afterwards
+   (e.g. the grid's base entry that Back just popped is pushed again together with the exit dialog's). A programmatic
+   traversal is marked histPending so its popstate is not mistaken for a user Back (a stuck one is given up after
+   CONFIG.historyFallbackMs). A Forward move is only reconciled, never acted on.
+   ========================================================================== */
+let histOn = false;        // false in the preview
+let histDepth = 0;         // entries of ours above the foundation entry, as far as we know
+let histPending = false;   // a history.go() we issued has not been confirmed by its popstate yet
+let histTimer = null;
+let histSeq = 0;
+const stateDepth = st => (st && typeof st === 'object' && st.tlspi && Number.isInteger(st.depth) && st.depth > 0 ? st.depth : 0);
+const dialogOpen = () => state.popup != null || (!!state.dialog && state.dialog !== 'riprendi');   // the resume dialog is not a layer
+function wantedDepth() {
+  const s = state.screen;
+  return (s === 'gioco' || s === 'carta' || s === 'modifica' ? 1 : 0) + (s === 'carta' || s === 'modifica' ? 1 : 0) + (dialogOpen() ? 1 : 0);
+}
+function syncHistory() {
+  if (!histOn || histPending) return;   // pending: the popstate handler syncs again
+  const want = wantedDepth();
+  try {
+    while (histDepth < want) { histDepth++; history.pushState({ tlspi: ++histSeq, depth: histDepth }, ''); }
+    if (histDepth > want) {
+      histPending = true;
+      clearTimeout(histTimer);
+      histTimer = setTimeout(() => { histPending = false; histDepth = stateDepth(history.state); syncHistory(); }, CONFIG.historyFallbackMs);
+      history.go(want - histDepth);
+    }
+  } catch (e) { histOn = false; /* history unavailable: the app just works without Back handling */ }
+}
+function backAction() {
+  if (dialogOpen()) { state.popup = null; state.dialog = null; render(); }
+  else if (state.screen === 'carta') closeCard();
+  else if (state.screen === 'modifica') cancelEdit();
+  else if (state.screen === 'gioco') openDialog('esci', 'esci');
+  // anything else: nothing special, the browser's own Back
+}
+window.addEventListener('popstate', e => {
+  if (!histOn) return;
+  const d = stateDepth(e.state);
+  if (histPending) { clearTimeout(histTimer); histPending = false; histDepth = d; syncHistory(); return; }   // ours
+  const forward = d > histDepth;
+  histDepth = d;
+  if (!forward) backAction();
+  syncHistory();
+});
+// At load the current entry may be a stale one of ours (reload): the app starts on the start screen, so it is the new foundation.
+function initHistory() {
+  histOn = true;
+  try { if (history.state && history.state.tlspi) history.replaceState({ tlspi: ++histSeq, depth: 0 }, ''); } catch (e) { histOn = false; }
 }
 
 document.addEventListener('keydown', e => {
@@ -1664,8 +1823,9 @@ async function init() {
   state.sfide = validateSfide(sfide);
   state.carte = validateCarte(carte);
   liveRegion();
-  if (new URLSearchParams(location.search).has('anteprima')) state.screen = 'anteprima';   // index.html?anteprima (also ?anteprima=1): never reads or writes the save
+  if (new URLSearchParams(location.search).has('anteprima')) state.screen = 'anteprima';   // index.html?anteprima (also ?anteprima=1): never reads or writes the save or the history
   else {
+    initHistory();
     pendingSave = loadSave();
     if (pendingSave) state.dialog = 'riprendi';   // start screen + resume dialog
   }

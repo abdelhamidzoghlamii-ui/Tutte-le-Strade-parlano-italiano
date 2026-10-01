@@ -65,6 +65,9 @@ export default async function (t) {
     await step(page, 'annulla', () => page.locator('[data-fid="annulla"]').click());
     eq((await active(page)).fid, 'esci');
     await step(page, 'impostazioni', () => page.locator('[data-fid="impostazioni"]').click());
+    assert(await page.evaluate(() => document.activeElement.classList.contains('question')), 'edit screen: focus on the title');
+    await step(page, 'nuova partita', () => page.locator('[data-fid="nuova"]').click());
+    await step(page, 'si', () => page.locator('[data-fid="nuova-si"]').click());
     assert(await page.evaluate(() => document.activeElement.classList.contains('question')), 'settings: focus on the question');
     await step(page, 'no', () => page.click('.btn-no'));
     await step(page, 'numero', () => page.locator('[data-fid="num-3"]').click());

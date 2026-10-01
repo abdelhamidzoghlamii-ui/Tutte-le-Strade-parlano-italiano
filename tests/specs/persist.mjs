@@ -97,7 +97,8 @@ async function reach(page, mode) {   // to the category grid
 const SCREENS = ['stesso', 'livello', 'quanti', 'giocatori', 'gioco', 'popup', 'carta-front', 'carta-back', 'hilfe', 'hilfe-scelta', 'timer', 'nessuna-carta'];
 
 async function toScreen(page, mode, name) {
-  const settings = async () => { await bottom(page, 1).click(); await page.waitForSelector('.question'); };
+  // [impostazioni] is the player editor now; the setup screens are reached with the app's own go() (setup and save stay)
+  const settings = async () => { await page.evaluate(() => go('stesso')); await page.waitForSelector('.question'); };
   switch (name) {
     case 'stesso': await settings(); break;
     case 'livello': await settings(); await page.click('.btn-yes'); await page.waitForSelector('.btn-level'); break;
