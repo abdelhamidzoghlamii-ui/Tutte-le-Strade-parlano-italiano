@@ -11,7 +11,7 @@ config.shots = args.includes('--shots');
 const filter = args.find(a => !a.startsWith('--')) || '';
 
 const tests = [];
-const t = { shots: config.shots, test: (name, fn) => tests.push({ name, fn }) };
+const t = { shots: config.shots, test: (name, fn, opts) => tests.push({ name, fn, ...opts }) };   // opts.allowErrors: expected 404s etc.
 for (const f of fs.readdirSync(path.join(here, 'specs')).filter(f => f.endsWith('.mjs')).sort()) {
   const mod = await import(pathToFileURL(path.join(here, 'specs', f)).href);
   await mod.default(t);

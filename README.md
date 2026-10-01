@@ -45,8 +45,11 @@ Ogni riga è una categoria (una casella nel menu del gioco, nello stesso ordine 
    in `assets/sfondi/` con **esattamente lo stesso nome** del file provvisorio. Non devi cambiare
    nient'altro.
    **Misure:** stessa dimensione dei modelli provvisori, in verticale, **esattamente 750 × 1050 px**.
-   Lascia **senza testo** circa il 20% in alto (i primi ~210 px) e circa il 13% in basso (gli ultimi
-   ~137 px): l'app scrive il testo della carta nel mezzo e mette i pulsanti in basso.
+   Lascia **libero** circa il 20% in alto (i primi ~210 px) e circa il 22% in basso (gli ultimi
+   ~231 px): l'app scrive il testo della carta nel mezzo e mette i pulsanti in basso. L'icona della
+   categoria va in basso a destra, dentro quella fascia (circa tra 820 e 915 px dall'alto).
+   Se il tuo modello ha altre misure, i due margini si possono cambiare **per categoria** (vedi
+   «Regolare la carta di una categoria» qui sotto).
 2. Colonne:
    - **sfida** — nome della categoria. **icona** — una emoji, oppure il nome di un'immagine messa
      in `assets/icone/`. **accento** — un colore (es. `#009246`).
@@ -58,6 +61,37 @@ Ogni riga è una categoria (una casella nel menu del gioco, nello stesso ordine 
    - Il nome in **carattere** deve corrispondere a un file in `assets/fonts/` chiamato esattamente
      `<carattere>.woff2` (es. `Patrick Hand.woff2`). Per aggiungere un font metti lì il file
      `.woff2` con il nome giusto. Se manca, l'app mostra un avviso e usa un carattere standard.
+
+### Regolare la carta di una categoria
+Quattro colonne facoltative di `sfide.csv`. Se sono vuote vale lo standard.
+- **icona_posizione** — dove l'app disegna l'icona: `alto-sinistra`, `alto-centro`, `alto-destra`,
+  `basso-sinistra`, `basso-centro`, `basso-destra` (es. `basso-sinistra`; vanno bene anche maiuscole o
+  uno spazio al posto del trattino). Standard: in basso a destra.
+- **icona_dimensione** — grandezza dell'icona, da 20 a 400 (es. `120`). Standard: 100.
+- **testo_margine_alto** — spazio libero in alto prima del testo, da 0 a 45 (es. `25`). Standard: 20.
+- **testo_margine_basso** — spazio libero in basso dopo il testo, da 0 a 45 (es. `30`). Standard: 22.
+  Alto + basso insieme al massimo 80.
+
+Le unità: **icona_dimensione** è in pixel del modello 750×1050, quindi `100` = 100 px sul modello di
+Canva. I **margini** sono in % dell'altezza della carta. Per i numeri vanno bene `20`, `20%` e `20,5`
+(anche `100px`). Un valore non valido dà un avviso e il gioco usa lo standard.
+
+Se ingrandisci l'icona o la metti in alto, aumenta il margine corrispondente: l'avviso in alto ti segnala il problema, e lo controlli nell'anteprima con «Mostra area testo e icona».
+
+**Carte con un modello (colonna sfondo):** l'app disegna l'icona **solo se `icona_posizione` è
+compilata**. Se l'icona è già nel modello di Canva, lascia la cella **vuota**, altrimenti compare due volte.
+Le carte semplici (senza sfondo) hanno sempre l'icona.
+
+**Anteprima.** Per vedere tutte le categorie insieme apri il gioco aggiungendo `?anteprima` all'indirizzo:
+https://abdelhamidzoghlamii-ui.github.io/Tutte-le-Strade-parlano-italiano/?anteprima
+Per ogni categoria vedi una carta (quella con il testo più lungo, il caso peggiore) e sotto i valori delle
+quattro colonne. I pulsanti in alto:
+- **piccola / media / grande** — la grandezza delle carte;
+- **Mostra l'aiuto** — apre le 3 opzioni sulle carte che le hanno;
+- **Mostra il retro** — mostra il retro invece del fronte;
+- **Mostra area testo e icona** — tratteggio rosso = area dove va il testo, puntini blu = dove va
+  l'icona: serve per allineare il modello di Canva.
+Il link «Torna al gioco» riporta al gioco. L'anteprima non cambia nulla nei file.
 
 ## I livelli  →  `data/livelli.csv`
 - **livello** — nome italiano (quello usato in `carte.csv`). **nome_de** — nome tedesco.
@@ -76,11 +110,23 @@ Esporta la carta come PNG, mettila in `assets/carte/` e scrivi il nome del file 
 1. Salva il file (CSV UTF-8) o esporta il PNG.
 2. Su **github.com** apri il progetto → entra nella cartella giusta → **Add file → Upload files**
    (trascina il file; se ha lo stesso nome lo sostituisce) → **Commit changes**.
-3. Aspetta circa un minuto e ricarica il gioco.
+3. Aspetta 1–2 minuti e ricarica il gioco. Un'immagine sostituita con lo stesso nome può comparire solo dopo circa 10 minuti (memoria del browser).
+
+Se ricarichi la pagina, il gioco chiede se continuare la partita (vale per 24 ore).
 
 ## Se qualcosa non va
 All'avvio il gioco mostra un avviso se trova un errore (es. un livello scritto male), con il nome
 del file e il numero della riga. Correggi e ricarica il file.
+- Se un nome è scritto quasi giusto (maiuscole, accenti, uno spazio o una lettera di troppo), l'avviso
+  propone quello giusto: "(forse 'Facile'?)".
+- Un colore scritto male (es. `rosso` invece di `#CE2B37`) dà un avviso e il gioco usa il colore standard.
+- Se manca una **colonna facoltativa** (per esempio `risposta` o `media` in `carte.csv`) c'è solo un
+  avviso e il gioco la considera vuota. Le colonne indispensabili sono: `sfida`, `livelli`, `testo`
+  (carte), `sfida` (sfide), `livello` (livelli), `chiave`, `de`, `it` (testi).
+- Se un file è vuoto (solo la riga delle intestazioni) l'avviso è uno solo e il gioco mostra il messaggio
+  al posto dei pulsanti.
+- L'avviso in alto si apre e si chiude toccando il titolo; sulle schermate di gioco è chiuso, per non
+  rimpicciolire la carta.
 
 ---
 
@@ -91,6 +137,8 @@ del file e il numero della riga. Correggi e ricarica il file.
 - Run locally: `python -m http.server` in the repo root → http://localhost:8000
 - Tests: `node tests/run.mjs [filter] [--shots]` (needs Playwright + Chromium; dev only, not used by the site).
   Screenshots with `--shots` go to `tests/out/shots/` (git-ignored).
+- Saved game: ONE localStorage key `tlspi-partita` (JSON `{v:1, savedAt, lang, screen, setup, pools, last, card}`; cards are stored by content `sfida␟testo␟immagine`, not by row). Not saved: timer, flip, popups, the preview. The key `lang` stays separate.
+- Rules: written on every game/setup screen, on name input, after Hilfe, on pagehide; discarded when unparsable, `v` ≠ 1, older than 24 h (`CONFIG.saveMaxAgeMs`), dated in the future, or on an unknown screen; cleared by [nuova_partita] and by a confirmed exit; the start screen and `?anteprima` never touch it; blocked storage is ignored.
 - Hosting: GitHub Pages from `main` (root). Settings → Pages → Deploy from a branch → `main` / root.
 - Live URL: https://abdelhamidzoghlamii-ui.github.io/Tutte-le-Strade-parlano-italiano/
 - QR code to the Pages URL: `docs/qr.png` (regenerate if the URL changes). `.nojekyll` at the root makes Pages serve files as-is.

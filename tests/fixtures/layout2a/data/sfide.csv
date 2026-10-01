@@ -1,0 +1,13 @@
+sfida;icona;accento;sfondo;timer;carattere;dimensione;colore_testo;allineamento;icona_posizione;icona_dimensione;testo_margine_alto;testo_margine_basso
+ICONA ALTO SINISTRA;💬;#009246;;;Patrick Hand;30;#1A1A1A;centro;alto-sinistra;100;25;
+ICONA ALTO CENTRO;➕;#CE2B37;;;Patrick Hand;30;#1A1A1A;centro;ALTO-CENTRO;130;32;
+ICONA ALTO DESTRA;🔄;#009246;;;Patrick Hand;30;#1A1A1A;centro;alto destra;160;25;
+ICONA BASSO SINISTRA;🗣️;#CE2B37;;;Patrick Hand;30;#1A1A1A;centro;basso-sinistra;160px;;30
+ICONA BASSO CENTRO;🔍;#009246;;;Patrick Hand;30;#1A1A1A;centro; basso-centro ;150;;30
+ICONA BASSO DESTRA;👅;#CE2B37;;;Patrick Hand;30;#1A1A1A;centro;basso destra;160;;30
+MODELLO CON ICONA;🏙️;#009246;parla-di-te.png;;Patrick Hand;30;#1A1A1A;centro;basso-sinistra;;;
+MODELLO SENZA ICONA;🎭;#CE2B37;crea-il-plurale.png;;Patrick Hand;30;#1A1A1A;centro;;;;
+MARGINI TRENTA;📚;#009246;;;Patrick Hand;30;#1A1A1A;centro;;;30;30
+MARGINI PERCENTO;🎲;#CE2B37;;;Patrick Hand;30;#1A1A1A;centro;;80;25%;20,5
+VALORI SBAGLIATI;❓;#009246;;;Patrick Hand;30;#1A1A1A;centro;sopra;grande;50;
+SOMMA TROPPO GRANDE;❗;#CE2B37;;;Patrick Hand;30;#1A1A1A;centro;;;40;45
