@@ -1,13 +1,591 @@
 sfida;livelli;testo;opzioni;media;immagine;risposta
-CREA IL PLURALE;Facile|Medio;l'amica francese;le amiche francesi|le amici francesi|le amiche francese;;;[DA CONFERMARE] le amiche francesi
-CREA IL PLURALE;Facile;il libro;i libri|i libre|le libri;;;[DA CONFERMARE] i libri
-INDOVINA IL MODO DI DIRE;Facile|Medio;in bocca al lupo!;Buona fortuna!|Attenzione al lupo!|Ho fame!;;;[DA CONFERMARE] Buona fortuna! (si risponde: crepi il lupo!)
-INDOVINA IL MODO DI DIRE;Medio|Difficile;fare una vita da cani;Avere una vita difficile|Avere un cane|Vivere in campagna;;;[DA CONFERMARE] Avere una vita difficile
-TROVA L'ERRORE;Facile;Mio cugino Giovanni vive in Roma;vive a Roma|vive da Roma|vive per Roma;;;[DA CONFERMARE] vive A Roma — con le città si usa 'a'
-TROVA L'ERRORE;Difficile;la problema è che non ho mai tempo per studiare;il problema|lo problema|i problema;;;[DA CONFERMARE] IL problema — 'problema' è maschile
-CONIUGA IL VERBO;Facile;essere (io, presente);sono|sei|è;;;[DA CONFERMARE] sono
-CONIUGA IL VERBO;Medio|Difficile;andare (noi, passato prossimo);siamo andati|abbiamo andato|andiamo stati;;;[DA CONFERMARE] siamo andati/e
-COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: M;;;;
-PARLA DI TE;Facile;Racconta la tua giornata tipica.;;;;
-LEGGI LO SCIOGLILINGUA;Medio|Difficile;Trentatré trentini entrarono a Trento, tutti e trentatré trotterellando.;;;;
-QUIZ DI CULTURA GENERALE;Medio;Qual è la capitale d'Italia?;Roma|Milano|Napoli;;;[DA CONFERMARE] Roma
+PARLA DI TE;Facile;Presentati. Come ti chiami? Quanti anni hai? Di dove sei?;;;;
+PARLA DI TE;Facile;Parla della tua famiglia. Chi c'è? Come si chiamano?;;;;
+PARLA DI TE;Facile;Descrivi la tua casa. Quante stanze ci sono? Cosa c'è nella tua stanza?;;;;
+PARLA DI TE;Facile;Parla del tuo cibo preferito. Cosa ti piace mangiare? Chi lo cucina?;;;;
+PARLA DI TE;Facile;Parla della tua colazione. Cosa mangi e cosa bevi la mattina?;;;;
+PARLA DI TE;Facile;Racconta una tua giornata tipica. A che ora ti alzi? Cosa fai dopo?;;;;
+PARLA DI TE;Facile;Parla dei tuoi hobby. Cosa ti piace fare nel tempo libero?;;;;
+PARLA DI TE;Facile;Parla del tuo animale o di un animale che ti piace. Come si chiama? Com'è?;;;;
+PARLA DI TE;Facile;Parla della tua città. È grande o piccola? Cosa c'è di bello?;;;;
+PARLA DI TE;Facile;Parla del tuo lavoro o della tua scuola. Dove lavori o studi? Ti piace?;;;;
+PARLA DI TE;Facile;Descrivi i vestiti che ti piacciono. Di che colore sono? Cosa metti quando fa freddo?;;;;
+PARLA DI TE;Facile;Racconta il tuo weekend. Cosa fai il sabato? Cosa fai la domenica?;;;;
+PARLA DI TE;Facile;Parla dello sport. Fai sport? Quale sport ti piace guardare?;;;;
+PARLA DI TE;Facile;Parla della tua stagione preferita. Perché ti piace? Cosa fai in quella stagione?;;;;
+PARLA DI TE;Facile;Parla del tuo migliore amico o della tua migliore amica. Com'è? Cosa fate insieme?;;;;
+PARLA DI TE;Facile;Parla della musica. Che musica ascolti? Hai un cantante preferito?;;;;
+PARLA DI TE;Facile;Parla delle lingue che parli. Quali lingue parli? Con chi le parli?;;;;
+PARLA DI TE;Facile;Descrivi cosa c'è nella tua borsa o nel tuo zaino. Nomina almeno tre cose.;;;;
+PARLA DI TE;Facile;Parla del tuo compleanno. Quando è? Cosa fai di solito?;;;;
+PARLA DI TE;Facile;Parla dei colori. Qual è il tuo colore preferito? Di che colore è la tua camera?;;;;
+PARLA DI TE;Facile;Descrivi il tuo quartiere. Cosa c'è vicino a casa tua? Ti piace?;;;;
+PARLA DI TE;Facile;Parla del tuo mezzo di trasporto. Come vai al lavoro o a scuola? Quanto tempo ci metti?;;;;
+PARLA DI TE;Facile;Parla del tempo. Che tempo fa oggi? Cosa fai quando piove?;;;;
+PARLA DI TE;Facile;Parla delle tue serate. Cosa fai dopo cena? A che ora vai a letto?;;;;
+PARLA DI TE;Facile;Parla di quando fai la spesa. Dove vai? Cosa compri di solito?;;;;
+PARLA DI TE;Facile;Descrivi una persona che vedi ogni giorno. Com'è? Cosa fa?;;;;
+PARLA DI TE;Medio;Racconta il tuo ultimo viaggio. Dove sei andato/a? Con chi? Cosa hai visto?;;;;
+PARLA DI TE;Medio;Racconta cosa hai fatto il weekend scorso, dal sabato alla domenica.;;;;
+PARLA DI TE;Medio;Descrivi com'eri da piccolo/a. Che carattere avevi? Cosa ti piaceva fare?;;;;
+PARLA DI TE;Medio;Racconta un ricordo di scuola. Com'era la classe? Chi erano i tuoi compagni?;;;;
+PARLA DI TE;Medio;Parla dei tuoi programmi per l'estate. Dove andrai? Cosa farai?;;;;
+PARLA DI TE;Medio;Parla di un libro o di un film che ti è piaciuto. Di cosa parla? Perché lo consigli?;;;;
+PARLA DI TE;Medio;Spiega una ricetta che sai fare. Quali ingredienti servono? Cosa si fa prima e cosa dopo?;;;;
+PARLA DI TE;Medio;Parla di una persona importante per te. Come l'hai conosciuta? Perché è speciale?;;;;
+PARLA DI TE;Medio;Racconta la prima volta che hai fatto qualcosa di nuovo. Cos'è successo? Come ti sei sentito/a?;;;;
+PARLA DI TE;Medio;Racconta una giornata andata storta. Cosa è successo? Come è finita?;;;;
+PARLA DI TE;Medio;Racconta il regalo più bello che hai ricevuto. Chi te l'ha fatto? Perché ti è piaciuto?;;;;
+PARLA DI TE;Medio;Racconta un'esperienza che hai avuto in Italia o con l'Italia. Cosa hai visto, mangiato o imparato?;;;;
+PARLA DI TE;Medio;Descrivi il lavoro dei tuoi sogni. Dove vorresti lavorare? Cosa vorresti fare ogni giorno?;;;;
+PARLA DI TE;Medio;Racconta come festeggi una festa importante. Cosa si mangia? Chi viene? Cosa fate?;;;;
+PARLA DI TE;Medio;Parla delle tue abitudini sane. Cosa fai per stare bene? Cosa vorresti fare di più?;;;;
+PARLA DI TE;Medio;Racconta come usi la tecnologia in una tua giornata. Quali app usi? Cosa è diverso da dieci anni fa?;;;;
+PARLA DI TE;Medio;Dai consigli a un turista nella tua città. Cosa deve vedere? Dove deve mangiare?;;;;
+PARLA DI TE;Medio;Confronta la tua città con un'altra città. Quale è più grande, più bella o più tranquilla?;;;;
+PARLA DI TE;Medio;Racconta un cambiamento nella tua vita. Cosa è cambiato? Come stai adesso?;;;;
+PARLA DI TE;Medio;Parla di una cosa che hai imparato di recente. Come l'hai imparata? Perché è utile?;;;;
+PARLA DI TE;Medio;Racconta una vacanza di quando eri piccolo. Dove andavate? Cosa facevate?;;;;
+PARLA DI TE;Medio;Racconta un'esperienza divertente. Cosa è successo? Perché ti ha fatto ridere?;;;;
+PARLA DI TE;Medio;Racconta una serata speciale. Dove eri? Con chi? Cosa avete fatto?;;;;
+PARLA DI TE;Medio;Racconta il tuo primo giorno di lavoro o di scuola. Com'era? Cosa hai pensato?;;;;
+PARLA DI TE;Medio;Racconta come è cambiato il tuo quartiere negli ultimi anni. Cosa c'era prima? Cosa c'è adesso?;;;;
+PARLA DI TE;Difficile;Cosa faresti se vincessi alla lotteria? Come cambierebbe la tua vita?;;;;
+PARLA DI TE;Difficile;Spiega in quale epoca vorresti vivere, se potessi scegliere. Perché proprio quella?;;;;
+PARLA DI TE;Difficile;Pensa a una scelta del passato. Cosa avresti fatto diversamente e perché?;;;;
+PARLA DI TE;Difficile;Social network, sì o no? Dai la tua opinione con almeno due argomenti.;;;;
+PARLA DI TE;Difficile;Parla del lavoro da casa. Quali sono i vantaggi e gli svantaggi? Tu cosa preferisci?;;;;
+PARLA DI TE;Difficile;Città o campagna? Spiega dove vivresti meglio e perché.;;;;
+PARLA DI TE;Difficile;Immagina di parlare con te stesso/a di dieci anni fa. Che consiglio ti daresti e perché?;;;;
+PARLA DI TE;Difficile;Racconta un'esperienza che ti ha cambiato/a. Cos'è successo? In che cosa sei cambiato/a?;;;;
+PARLA DI TE;Difficile;Spiega cosa significa per te il successo. Dipende dal denaro, dalla fortuna o dall'impegno?;;;;
+PARLA DI TE;Difficile;Parla del turismo di massa. È un problema o un'opportunità? Cosa si potrebbe fare?;;;;
+PARLA DI TE;Difficile;Descrivi la scuola ideale. Come dovrebbero essere i professori, le lezioni e gli orari?;;;;
+PARLA DI TE;Difficile;Parla di un'abitudine che vorresti cambiare e spiega perché. Cosa faresti per riuscirci?;;;;
+PARLA DI TE;Difficile;Scegli un'invenzione indispensabile per te. Cosa succederebbe senza di essa?;;;;
+PARLA DI TE;Difficile;Se fossi sindaco della tua città, cosa cambieresti per primo? Perché?;;;;
+PARLA DI TE;Difficile;Parla del ruolo del dialetto. Pensi che sia importante conservarlo? Perché?;;;;
+PARLA DI TE;Difficile;È giusto lavorare solo quattro giorni alla settimana? Dai la tua opinione con degli esempi.;;;;
+PARLA DI TE;Difficile;Se potessi parlare con un personaggio famoso, di oggi o del passato, chi sceglieresti? Cosa gli chiederesti?;;;;
+PARLA DI TE;Difficile;Argomenta la tua posizione. L'intelligenza artificiale cambierà il lavoro in meglio o in peggio?;;;;
+PARLA DI TE;Difficile;Parla del rapporto tra tradizione e modernità. Cosa vorresti conservare del passato?;;;;
+PARLA DI TE;Difficile;Se potessi cambiare una legge nel tuo paese, quale sceglieresti? Perché?;;;;
+PARLA DI TE;Difficile;Parla di un errore da cui hai imparato molto. Cosa pensavi allora e cosa pensi oggi?;;;;
+PARLA DI TE;Difficile;Spiega se è meglio avere tanti amici o pochi amici veri. Dai degli esempi.;;;;
+PARLA DI TE;Difficile;Parla dei pro e dei contro di vivere all'estero. Lo faresti, se ne avessi l'occasione?;;;;
+PARLA DI TE;Difficile;Immagina che Internet non esista per una settimana. Come cambierebbe la tua giornata?;;;;
+PARLA DI TE;Difficile;Parla dell'importanza dell'arte e della musica nella società. Lo Stato dovrebbe sostenerle di più?;;;;
+CREA IL PLURALE;Facile;il libro;i libri|le libri|i libra;;;[DA CONFERMARE] i libri
+CREA IL PLURALE;Facile;la casa;le case|le casi|i case;;;[DA CONFERMARE] le case
+CREA IL PLURALE;Facile;il cane;i cani|i cane|le cani;;;[DA CONFERMARE] i cani
+CREA IL PLURALE;Facile;lo studente;gli studenti|i studenti|gli studente;;;[DA CONFERMARE] gli studenti
+CREA IL PLURALE;Facile;l'albero;gli alberi|i alberi|le alberi;;;[DA CONFERMARE] gli alberi
+CREA IL PLURALE;Facile;l'ora;le ore|gli ore|le ora;;;[DA CONFERMARE] le ore
+CREA IL PLURALE;Facile;lo zaino;gli zaini|i zaini|gli zaine;;;[DA CONFERMARE] gli zaini
+CREA IL PLURALE;Facile;lo specchio;gli specchi|i specchi|gli specchii;;;[DA CONFERMARE] gli specchi
+CREA IL PLURALE;Facile;la stazione;le stazioni|le stazione|gli stazioni;;;[DA CONFERMARE] le stazioni
+CREA IL PLURALE;Facile;il fiore;i fiori|i fiore|le fiori;;;[DA CONFERMARE] i fiori
+CREA IL PLURALE;Facile;la notte;le notti|le notte|i notti;;;[DA CONFERMARE] le notti
+CREA IL PLURALE;Facile;il bicchiere;i bicchieri|i bicchiere|le bicchieri;;;[DA CONFERMARE] i bicchieri
+CREA IL PLURALE;Facile;il tavolo;i tavoli|le tavoli|i tavolo;;;[DA CONFERMARE] i tavoli
+CREA IL PLURALE;Facile;la finestra;le finestre|le finestri|i finestre;;;[DA CONFERMARE] le finestre
+CREA IL PLURALE;Facile;il gatto;i gatti|i gatte|le gatti;;;[DA CONFERMARE] i gatti
+CREA IL PLURALE;Facile;l'uccello;gli uccelli|i uccelli|le uccelli;;;[DA CONFERMARE] gli uccelli
+CREA IL PLURALE;Facile;lo stivale;gli stivali|i stivali|gli stivale;;;[DA CONFERMARE] gli stivali
+CREA IL PLURALE;Facile;la porta;le porte|le porti|i porte;;;[DA CONFERMARE] le porte
+CREA IL PLURALE;Facile;la mela;le mele|le meli|i mele;;;[DA CONFERMARE] le mele
+CREA IL PLURALE;Facile;l'isola;le isole|gli isole|le isoli;;;[DA CONFERMARE] le isole
+CREA IL PLURALE;Facile;lo sconto;gli sconti|i sconti|gli sconte;;;[DA CONFERMARE] gli sconti
+CREA IL PLURALE;Facile;il treno;i treni|le treni|i treno;;;[DA CONFERMARE] i treni
+CREA IL PLURALE;Facile;la lettera;le lettere|le lettri|i lettere;;;[DA CONFERMARE] le lettere
+CREA IL PLURALE;Facile;l'esame;gli esami|le esami|gli esame;;;[DA CONFERMARE] gli esami
+CREA IL PLURALE;Facile;il giornale;i giornali|i giornale|gli giornali;;;[DA CONFERMARE] i giornali
+CREA IL PLURALE;Facile;la strada;le strade|le strada|le stradi;;;[DA CONFERMARE] le strade
+CREA IL PLURALE;Medio;il ragazzo alto;i ragazzi alti|i ragazzi alto|i ragazzo alti;;;[DA CONFERMARE] i ragazzi alti — nome e aggettivo cambiano insieme: -o diventa -i
+CREA IL PLURALE;Medio;la giacca bianca;le giacche bianche|le giacce bianche|le giacche bianchi;;;[DA CONFERMARE] le giacche bianche — -ca diventa -che: la c resta dura
+CREA IL PLURALE;Medio;l'amico simpatico;gli amici simpatici|gli amichi simpatici|gli amici simpatichi;;;[DA CONFERMARE] gli amici simpatici — eccezione: amico fa amici, non amichi
+CREA IL PLURALE;Medio;il lago;i laghi|i lagi|le laghi;;;[DA CONFERMARE] i laghi — -go diventa -ghi: la g resta dura
+CREA IL PLURALE;Medio;il medico;i medici|i medichi|gli medici;;;[DA CONFERMARE] i medici — parola con accento sulla terzultima sillaba: -co diventa -ci
+CREA IL PLURALE;Medio;l'albergo;gli alberghi|gli albergi|le alberghi;;;[DA CONFERMARE] gli alberghi — -go diventa -ghi: la g resta dura
+CREA IL PLURALE;Medio;il dialogo;i dialoghi|i dialogi|le dialoghi;;;[DA CONFERMARE] i dialoghi — -go diventa -ghi: la g resta dura
+CREA IL PLURALE;Medio;lo psicologo;gli psicologi|gli psicologhi|i psicologi;;;[DA CONFERMARE] gli psicologi — le persone in -logo fanno -logi
+CREA IL PLURALE;Medio;il parco;i parchi|i parci|le parchi;;;[DA CONFERMARE] i parchi — -co diventa -chi: la c resta dura
+CREA IL PLURALE;Medio;l'amica francese;le amiche francesi|le amice francesi|le amiche francese;;;[DA CONFERMARE] le amiche francesi — -ca diventa -che, -e diventa -i
+CREA IL PLURALE;Medio;la riga;le righe|le rige|le righi;;;[DA CONFERMARE] le righe — -ga diventa -ghe: la g resta dura
+CREA IL PLURALE;Medio;la camicia;le camicie|le camice|le camicia;;;[DA CONFERMARE] le camicie — vocale prima di -cia: -cie
+CREA IL PLURALE;Medio;la valigia;le valigie|le valigi|le valigge;;;[DA CONFERMARE] le valigie — vocale prima di -gia: -gie
+CREA IL PLURALE;Medio;l'arancia;le arance|le arancie|gli arance;;;[DA CONFERMARE] le arance — consonante prima di -cia: -ce
+CREA IL PLURALE;Medio;la spiaggia;le spiagge|le spiaggie|le spiaggi;;;[DA CONFERMARE] le spiagge — consonante prima di -gia: -ge
+CREA IL PLURALE;Medio;la ciliegia;le ciliegie|le ciliegi|le cilieggie;;;[DA CONFERMARE] le ciliegie — vocale prima di -gia: -gie
+CREA IL PLURALE;Medio;la farmacia;le farmacie|le farmace|le farmaci;;;[DA CONFERMARE] le farmacie — la i è accentata (farmacìa): -cie
+CREA IL PLURALE;Medio;la provincia;le province|le provinci|le provincia;;;[DA CONFERMARE] le province — consonante prima di -cia: -ce
+CREA IL PLURALE;Medio;lo zio;gli zii|gli zi|i zii;;;[DA CONFERMARE] gli zii — la i è accentata: due i alla fine
+CREA IL PLURALE;Medio;l'ufficio;gli uffici|gli ufficii|le uffici;;;[DA CONFERMARE] gli uffici — -io senza accento: -i
+CREA IL PLURALE;Medio;il negozio;i negozi|i negozii|le negozi;;;[DA CONFERMARE] i negozi — -io senza accento: -i
+CREA IL PLURALE;Medio;la pioggia;le piogge|le pioggie|le pioggi;;;[DA CONFERMARE] le piogge — consonante prima di -gia: -ge
+CREA IL PLURALE;Medio;il viaggio;i viaggi|i viaggii|le viaggi;;;[DA CONFERMARE] i viaggi — -io senza accento: -i
+CREA IL PLURALE;Medio;la ragazza simpatica;le ragazze simpatiche|le ragazze simpatice|le ragazza simpatiche;;;[DA CONFERMARE] le ragazze simpatiche — -ca diventa -che: la c resta dura
+CREA IL PLURALE;Medio;il vestito nuovo;i vestiti nuovi|i vestiti nuovo|gli vestiti nuovi;;;[DA CONFERMARE] i vestiti nuovi — nome e aggettivo cambiano insieme: -o diventa -i
+CREA IL PLURALE;Medio;la borsa pesante;le borse pesanti|le borse pesante|le borsa pesanti;;;[DA CONFERMARE] le borse pesanti — -a diventa -e, -e diventa -i
+CREA IL PLURALE;Medio;il cuoco bravo;i cuochi bravi|i cuoci bravi|i cuochi bravo;;;[DA CONFERMARE] i cuochi bravi — -co diventa -chi: la c resta dura
+CREA IL PLURALE;Difficile;l'uomo;gli uomini|gli uomi|i uomini;;;[DA CONFERMARE] gli uomini — plurale irregolare
+CREA IL PLURALE;Difficile;il braccio (del corpo);le braccia|i braccii|gli braccia;;;[DA CONFERMARE] le braccia — plurale femminile in -a
+CREA IL PLURALE;Difficile;il dito;le dita|le diti|i dita;;;[DA CONFERMARE] le dita — plurale femminile in -a
+CREA IL PLURALE;Difficile;la mano;le mani|le mane|i mani;;;[DA CONFERMARE] le mani — femminile in -o: il plurale è -i
+CREA IL PLURALE;Difficile;l'uovo;le uova|gli uovi|le uovi;;;[DA CONFERMARE] le uova — plurale femminile in -a
+CREA IL PLURALE;Difficile;il lenzuolo;le lenzuola|le lenzuole|gli lenzuoli;;;[DA CONFERMARE] le lenzuola — plurale femminile in -a
+CREA IL PLURALE;Difficile;il paio;le paia|i pai|i paii;;;[DA CONFERMARE] le paia — plurale femminile in -a
+CREA IL PLURALE;Difficile;il bue;i buoi|i bui|gli bue;;;[DA CONFERMARE] i buoi — plurale irregolare
+CREA IL PLURALE;Difficile;il dio;gli dei|i dei|gli dio;;;[DA CONFERMARE] gli dei — plurale irregolare
+CREA IL PLURALE;Difficile;il re;i re|i ri|gli rei;;;[DA CONFERMARE] i re — non cambia: parola di una sola sillaba
+CREA IL PLURALE;Difficile;la crisi;le crisi|le crise|i crisi;;;[DA CONFERMARE] le crisi — non cambia: parola in -i
+CREA IL PLURALE;Difficile;l'analisi;le analisi|le analise|gli analisi;;;[DA CONFERMARE] le analisi — non cambia: parola in -i
+CREA IL PLURALE;Difficile;l'ipotesi;le ipotesi|le ipotese|gli ipotesi;;;[DA CONFERMARE] le ipotesi — non cambia: parola in -i
+CREA IL PLURALE;Difficile;la serie;le serie|le serii|le seri;;;[DA CONFERMARE] le serie — non cambia: parola in -ie
+CREA IL PLURALE;Difficile;la specie;le specie|le speci|le specii;;;[DA CONFERMARE] le specie — non cambia: parola in -ie
+CREA IL PLURALE;Difficile;il film;i film|i films|gli film;;;[DA CONFERMARE] i film — non cambia: parola straniera
+CREA IL PLURALE;Difficile;lo sport;gli sport|gli sports|i sport;;;[DA CONFERMARE] gli sport — non cambia: parola straniera
+CREA IL PLURALE;Difficile;il bar;i bar|i bari|gli bar;;;[DA CONFERMARE] i bar — non cambia: parola straniera
+CREA IL PLURALE;Difficile;la città;le città|le citti|le cittàs;;;[DA CONFERMARE] le città — non cambia: parola con accento sull'ultima vocale
+CREA IL PLURALE;Difficile;il caffè;i caffè|i caffèi|gli caffè;;;[DA CONFERMARE] i caffè — non cambia: parola con accento sull'ultima vocale
+CREA IL PLURALE;Difficile;la foto;le foto|le fote|i foto;;;[DA CONFERMARE] le foto — non cambia: parola accorciata
+CREA IL PLURALE;Difficile;l'auto;le auto|le aute|gli auto;;;[DA CONFERMARE] le auto — non cambia: parola accorciata
+CREA IL PLURALE;Difficile;la moto;le moto|le mote|i moto;;;[DA CONFERMARE] le moto — non cambia: parola accorciata
+CREA IL PLURALE;Difficile;il cinema;i cinema|i cinemi|le cinema;;;[DA CONFERMARE] i cinema — non cambia: parola accorciata
+CREA IL PLURALE;Difficile;la radio;le radio|le radii|le radie;;;[DA CONFERMARE] le radio — non cambia: parola accorciata
+CREA IL PLURALE;Difficile;il problema;i problemi|le problemi|i problema;;;[DA CONFERMARE] i problemi — maschile in -a: il plurale è -i
+CREA IL PLURALE;Difficile;il tema;i temi|le teme|i tema;;;[DA CONFERMARE] i temi — maschile in -a: il plurale è -i
+CREA IL PLURALE;Difficile;il pianeta;i pianeti|le pianete|i pianeta;;;[DA CONFERMARE] i pianeti — maschile in -a: il plurale è -i
+CREA IL PLURALE;Difficile;il programma;i programmi|le programme|i programma;;;[DA CONFERMARE] i programmi — maschile in -a: il plurale è -i
+CREA IL PLURALE;Difficile;il collega;i colleghi|i collegi|i colleghe;;;[DA CONFERMARE] i colleghi — maschile in -a: -i, con la h per il suono duro
+CREA IL PLURALE;Difficile;il capolavoro;i capolavori|i capolavoro|le capolavori;;;[DA CONFERMARE] i capolavori — parola composta: cambia solo la seconda parte
+CREA IL PLURALE;Difficile;il pomodoro;i pomodori|i pomodoro|le pomodori;;;[DA CONFERMARE] i pomodori — parola composta: cambia solo la seconda parte
+CREA IL PLURALE;Difficile;l'arcobaleno;gli arcobaleni|gli arcobaleno|le arcobaleni;;;[DA CONFERMARE] gli arcobaleni — parola composta: cambia solo la seconda parte
+CREA IL PLURALE;Difficile;il grattacielo;i grattacieli|i grattacielo|i grattaceli;;;[DA CONFERMARE] i grattacieli — parola composta: cambia solo la seconda parte
+CREA IL PLURALE;Difficile;il cavatappi;i cavatappi|i cavatappo|gli cavatappi;;;[DA CONFERMARE] i cavatappi — non cambia: il secondo elemento è già plurale
+CREA IL PLURALE;Difficile;l'apriscatole;gli apriscatole|gli apriscatola|le apriscatole;;;[DA CONFERMARE] gli apriscatole — non cambia: il secondo elemento è già plurale
+CREA IL PLURALE;Difficile;il portafoglio;i portafogli|i portafoglii|gli portafogli;;;[DA CONFERMARE] i portafogli — parola composta: -io senza accento fa -i
+CREA IL PLURALE;Difficile;il capostazione;i capistazione|i capostazioni|i capistazioni;;;[DA CONFERMARE] i capistazione — cambia la prima parola: capo diventa capi
+CONIUGA IL VERBO;Facile;parlare (noi, presente);parliamo|parlamo|parlate;;;[DA CONFERMARE] parliamo
+CONIUGA IL VERBO;Facile;mangiare (tu, presente);mangi|mangii|mangia;;;[DA CONFERMARE] mangi
+CONIUGA IL VERBO;Facile;cercare (tu, presente);cerchi|cerci|cerca;;;[DA CONFERMARE] cerchi
+CONIUGA IL VERBO;Facile;pagare (noi, presente);paghiamo|pagiamo|pagamo;;;[DA CONFERMARE] paghiamo
+CONIUGA IL VERBO;Facile;capire (lui, presente);capisce|cape|capisci;;;[DA CONFERMARE] capisce
+CONIUGA IL VERBO;Facile;finire (io, presente);finisco|fino|finisci;;;[DA CONFERMARE] finisco
+CONIUGA IL VERBO;Facile;preferire (loro, presente);preferiscono|preferono|preferiscano;;;[DA CONFERMARE] preferiscono
+CONIUGA IL VERBO;Facile;scrivere (voi, presente);scrivete|scrivate|scrivite;;;[DA CONFERMARE] scrivete
+CONIUGA IL VERBO;Facile;vedere (loro, presente);vedono|vedeno|vedano;;;[DA CONFERMARE] vedono
+CONIUGA IL VERBO;Facile;dormire (tu, presente);dormi|dormisci|dorme;;;[DA CONFERMARE] dormi
+CONIUGA IL VERBO;Facile;aprire (io, presente);apro|aprisco|apri;;;[DA CONFERMARE] apro
+CONIUGA IL VERBO;Facile;essere (io, presente);sono|sone|sei;;;[DA CONFERMARE] sono
+CONIUGA IL VERBO;Facile;essere (voi, presente);siete|sete|siamo;;;[DA CONFERMARE] siete
+CONIUGA IL VERBO;Facile;essere (loro, presente);sono|sonno|siete;;;[DA CONFERMARE] sono
+CONIUGA IL VERBO;Facile;avere (io, presente);ho|o|hai;;;[DA CONFERMARE] ho
+CONIUGA IL VERBO;Facile;avere (tu, presente);hai|ai|ha;;;[DA CONFERMARE] hai
+CONIUGA IL VERBO;Facile;avere (noi, presente);abbiamo|abiamo|avete;;;[DA CONFERMARE] abbiamo
+CONIUGA IL VERBO;Facile;andare (io, presente);vado|ando|vai;;;[DA CONFERMARE] vado
+CONIUGA IL VERBO;Facile;andare (loro, presente);vanno|vadono|vano;;;[DA CONFERMARE] vanno
+CONIUGA IL VERBO;Facile;andare (noi, presente);andiamo|andamo|andate;;;[DA CONFERMARE] andiamo
+CONIUGA IL VERBO;Facile;fare (io, presente);faccio|facio|fai;;;[DA CONFERMARE] faccio
+CONIUGA IL VERBO;Facile;fare (voi, presente);fate|fatte|fanno;;;[DA CONFERMARE] fate
+CONIUGA IL VERBO;Facile;fare (loro, presente);fanno|fano|fate;;;[DA CONFERMARE] fanno
+CONIUGA IL VERBO;Facile;leggere (lui, presente);legge|leggie|leggi;;;[DA CONFERMARE] legge
+CONIUGA IL VERBO;Facile;prendere (noi, presente);prendiamo|prendemo|prendete;;;[DA CONFERMARE] prendiamo
+CONIUGA IL VERBO;Facile;sentire (voi, presente);sentite|sentete|sentiate;;;[DA CONFERMARE] sentite
+CONIUGA IL VERBO;Facile;pulire (noi, presente);puliamo|pulisciamo|pulite;;;[DA CONFERMARE] puliamo
+CONIUGA IL VERBO;Facile;studiare (tu, presente);studi|studii|studia;;;[DA CONFERMARE] studi
+CONIUGA IL VERBO;Facile;cominciare (tu, presente);cominci|comincii|comincia;;;[DA CONFERMARE] cominci
+CONIUGA IL VERBO;Facile;lavorare (lui, presente);lavora|lavore|lavorano;;;[DA CONFERMARE] lavora
+CONIUGA IL VERBO;Facile;vivere (io, presente);vivo|vivio|vive;;;[DA CONFERMARE] vivo
+CONIUGA IL VERBO;Medio;fare (io, passato prossimo);ho fatto|ho facciuto|sono fatto;;;[DA CONFERMARE] ho fatto
+CONIUGA IL VERBO;Medio;leggere (tu, passato prossimo);hai letto|hai leggiuto|sei letto;;;[DA CONFERMARE] hai letto
+CONIUGA IL VERBO;Medio;vedere (noi, passato prossimo);abbiamo visto|abbiamo vedito|siamo visto;;;[DA CONFERMARE] abbiamo visto
+CONIUGA IL VERBO;Medio;aprire (loro, passato prossimo);hanno aperto|hanno aprito|sono aperto;;;[DA CONFERMARE] hanno aperto
+CONIUGA IL VERBO;Medio;venire (lei, passato prossimo);è venuta|ha venuto|è venita;;;[DA CONFERMARE] è venuta
+CONIUGA IL VERBO;Medio;essere (noi, passato prossimo);siamo stati/e|abbiamo stato|siamo essuti/e;;;[DA CONFERMARE] siamo stati/e
+CONIUGA IL VERBO;Medio;alzarsi (io, passato prossimo);mi sono alzato/a|mi ho alzato/a|ti sono alzato/a;;;[DA CONFERMARE] mi sono alzato/a
+CONIUGA IL VERBO;Medio;divertirsi (noi, passato prossimo);ci siamo divertiti/e|ci abbiamo divertito|mi siamo divertiti/e;;;[DA CONFERMARE] ci siamo divertiti/e
+CONIUGA IL VERBO;Medio;essere (io, imperfetto);ero|essevo|fui;;;[DA CONFERMARE] ero
+CONIUGA IL VERBO;Medio;fare (tu, imperfetto);facevi|farevi|facevo;;;[DA CONFERMARE] facevi
+CONIUGA IL VERBO;Medio;dire (loro, imperfetto);dicevano|dicevono|dissero;;;[DA CONFERMARE] dicevano
+CONIUGA IL VERBO;Medio;bere (io, imperfetto);bevevo|bevavo|bevevi;;;[DA CONFERMARE] bevevo
+CONIUGA IL VERBO;Medio;parlare (voi, imperfetto);parlavate|parlavete|parlavamo;;;[DA CONFERMARE] parlavate
+CONIUGA IL VERBO;Medio;finire (lui, imperfetto);finiva|finisceva|finivo;;;[DA CONFERMARE] finiva
+CONIUGA IL VERBO;Medio;avere (noi, imperfetto);avevamo|avevemo|avemmo;;;[DA CONFERMARE] avevamo
+CONIUGA IL VERBO;Medio;andare (noi, futuro semplice);andremo|anderemo|andavamo;;;[DA CONFERMARE] andremo
+CONIUGA IL VERBO;Medio;essere (tu, futuro semplice);sarai|serai|saresti;;;[DA CONFERMARE] sarai
+CONIUGA IL VERBO;Medio;avere (io, futuro semplice);avrò|averò|avrei;;;[DA CONFERMARE] avrò
+CONIUGA IL VERBO;Medio;fare (lui, futuro semplice);farà|facerà|farebbe;;;[DA CONFERMARE] farà
+CONIUGA IL VERBO;Medio;vedere (voi, futuro semplice);vedrete|vederete|vedreste;;;[DA CONFERMARE] vedrete
+CONIUGA IL VERBO;Medio;venire (loro, futuro semplice);verranno|venirano|verrebbero;;;[DA CONFERMARE] verranno
+CONIUGA IL VERBO;Medio;dovere (noi, futuro semplice);dovremo|doveremo|dovremmo;;;[DA CONFERMARE] dovremo
+CONIUGA IL VERBO;Medio;parlare (tu, futuro semplice);parlerai|parlarai|parleresti;;;[DA CONFERMARE] parlerai
+CONIUGA IL VERBO;Medio;alzarsi (tu, presente);ti alzi|mi alzi|ti alza;;;[DA CONFERMARE] ti alzi
+CONIUGA IL VERBO;Medio;divertirsi (io, presente);mi diverto|mi divertisco|ti diverto;;;[DA CONFERMARE] mi diverto
+CONIUGA IL VERBO;Medio;vestirsi (noi, presente);ci vestiamo|si vestiamo|ci vestimo;;;[DA CONFERMARE] ci vestiamo
+CONIUGA IL VERBO;Medio;lavarsi (lui, presente);si lava|ti lava|si lavano;;;[DA CONFERMARE] si lava
+CONIUGA IL VERBO;Medio;chiamarsi (io, presente);mi chiamo|ti chiamo|mi chiami;;;[DA CONFERMARE] mi chiamo
+CONIUGA IL VERBO;Medio;chiamarsi (voi, presente);vi chiamate|ci chiamate|vi chiamano;;;[DA CONFERMARE] vi chiamate
+CONIUGA IL VERBO;Medio;alzarsi (loro, presente);si alzano|si alzono|ci alzano;;;[DA CONFERMARE] si alzano
+CONIUGA IL VERBO;Medio;divertirsi (lei, presente);si diverte|si divertisce|ti diverte;;;[DA CONFERMARE] si diverte
+CONIUGA IL VERBO;Difficile;essere (io, congiuntivo presente);che io sia|che io sono|che io fossi;;;[DA CONFERMARE] che io sia
+CONIUGA IL VERBO;Difficile;avere (tu, congiuntivo presente);che tu abbia|che tu hai|che tu abbi;;;[DA CONFERMARE] che tu abbia
+CONIUGA IL VERBO;Difficile;andare (lui, congiuntivo presente);che lui vada|che lui va|che lui andi;;;[DA CONFERMARE] che lui vada
+CONIUGA IL VERBO;Difficile;fare (noi, congiuntivo presente);che noi facciamo|che noi faciamo|che noi facessimo;;;[DA CONFERMARE] che noi facciamo
+CONIUGA IL VERBO;Difficile;potere (voi, congiuntivo presente);che voi possiate|che voi potiate|che voi potete;;;[DA CONFERMARE] che voi possiate
+CONIUGA IL VERBO;Difficile;sapere (io, congiuntivo presente);che io sappia|che io sapia|che io so;;;[DA CONFERMARE] che io sappia
+CONIUGA IL VERBO;Difficile;venire (loro, congiuntivo presente);che loro vengano|che loro venino|che loro vengono;;;[DA CONFERMARE] che loro vengano
+CONIUGA IL VERBO;Difficile;dare (tu, congiuntivo presente);che tu dia|che tu dai|che tu dii;;;[DA CONFERMARE] che tu dia
+CONIUGA IL VERBO;Difficile;stare (lei, congiuntivo presente);che lei stia|che lei sta|che lei stii;;;[DA CONFERMARE] che lei stia
+CONIUGA IL VERBO;Difficile;essere (io, congiuntivo imperfetto);che io fossi|che io sia|che io fussi;;;[DA CONFERMARE] che io fossi
+CONIUGA IL VERBO;Difficile;avere (tu, congiuntivo imperfetto);che tu avessi|che tu abbia|che tu avevi;;;[DA CONFERMARE] che tu avessi
+CONIUGA IL VERBO;Difficile;fare (noi, congiuntivo imperfetto);che noi facessimo|che noi facemmo|che noi facevamo;;;[DA CONFERMARE] che noi facessimo
+CONIUGA IL VERBO;Difficile;dare (lui, congiuntivo imperfetto);che lui desse|che lui dasse|che lui dia;;;[DA CONFERMARE] che lui desse
+CONIUGA IL VERBO;Difficile;stare (voi, congiuntivo imperfetto);che voi steste|che voi stassete|che voi stiate;;;[DA CONFERMARE] che voi steste
+CONIUGA IL VERBO;Difficile;dire (loro, congiuntivo imperfetto);che loro dicessero|che loro dicessono|che loro dissero;;;[DA CONFERMARE] che loro dicessero
+CONIUGA IL VERBO;Difficile;bere (io, congiuntivo imperfetto);che io bevessi|che io bevi|che io beva;;;[DA CONFERMARE] che io bevessi
+CONIUGA IL VERBO;Difficile;volere (io, condizionale presente);vorrei|volerei|vorrò;;;[DA CONFERMARE] vorrei
+CONIUGA IL VERBO;Difficile;potere (tu, condizionale presente);potresti|poteresti|potrai;;;[DA CONFERMARE] potresti
+CONIUGA IL VERBO;Difficile;dovere (noi, condizionale presente);dovremmo|doveremmo|dovremo;;;[DA CONFERMARE] dovremmo
+CONIUGA IL VERBO;Difficile;andare (voi, condizionale presente);andreste|andereste|andrete;;;[DA CONFERMARE] andreste
+CONIUGA IL VERBO;Difficile;venire (lui, condizionale presente);verrebbe|venirebbe|verrà;;;[DA CONFERMARE] verrebbe
+CONIUGA IL VERBO;Difficile;essere (io, condizionale presente);sarei|serei|sarò;;;[DA CONFERMARE] sarei
+CONIUGA IL VERBO;Difficile;avere (loro, condizionale presente);avrebbero|averebbero|avranno;;;[DA CONFERMARE] avrebbero
+CONIUGA IL VERBO;Difficile;fare (lei, condizionale presente);farebbe|facerebbe|farà;;;[DA CONFERMARE] farebbe
+CONIUGA IL VERBO;Difficile;mangiare (io, condizionale passato);avrei mangiato|sarei mangiato|avessi mangiato;;;[DA CONFERMARE] avrei mangiato
+CONIUGA IL VERBO;Difficile;andare (noi, condizionale passato);saremmo andati/e|avremmo andato|saremo andati/e;;;[DA CONFERMARE] saremmo andati/e
+CONIUGA IL VERBO;Difficile;fare (tu, condizionale passato);avresti fatto|saresti fatto|avrai fatto;;;[DA CONFERMARE] avresti fatto
+CONIUGA IL VERBO;Difficile;venire (voi, condizionale passato);sareste venuti/e|avreste venuto|sarete venuti/e;;;[DA CONFERMARE] sareste venuti/e
+CONIUGA IL VERBO;Difficile;essere (lui, condizionale passato);sarebbe stato|avrebbe stato|sarebbe essuto;;;[DA CONFERMARE] sarebbe stato
+CONIUGA IL VERBO;Difficile;dire (loro, condizionale passato);avrebbero detto|sarebbero detto|avrebbero dito;;;[DA CONFERMARE] avrebbero detto
+CONIUGA IL VERBO;Difficile;partire (lei, condizionale passato);sarebbe partita|avrebbe partita|sarebbe partato;;;[DA CONFERMARE] sarebbe partita
+CONIUGA IL VERBO;Difficile;essere (io, passato remoto);fui|fu|ero;;;[DA CONFERMARE] fui
+CONIUGA IL VERBO;Difficile;avere (lui, passato remoto);ebbe|ebbi|aveva;;;[DA CONFERMARE] ebbe
+CONIUGA IL VERBO;Difficile;fare (noi, passato remoto);facemmo|fecemmo|facevamo;;;[DA CONFERMARE] facemmo
+CONIUGA IL VERBO;Difficile;dire (lui, passato remoto);disse|dise|diceva;;;[DA CONFERMARE] disse
+CONIUGA IL VERBO;Difficile;nascere (lei, passato remoto);nacque|nasque|nasceva;;;[DA CONFERMARE] nacque
+CONIUGA IL VERBO;Difficile;venire (loro, passato remoto);vennero|venero|venivano;;;[DA CONFERMARE] vennero
+CONIUGA IL VERBO;Difficile;vedere (io, passato remoto);vidi|vedi|vedevo;;;[DA CONFERMARE] vidi
+CONIUGA IL VERBO;Difficile;prendere (noi, passato remoto);prendemmo|prendimmo|prendevamo;;;[DA CONFERMARE] prendemmo
+CONIUGA IL VERBO;Difficile;scrivere (lui, passato remoto);scrisse|scrise|scriveva;;;[DA CONFERMARE] scrisse
+CONIUGA IL VERBO;Difficile;mettere (voi, passato remoto);metteste|mettesti|mettevate;;;[DA CONFERMARE] metteste
+CONIUGA IL VERBO;Difficile;parlare (noi, passato remoto);parlammo|parlemmo|parlavamo;;;[DA CONFERMARE] parlammo
+CONIUGA IL VERBO;Difficile;vendere (tu, passato remoto);vendesti|vendisti|vendevi;;;[DA CONFERMARE] vendesti
+CONIUGA IL VERBO;Difficile;partire (noi, passato remoto);partimmo|partemmo|partivamo;;;[DA CONFERMARE] partimmo
+CONIUGA IL VERBO;Difficile;fare (io, trapassato prossimo);avevo fatto|ero fatto|avrei fatto;;;[DA CONFERMARE] avevo fatto
+CONIUGA IL VERBO;Difficile;andare (noi, trapassato prossimo);eravamo andati/e|avevamo andato|saremmo andati/e;;;[DA CONFERMARE] eravamo andati/e
+CONIUGA IL VERBO;Difficile;vedere (tu, trapassato prossimo);avevi visto|eri visto|avevi vedito;;;[DA CONFERMARE] avevi visto
+CONIUGA IL VERBO;Difficile;venire (lei, trapassato prossimo);era venuta|aveva venuto|era venita;;;[DA CONFERMARE] era venuta
+CONIUGA IL VERBO;Difficile;essere (loro, trapassato prossimo);erano stati/e|avevano stato|erano essuti/e;;;[DA CONFERMARE] erano stati/e
+CONIUGA IL VERBO;Difficile;scrivere (voi, trapassato prossimo);avevate scritto|avevate scrivuto|eravate scritto;;;[DA CONFERMARE] avevate scritto
+CONIUGA IL VERBO;Difficile;partire (noi, trapassato prossimo);eravamo partiti/e|avevamo partito|saremmo partiti/e;;;[DA CONFERMARE] eravamo partiti/e
+CONIUGA IL VERBO;Difficile;dire (lui, trapassato prossimo);aveva detto|era detto|aveva dito;;;[DA CONFERMARE] aveva detto
+INDOVINA IL MODO DI DIRE;Facile;in bocca al lupo!;Buona fortuna!|Attenzione, c'è un lupo!|Ho tanta fame!;;;[DA CONFERMARE] Buona fortuna! Si risponde «Crepi!». Es.: «Domani hai l'esame? In bocca al lupo!»
+INDOVINA IL MODO DI DIRE;Facile;essere al verde;Non avere più soldi|Essere pieno di energia|Amare la natura;;;[DA CONFERMARE] Non avere più soldi. Es.: «A fine mese sono sempre al verde.»
+INDOVINA IL MODO DI DIRE;Facile;costare un occhio della testa;Costare moltissimo|Essere molto bello da vedere|Fare male agli occhi;;;[DA CONFERMARE] Costare moltissimo. Es.: «Quella borsa costa un occhio della testa.»
+INDOVINA IL MODO DI DIRE;Facile;avere le mani bucate;Spendere troppi soldi|Avere le mani ferite|Far cadere sempre le cose;;;[DA CONFERMARE] Spendere troppi soldi, non saper risparmiare. Es.: «Marco ha le mani bucate, non risparmia mai.»
+INDOVINA IL MODO DI DIRE;Facile;non vedere l'ora;Aspettare con molta impazienza|Non avere un orologio|Non avere tempo;;;[DA CONFERMARE] Aspettare con molta impazienza. Es.: «Non vedo l'ora di partire per le vacanze!»
+INDOVINA IL MODO DI DIRE;Facile;fare due passi;Fare una breve passeggiata|Fare solo due cose|Camminare per molte ore;;;[DA CONFERMARE] Fare una breve passeggiata. Es.: «Dopo cena facciamo due passi?»
+INDOVINA IL MODO DI DIRE;Facile;essere una buona forchetta;Mangiare molto e con gusto|Cucinare molto bene|Usare bene le posate;;;[DA CONFERMARE] Mangiare molto e con gusto. Es.: «Mio zio è una buona forchetta, prende sempre il bis.»
+INDOVINA IL MODO DI DIRE;Facile;acqua in bocca!;Non dire niente a nessuno|Ho molta sete|Parla più forte;;;[DA CONFERMARE] Non dire niente a nessuno, tenere un segreto. Es.: «È una sorpresa per Anna, acqua in bocca!»
+INDOVINA IL MODO DI DIRE;Facile;avere una fame da lupi;Avere moltissima fame|Mangiare solo carne|Avere paura degli animali;;;[DA CONFERMARE] Avere moltissima fame. Es.: «Dopo la gita avevo una fame da lupi.»
+INDOVINA IL MODO DI DIRE;Facile;dormire come un ghiro;Dormire profondamente|Dormire pochissimo|Dormire in un bosco;;;[DA CONFERMARE] Dormire profondamente, a lungo. Es.: «Stanotte ho dormito come un ghiro.»
+INDOVINA IL MODO DI DIRE;Facile;fare quattro chiacchiere;Parlare un po' con calma|Parlare solo di quattro argomenti|Litigare con qualcuno;;;[DA CONFERMARE] Parlare un po' con calma, in modo informale. Es.: «Vieni, facciamo quattro chiacchiere davanti a un caffè.»
+INDOVINA IL MODO DI DIRE;Facile;essere in gamba;Essere bravo e capace|Avere una gamba rotta|Essere molto alto;;;[DA CONFERMARE] Essere bravo e capace. Es.: «Il nuovo collega è davvero in gamba.»
+INDOVINA IL MODO DI DIRE;Facile;piovere a catinelle;Piovere fortissimo|Piovere solo un poco|Piovere per pochi minuti;;;[DA CONFERMARE] Piovere fortissimo. Es.: «Ieri pioveva a catinelle, siamo rimasti a casa.»
+INDOVINA IL MODO DI DIRE;Facile;avere la testa fra le nuvole;Essere distratto e sognare|Avere mal di testa col maltempo|Essere molto in alto;;;[DA CONFERMARE] Essere distratto e sognare a occhi aperti. Es.: «Luca ha sempre la testa fra le nuvole.»
+INDOVINA IL MODO DI DIRE;Facile;a occhio e croce;Più o meno, senza misurare|Con grande attenzione|Con gli occhi chiusi;;;[DA CONFERMARE] Più o meno, in modo approssimativo. Es.: «A occhio e croce saranno venti persone.»
+INDOVINA IL MODO DI DIRE;Facile;avere un cuore d'oro;Essere molto generoso e buono|Avere molti soldi|Amare i gioielli;;;[DA CONFERMARE] Essere molto generoso e buono. Es.: «Nonna ha un cuore d'oro, aiuta tutti.»
+INDOVINA IL MODO DI DIRE;Facile;toccare ferro;Fare un gesto contro la sfortuna|Riparare un oggetto di metallo|Chiedere un favore;;;[DA CONFERMARE] Fare un gesto per scacciare la sfortuna. Es.: «Spero di passare l'esame, tocco ferro!»
+INDOVINA IL MODO DI DIRE;Facile;avere il pollice verde;Essere bravo con le piante|Avere un dito sporco|Amare il colore verde;;;[DA CONFERMARE] Essere bravo a curare le piante. Es.: «Maria ha il pollice verde, il suo balcone è un giardino.»
+INDOVINA IL MODO DI DIRE;Facile;prendere in giro;Scherzare su qualcuno|Portare qualcuno a fare un giro|Dare un passaggio in macchina;;;[DA CONFERMARE] Scherzare su qualcuno, spesso in modo poco gentile. Es.: «Smettila di prendermi in giro!»
+INDOVINA IL MODO DI DIRE;Facile;mettersi nei panni di qualcuno;Capire la situazione di un altro|Prestare i propri vestiti|Cambiare lavoro;;;[DA CONFERMARE] Capire la situazione di un altro. Es.: «Mettiti nei miei panni, ero molto stanco.»
+INDOVINA IL MODO DI DIRE;Facile;avere un nodo alla gola;Essere molto emozionato o triste|Avere mal di gola|Non riuscire a mangiare;;;[DA CONFERMARE] Essere molto emozionato o triste. Es.: «Al saluto finale avevo un nodo alla gola.»
+INDOVINA IL MODO DI DIRE;Facile;darsela a gambe;Scappare via|Cadere a terra|Camminare lentamente;;;[DA CONFERMARE] Scappare via in fretta. Es.: «Quando ha visto il cane, se l'è data a gambe.»
+INDOVINA IL MODO DI DIRE;Facile;fare finta di niente;Comportarsi come se nulla fosse|Non fare nulla di utile|Rispondere di no;;;[DA CONFERMARE] Comportarsi come se nulla fosse. Es.: «Ha fatto finta di niente e se n'è andato.»
+INDOVINA IL MODO DI DIRE;Facile;avere il cuore in gola;Essere molto agitato o spaventato|Avere mal di gola|Avere molta fame;;;[DA CONFERMARE] Essere molto agitato o spaventato. Es.: «Prima del concerto avevo il cuore in gola.»
+INDOVINA IL MODO DI DIRE;Facile;dare una mano;Aiutare qualcuno|Salutare con un gesto|Stringere la mano;;;[DA CONFERMARE] Aiutare qualcuno. Es.: «Mi dai una mano a portare le borse?»
+INDOVINA IL MODO DI DIRE;Medio;rompere il ghiaccio;Superare l'imbarazzo iniziale|Rompere un pezzo di ghiaccio|Avere molto freddo;;;[DA CONFERMARE] Iniziare a parlare e togliere l'imbarazzo. Es.: «Per rompere il ghiaccio ha raccontato una barzelletta.»
+INDOVINA IL MODO DI DIRE;Medio;prendere due piccioni con una fava;Ottenere due risultati con una sola azione|Cacciare due uccelli|Mangiare troppo;;;[DA CONFERMARE] Ottenere due risultati con una sola azione. Es.: «Vado in banca e passo in posta, così prendo due piccioni con una fava.»
+INDOVINA IL MODO DI DIRE;Medio;fare una vita da cani;Vivere male, con molta fatica|Avere molti animali|Essere sempre fedele;;;[DA CONFERMARE] Vivere male, con molta fatica. Es.: «In questo periodo faccio una vita da cani.»
+INDOVINA IL MODO DI DIRE;Medio;cercare il pelo nell'uovo;Cercare difetti anche dove non ci sono|Pulire con cura le uova|Cercare un ingrediente per cucinare;;;[DA CONFERMARE] Cercare difetti anche dove non ci sono. Es.: «Non cercare il pelo nell'uovo, il lavoro è fatto bene.»
+INDOVINA IL MODO DI DIRE;Medio;restare a bocca aperta;Restare molto stupiti|Avere sonno|Avere fame;;;[DA CONFERMARE] Restare molto stupiti. Es.: «Alla vista del mare sono rimasta a bocca aperta.»
+INDOVINA IL MODO DI DIRE;Medio;essere al settimo cielo;Essere felicissimo|Viaggiare in aereo|Essere molto in alto;;;[DA CONFERMARE] Essere felicissimo. Es.: «Dopo la promozione era al settimo cielo.»
+INDOVINA IL MODO DI DIRE;Medio;mettere il carro davanti ai buoi;Fare le cose nell'ordine sbagliato|Lavorare in campagna|Portare troppo peso;;;[DA CONFERMARE] Fare le cose nell'ordine sbagliato. Es.: «Comprare i mobili prima della casa è mettere il carro davanti ai buoi.»
+INDOVINA IL MODO DI DIRE;Medio;alzare il gomito;Bere troppo alcol|Chiedere la parola|Avere un dolore al braccio;;;[DA CONFERMARE] Bere troppo alcol. Es.: «Alla festa Paolo ha alzato un po' il gomito.»
+INDOVINA IL MODO DI DIRE;Medio;fare orecchie da mercante;Fingere di non sentire|Fare affari al mercato|Ascoltare con attenzione;;;[DA CONFERMARE] Fingere di non sentire. Es.: «Gli ho chiesto aiuto, ma ha fatto orecchie da mercante.»
+INDOVINA IL MODO DI DIRE;Medio;avere un diavolo per capello;Essere furiosissimo|Avere i capelli molto disordinati|Essere molto cattivo;;;[DA CONFERMARE] Essere furiosissimo. Es.: «Dopo il litigio aveva un diavolo per capello.»
+INDOVINA IL MODO DI DIRE;Medio;tutto fumo e niente arrosto;Molte apparenze e poca sostanza|Un cibo bruciato|Una cena molto lunga;;;[DA CONFERMARE] Molte apparenze e poca sostanza. Es.: «Il suo progetto è tutto fumo e niente arrosto.»
+INDOVINA IL MODO DI DIRE;Medio;essere come il prezzemolo;Essere presente dappertutto|Essere sempre fresco e sano|Dare sapore a tutto;;;[DA CONFERMARE] Essere presente dappertutto, in ogni occasione. Es.: «Giulia è come il prezzemolo, la trovi a ogni festa.»
+INDOVINA IL MODO DI DIRE;Medio;prendere un granchio;Sbagliarsi, prendere un abbaglio|Pescare in mare|Avere paura dell'acqua;;;[DA CONFERMARE] Sbagliarsi, prendere un abbaglio. Es.: «Ho preso un granchio, pensavo fosse lui.»
+INDOVINA IL MODO DI DIRE;Medio;fare le ore piccole;Andare a letto molto tardi|Lavorare poche ore|Svegliarsi molto presto;;;[DA CONFERMARE] Andare a letto molto tardi. Es.: «Sabato abbiamo fatto le ore piccole.»
+INDOVINA IL MODO DI DIRE;Medio;cadere dalle nuvole;Essere sorpreso perché non si sapeva nulla|Cadere dal cielo|Essere molto distratto;;;[DA CONFERMARE] Essere sorpreso perché non si sapeva nulla. Es.: «Quando mi hanno detto la notizia sono caduto dalle nuvole.»
+INDOVINA IL MODO DI DIRE;Medio;essere un pesce fuor d'acqua;Sentirsi a disagio|Nuotare benissimo|Avere molta sete;;;[DA CONFERMARE] Sentirsi a disagio in un ambiente nuovo. Es.: «Alla festa mi sentivo un pesce fuor d'acqua.»
+INDOVINA IL MODO DI DIRE;Medio;avere le mani in pasta;Essere coinvolto in un'attività|Cucinare molto bene|Avere le mani sporche di farina;;;[DA CONFERMARE] Essere coinvolto e influente in un'attività. Es.: «Il sindaco ha le mani in pasta in tutti gli affari.»
+INDOVINA IL MODO DI DIRE;Medio;non avere peli sulla lingua;Dire apertamente ciò che si pensa|Parlare troppo piano|Avere un problema alla lingua;;;[DA CONFERMARE] Dire apertamente ciò che si pensa. Es.: «La mia amica non ha peli sulla lingua.»
+INDOVINA IL MODO DI DIRE;Medio;andare a letto con le galline;Andare a dormire molto presto|Dormire in campagna|Andare a letto molto tardi;;;[DA CONFERMARE] Andare a dormire molto presto. Es.: «Mio nonno va a letto con le galline.»
+INDOVINA IL MODO DI DIRE;Medio;mangiare la foglia;Capire che c'è un trucco|Mangiare solo verdura|Avere fame di natura;;;[DA CONFERMARE] Capire che c'è un trucco o un inganno. Es.: «Ho mangiato la foglia, non era una vera offerta.»
+INDOVINA IL MODO DI DIRE;Medio;stare sulle spine;Essere molto in ansia|Stare sdraiato in giardino|Fare attenzione alle rose;;;[DA CONFERMARE] Essere molto in ansia, aspettando qualcosa. Es.: «Aspettando i risultati sto sulle spine.»
+INDOVINA IL MODO DI DIRE;Medio;fare i salti mortali;Fare di tutto con grande fatica|Fare ginnastica|Avere paura di cadere;;;[DA CONFERMARE] Fare di tutto con grande fatica. Es.: «Faccio i salti mortali per arrivare a fine mese.»
+INDOVINA IL MODO DI DIRE;Medio;essere un osso duro;Essere difficile da convincere|Avere un osso rotto|Essere molto magro;;;[DA CONFERMARE] Essere difficile da convincere o da battere. Es.: «Il nostro capo è un osso duro.»
+INDOVINA IL MODO DI DIRE;Medio;mettere la pulce nell'orecchio;Far nascere un dubbio|Avere un insetto in casa|Parlare molto piano;;;[DA CONFERMARE] Far nascere un dubbio. Es.: «Le sue parole mi hanno messo la pulce nell'orecchio.»
+INDOVINA IL MODO DI DIRE;Medio;avere l'acqua alla gola;Essere in grave difficoltà|Avere molta sete|Nuotare in mare;;;[DA CONFERMARE] Essere in grave difficoltà, soprattutto di soldi o di tempo. Es.: «Con tutti questi debiti ha l'acqua alla gola.»
+INDOVINA IL MODO DI DIRE;Medio;essere sul lastrico;Essere in miseria|Camminare per strada|Lavorare nell'edilizia;;;[DA CONFERMARE] Essere in miseria, senza più soldi. Es.: «Dopo il fallimento è finito sul lastrico.»
+INDOVINA IL MODO DI DIRE;Medio;essere con le spalle al muro;Non avere via d'uscita|Dipingere un muro|Avere un dolore alla schiena;;;[DA CONFERMARE] Non avere via d'uscita. Es.: «Con queste prove l'hanno messo con le spalle al muro.»
+INDOVINA IL MODO DI DIRE;Medio;andare a gonfie vele;Andare molto bene|Navigare in barca|Avere troppa aria;;;[DA CONFERMARE] Andare molto bene. Es.: «Il suo negozio va a gonfie vele.»
+INDOVINA IL MODO DI DIRE;Difficile;avere la coda di paglia;Sentirsi in colpa e temere di essere scoperti|Avere un animale da fattoria|Essere molto sporco;;;[DA CONFERMARE] Sentirsi in colpa e temere di essere scoperti. Es.: «Si è offeso subito, ha proprio la coda di paglia.»
+INDOVINA IL MODO DI DIRE;Difficile;menare il can per l'aia;Girare intorno senza arrivare al punto|Portare il cane nel cortile|Educare bene un animale;;;[DA CONFERMARE] Girare intorno al discorso senza arrivare al punto. Es.: «Non menare il can per l'aia, dimmi la verità.»
+INDOVINA IL MODO DI DIRE;Difficile;fare il passo più lungo della gamba;Fare più di quanto si può permettere|Camminare troppo veloce|Avere le gambe lunghe;;;[DA CONFERMARE] Fare più di quanto si può permettere. Es.: «Con quel mutuo ha fatto il passo più lungo della gamba.»
+INDOVINA IL MODO DI DIRE;Difficile;salvare capra e cavoli;Risolvere senza danneggiare nessuno|Fare la spesa in campagna|Rinunciare a una delle due cose;;;[DA CONFERMARE] Risolvere un problema senza danneggiare nessuno. Es.: «Ha trovato un accordo per salvare capra e cavoli.»
+INDOVINA IL MODO DI DIRE;Difficile;fare buon viso a cattivo gioco;Accettare con calma una situazione sgradita|Truccarsi per una festa|Essere bravo a giocare a carte;;;[DA CONFERMARE] Accettare con calma una situazione sgradita. Es.: «Non mi piaceva la decisione, ma ho fatto buon viso a cattivo gioco.»
+INDOVINA IL MODO DI DIRE;Difficile;gettare la spugna;Arrendersi|Pulire con cura|Buttare via qualcosa di vecchio;;;[DA CONFERMARE] Arrendersi, rinunciare. Es.: «Dopo tre tentativi ha gettato la spugna.»
+INDOVINA IL MODO DI DIRE;Difficile;essere l'ultima ruota del carro;Contare pochissimo|Arrivare per ultimo|Guidare un veicolo lento;;;[DA CONFERMARE] Contare pochissimo in un gruppo. Es.: «In ufficio mi sento l'ultima ruota del carro.»
+INDOVINA IL MODO DI DIRE;Difficile;piantare in asso;Abbandonare all'improvviso|Piantare un albero|Vincere a carte;;;[DA CONFERMARE] Abbandonare qualcuno all'improvviso. Es.: «Mi ha piantato in asso proprio sul più bello.»
+INDOVINA IL MODO DI DIRE;Difficile;tagliare la corda;Scappare di nascosto|Finire un lavoro|Tagliare un pezzo di corda;;;[DA CONFERMARE] Scappare di nascosto. Es.: «Appena è arrivato il professore, ha tagliato la corda.»
+INDOVINA IL MODO DI DIRE;Difficile;sputare il rospo;Dire finalmente ciò che si nasconde|Avere la nausea|Cacciare via un animale;;;[DA CONFERMARE] Dire finalmente ciò che si tiene nascosto. Es.: «Dai, sputa il rospo, cosa è successo?»
+INDOVINA IL MODO DI DIRE;Difficile;fare un buco nell'acqua;Non ottenere nessun risultato|Tuffarsi in piscina|Scoprire una perdita;;;[DA CONFERMARE] Non ottenere nessun risultato. Es.: «Il nostro tentativo è stato un buco nell'acqua.»
+INDOVINA IL MODO DI DIRE;Difficile;dare i numeri;Dire cose senza senso|Giocare alla lotteria|Contare ad alta voce;;;[DA CONFERMARE] Dire cose senza senso, comportarsi in modo strano. Es.: «Ma che dici? Stai dando i numeri?»
+INDOVINA IL MODO DI DIRE;Difficile;rendere pan per focaccia;Vendicarsi allo stesso modo|Fare un regalo generoso|Cucinare per gli altri;;;[DA CONFERMARE] Rispondere a un'offesa con un'offesa uguale. Es.: «Mi ha insultato e io gli ho reso pan per focaccia.»
+INDOVINA IL MODO DI DIRE;Difficile;rimanere con un pugno di mosche;Restare senza niente|Avere insetti in casa|Fare a pugni;;;[DA CONFERMARE] Restare senza niente, deluso. Es.: «Ho aspettato per ore e sono rimasto con un pugno di mosche.»
+INDOVINA IL MODO DI DIRE;Difficile;essere alla frutta;Essere alla fine, senza più risorse|Mangiare solo il dolce|Seguire una dieta sana;;;[DA CONFERMARE] Essere alla fine, senza più risorse. Es.: «Dopo mesi di lavoro siamo alla frutta.»
+INDOVINA IL MODO DI DIRE;Difficile;prendere lucciole per lanterne;Confondere una cosa con un'altra|Fare luce di notte|Andare in campagna;;;[DA CONFERMARE] Confondere una cosa con un'altra. Es.: «Hai preso lucciole per lanterne, non è lui.»
+INDOVINA IL MODO DI DIRE;Difficile;avere il dente avvelenato;Provare rancore verso qualcuno|Avere mal di denti|Essere stato morso;;;[DA CONFERMARE] Provare rancore verso qualcuno. Es.: «Ha il dente avvelenato contro il suo ex capo.»
+INDOVINA IL MODO DI DIRE;Difficile;mettere i bastoni tra le ruote;Ostacolare qualcuno|Riparare una bicicletta|Aiutare un amico a partire;;;[DA CONFERMARE] Ostacolare qualcuno nei suoi progetti. Es.: «Non mettermi i bastoni tra le ruote!»
+INDOVINA IL MODO DI DIRE;Difficile;trovarsi tra l'incudine e il martello;Essere stretto fra due difficoltà|Lavorare dal fabbro|Subire un colpo forte;;;[DA CONFERMARE] Essere stretto fra due difficoltà senza via d'uscita. Es.: «Tra capo e clienti mi trovo tra l'incudine e il martello.»
+INDOVINA IL MODO DI DIRE;Difficile;avere una gatta da pelare;Avere un problema difficile da risolvere|Avere un animale da curare|Essere molto pigro;;;[DA CONFERMARE] Avere un problema difficile da risolvere. Es.: «Mi hanno lasciato una bella gatta da pelare.»
+INDOVINA IL MODO DI DIRE;Difficile;fare il bello e il cattivo tempo;Comandare a proprio piacimento|Parlare del meteo|Cambiare spesso idea;;;[DA CONFERMARE] Comandare a proprio piacimento. Es.: «Nella ditta il direttore fa il bello e il cattivo tempo.»
+INDOVINA IL MODO DI DIRE;Difficile;mettere la mano sul fuoco;Essere sicurissimo di qualcuno|Cucinare per tutti|Rischiare di farsi male;;;[DA CONFERMARE] Essere sicurissimo dell'onestà di qualcuno. Es.: «Per lui metterei la mano sul fuoco.»
+INDOVINA IL MODO DI DIRE;Difficile;fare di tutta l'erba un fascio;Giudicare tutti allo stesso modo|Raccogliere l'erba nel prato|Mettere in ordine;;;[DA CONFERMARE] Giudicare tutti allo stesso modo, senza distinguere. Es.: «Non fare di tutta l'erba un fascio, non tutti sono disonesti.»
+INDOVINA IL MODO DI DIRE;Difficile;essere in alto mare;Essere lontano dalla conclusione|Navigare lontano da casa|Avere paura dell'acqua;;;[DA CONFERMARE] Essere lontano dalla conclusione. Es.: «Con il progetto siamo ancora in alto mare.»
+INDOVINA IL MODO DI DIRE;Difficile;non avere né capo né coda;Non avere nessun senso|Essere senza testa|Non avere animali;;;[DA CONFERMARE] Non avere nessun senso logico. Es.: «Il tuo racconto non ha né capo né coda.»
+TROVA L'ERRORE;Facile;Mia sorella è 25 anni.;ha 25 anni|sta 25 anni|ha 25 anno;;;[DA CONFERMARE] Mia sorella ha 25 anni. — l'età si dice con avere: ha 25 anni
+TROVA L'ERRORE;Facile;Chiudi la finestra, per favore, sono molto freddo.;ho molto freddo|faccio molto freddo|sto molto freddo;;;[DA CONFERMARE] Chiudi la finestra, per favore, ho molto freddo. — con freddo, caldo, fame si usa avere
+TROVA L'ERRORE;Facile;Sì, sei giusto, il treno parte alle otto.;hai ragione|sei ragione|hai ragioni;;;[DA CONFERMARE] Sì, hai ragione, il treno parte alle otto. — avere ragione, non essere giusto
+TROVA L'ERRORE;Facile;Mi fa male il mano destra.;la mano|lo mano|il mani;;;[DA CONFERMARE] Mi fa male la mano destra. — mano è femminile: la mano
+TROVA L'ERRORE;Facile;Ho una fratello e due sorelle.;un fratello|uno fratello|un fratelli;;;[DA CONFERMARE] Ho un fratello e due sorelle. — fratello è maschile: un fratello
+TROVA L'ERRORE;Facile;Mia zia abita a Italia da molti anni.;in Italia|per Italia|da Italia;;;[DA CONFERMARE] Mia zia abita in Italia da molti anni. — con i paesi si usa in: in Italia
+TROVA L'ERRORE;Facile;In cucina c'è due sedie e un tavolo.;ci sono due sedie|sono due sedie|ci sta due sedie;;;[DA CONFERMARE] In cucina ci sono due sedie e un tavolo. — plurale: ci sono, non c'è
+TROVA L'ERRORE;Facile;Maria è un amica di mia madre.;un'amica|uno amica|un'amico;;;[DA CONFERMARE] Maria è un'amica di mia madre. — femminile davanti a vocale: un'amica
+TROVA L'ERRORE;Facile;Ho un'amico a Milano.;un amico|uno amico|una amico;;;[DA CONFERMARE] Ho un amico a Milano. — maschile: un amico, senza apostrofo
+TROVA L'ERRORE;Facile;Mi piace i gatti, soprattutto quelli neri.;piacciono i gatti|piacciono gli gatti|piacciono i gatto;;;[DA CONFERMARE] Mi piacciono i gatti, soprattutto quelli neri. — il verbo piacere concorda con ciò che piace
+TROVA L'ERRORE;Facile;Il mio padre lavora in banca.;Mio padre|Mia padre|Miei padre;;;[DA CONFERMARE] Mio padre lavora in banca. — senza articolo con un familiare al singolare
+TROVA L'ERRORE;Facile;Questa è mio sorella, si chiama Elena.;mia sorella|mie sorella|mia sorelle;;;[DA CONFERMARE] Questa è mia sorella, si chiama Elena. — il possessivo concorda: mia sorella
+TROVA L'ERRORE;Facile;Oggi pomeriggio andiamo a il mercato.;al mercato|dal mercato|per il mercato;;;[DA CONFERMARE] Oggi pomeriggio andiamo al mercato. — a + il diventa al
+TROVA L'ERRORE;Facile;Questa estate i miei amici vanno in Venezia.;a Venezia|da Venezia|per Venezia;;;[DA CONFERMARE] Questa estate i miei amici vanno a Venezia. — con le città si usa a: a Venezia
+TROVA L'ERRORE;Facile;La zaino di Luca è sulla sedia.;Lo zaino|Il zaino|L'zaino;;;[DA CONFERMARE] Lo zaino di Luca è sulla sedia. — davanti a z si usa lo: lo zaino
+TROVA L'ERRORE;Facile;La casa di Anna è molto grande e bello.;bella|belle|belli;;;[DA CONFERMARE] La casa di Anna è molto grande e bella. — l'aggettivo concorda con casa: bella
+TROVA L'ERRORE;Facile;Compro sempre le mele rosso dal fruttivendolo.;rosse|rossi|rossa;;;[DA CONFERMARE] Compro sempre le mele rosse dal fruttivendolo. — le mele è femminile plurale: rosse
+TROVA L'ERRORE;Facile;Oggi è la mia compleanno e faccio una festa.;il mio compleanno|lo mio compleanno|il mia compleanno;;;[DA CONFERMARE] Oggi è il mio compleanno e faccio una festa. — compleanno è maschile: il mio compleanno
+TROVA L'ERRORE;Facile;Mi chiamo Karin e vengo di Germania.;dalla Germania|dell'Germania|da Germania;;;[DA CONFERMARE] Mi chiamo Karin e vengo dalla Germania. — provenienza: da + articolo, dalla Germania
+TROVA L'ERRORE;Facile;Ogni mattina vado al lavoro a bicicletta.;in bicicletta|con bicicletta|per bicicletta;;;[DA CONFERMARE] Ogni mattina vado al lavoro in bicicletta. — mezzo di trasporto: in bicicletta
+TROVA L'ERRORE;Facile;Ogni giorno io alzo alle sette.;mi alzo|lo alzo|si alzo;;;[DA CONFERMARE] Ogni giorno io mi alzo alle sette. — alzarsi è riflessivo: mi alzo
+TROVA L'ERRORE;Facile;Nella mia classe ci sono molti studente.;molti studenti|molte studenti|molto studenti;;;[DA CONFERMARE] Nella mia classe ci sono molti studenti. — plurale di studente: studenti
+TROVA L'ERRORE;Facile;Oggi non sono bene, ho mal di testa.;non sto bene|non ho bene|non faccio bene;;;[DA CONFERMARE] Oggi non sto bene, ho mal di testa. — la salute si dice con stare: sto bene
+TROVA L'ERRORE;Medio;Ieri sera Luca ha andato al cinema con Paolo.;è andato|sta andato|è andati;;;[DA CONFERMARE] Ieri sera Luca è andato al cinema con Paolo. — andare vuole essere: è andato
+TROVA L'ERRORE;Medio;Stanotte Anna è dormita molto male.;ha dormito|è dormito|ha dormita;;;[DA CONFERMARE] Stanotte Anna ha dormito molto male. — dormire vuole avere: ha dormito
+TROVA L'ERRORE;Medio;Maria e Paola sono arrivato in ritardo.;arrivate|arrivati|arrivata;;;[DA CONFERMARE] Maria e Paola sono arrivate in ritardo. — con essere il participio concorda: arrivate
+TROVA L'ERRORE;Medio;Conosco Marco per molti anni.;da molti anni|di molti anni|in molti anni;;;[DA CONFERMARE] Conosco Marco da molti anni. — durata che continua: presente + da
+TROVA L'ERRORE;Medio;Ho cambiato lavoro prima tre anni.;tre anni fa|da tre anni|di tre anni;;;[DA CONFERMARE] Ho cambiato lavoro tre anni fa. — «vor drei Jahren» si dice tre anni fa, non prima tre anni
+TROVA L'ERRORE;Medio;Sto aspettando per l'autobus da venti minuti.;aspettando l'autobus|aspettando all'autobus|aspettando con l'autobus;;;[DA CONFERMARE] Sto aspettando l'autobus da venti minuti. — aspettare vuole l'oggetto senza preposizione
+TROVA L'ERRORE;Medio;Ieri sera ho telefonato Marco per chiedergli un favore.;a Marco|con Marco|di Marco;;;[DA CONFERMARE] Ieri sera ho telefonato a Marco per chiedergli un favore. — telefonare si usa con a: telefonare a qualcuno
+TROVA L'ERRORE;Medio;Mio fratello è più alto che me.;più alto di me|più alto a me|più alto da me;;;[DA CONFERMARE] Mio fratello è più alto di me. — secondo termine del comparativo: di me
+TROVA L'ERRORE;Medio;Anna canta più bene di Lucia.;meglio|più buono|più bello;;;[DA CONFERMARE] Anna canta meglio di Lucia. — comparativo di bene: meglio, non più bene
+TROVA L'ERRORE;Medio;Oggi a pranzo ho mangiato niente.;non ho mangiato niente|ho non mangiato niente|non ho mangiato nessuno;;;[DA CONFERMARE] Oggi a pranzo non ho mangiato niente. — con niente dopo il verbo serve non
+TROVA L'ERRORE;Medio;Ho incontrato Anna al bar e le ho salutato.;l'ho salutata|le ho salutata|l'ho salutato;;;[DA CONFERMARE] Ho incontrato Anna al bar e l'ho salutata. — oggetto diretto femminile: la saluto, l'ho salutata
+TROVA L'ERRORE;Medio;Ho telefonato a mia nonna e l'ho chiesto come sta.;le ho chiesto|la ho chiesto|ne ho chiesto;;;[DA CONFERMARE] Ho telefonato a mia nonna e le ho chiesto come sta. — a lei si dice le: le ho chiesto
+TROVA L'ERRORE;Medio;Mia sorella lavora in una grande firma a Milano.;una grande azienda|una grande fattoria|una grande fiera;;;[DA CONFERMARE] Mia sorella lavora in una grande azienda a Milano. — firma non è la ditta: si dice azienda
+TROVA L'ERRORE;Medio;Domani alle tre ho un termine dal dentista.;un appuntamento|un appunto|un'attesa;;;[DA CONFERMARE] Domani alle tre ho un appuntamento dal dentista. — termine non è Termin: si dice appuntamento
+TROVA L'ERRORE;Medio;A mezzogiorno mangiamo sempre nella cantina dell'ufficio.;nella mensa|nella mensola|nella messa;;;[DA CONFERMARE] A mezzogiorno mangiamo sempre nella mensa dell'ufficio. — la Kantine si dice mensa, cantina è sotto casa
+TROVA L'ERRORE;Medio;Durante la lezione scrivo sempre molte notizie.;molti appunti|molti appuntamenti|molti appuntati;;;[DA CONFERMARE] Durante la lezione scrivo sempre molti appunti. — notizie sono news: gli appunti si scrivono
+TROVA L'ERRORE;Medio;Mio nonno è in rendita da cinque anni.;in pensione|in pensionato|in pensionamento;;;[DA CONFERMARE] Mio nonno è in pensione da cinque anni. — la Rente si dice pensione
+TROVA L'ERRORE;Medio;Ho dimenticato la camera a casa e non posso fare foto.;la macchina fotografica|la camera fotografica|la macchina fotografa;;;[DA CONFERMARE] Ho dimenticato la macchina fotografica a casa e non posso fare foto. — camera è una stanza: si dice macchina fotografica
+TROVA L'ERRORE;Medio;Ho vinto uno stipendio per studiare a Bologna.;una borsa di studio|una borsa di studi|una busta di studio;;;[DA CONFERMARE] Ho vinto una borsa di studio per studiare a Bologna. — lo stipendio è il salario: Stipendium si dice borsa di studio
+TROVA L'ERRORE;Medio;Metti i documenti nella mappa blu sulla scrivania.;nella cartella blu|nel cartello blu|nella cartolina blu;;;[DA CONFERMARE] Metti i documenti nella cartella blu sulla scrivania. — la Mappe si dice cartella, mappa è una carta geografica
+TROVA L'ERRORE;Medio;Ieri Paolo si ha alzato molto presto.;si è alzato|è alzato|si è alzata;;;[DA CONFERMARE] Ieri Paolo si è alzato molto presto. — i verbi riflessivi vogliono essere: si è alzato
+TROVA L'ERRORE;Medio;Le mie amiche si sono divertiti molto alla festa.;divertite|divertita|divertito;;;[DA CONFERMARE] Le mie amiche si sono divertite molto alla festa. — il participio concorda col soggetto: divertite
+TROVA L'ERRORE;Medio;Il concerto mi ha piaciuto molto.;mi è piaciuto|mi sono piaciuto|mi ha piaciuta;;;[DA CONFERMARE] Il concerto mi è piaciuto molto. — piacere vuole essere: mi è piaciuto
+TROVA L'ERRORE;Medio;Ho smesso a fumare tre anni fa.;di fumare|da fumare|per fumare;;;[DA CONFERMARE] Ho smesso di fumare tre anni fa. — smettere vuole di + infinito
+TROVA L'ERRORE;Medio;Mia figlia ha molta paura per i ragni.;dei ragni|ai ragni|dai ragni;;;[DA CONFERMARE] Mia figlia ha molta paura dei ragni. — avere paura di qualcosa: paura dei ragni
+TROVA L'ERRORE;Medio;Sono completamente d'accordo a te su questo punto.;con te|di te|in te;;;[DA CONFERMARE] Sono completamente d'accordo con te su questo punto. — essere d'accordo con qualcuno
+TROVA L'ERRORE;Difficile;Penso che Marco ha ragione.;Marco abbia ragione|Marco abbi ragione|Marco abbiano ragione;;;[DA CONFERMARE] Penso che Marco abbia ragione. — dopo penso che si usa il congiuntivo: abbia
+TROVA L'ERRORE;Difficile;Spero che tu stai bene.;tu stia bene|tu stiano bene|tu stare bene;;;[DA CONFERMARE] Spero che tu stia bene. — dopo spero che: congiuntivo presente, stia
+TROVA L'ERRORE;Difficile;Non credo che lui viene alla festa.;venga|venghi|vengano;;;[DA CONFERMARE] Non credo che lui venga alla festa. — dopo non credo che: congiuntivo, venga
+TROVA L'ERRORE;Difficile;Voglio che tu fai i compiti.;tu faccia|tu facci|tu faci;;;[DA CONFERMARE] Voglio che tu faccia i compiti. — dopo volere che: congiuntivo, faccia
+TROVA L'ERRORE;Difficile;Se avrei più tempo, viaggerei di più.;avessi|avrò|avrebbe;;;[DA CONFERMARE] Se avessi più tempo, viaggerei di più. — dopo se (ipotesi): congiuntivo imperfetto
+TROVA L'ERRORE;Difficile;Se fossi ricco, comprerò una barca.;comprerei|comprassi|comprerebbero;;;[DA CONFERMARE] Se fossi ricco, comprerei una barca. — se + imperfetto congiuntivo + condizionale
+TROVA L'ERRORE;Difficile;Se l'avrei saputo, sarei venuto alla festa.;l'avessi saputo|l'avevo saputo|l'abbia saputo;;;[DA CONFERMARE] Se l'avessi saputo, sarei venuto alla festa. — ipotesi irreale nel passato: trapassato congiuntivo
+TROVA L'ERRORE;Difficile;Pensavo che Marco è già partito.;fosse già partito|fosse già partita|fosse già partendo;;;[DA CONFERMARE] Pensavo che Marco fosse già partito. — dopo pensavo che: congiuntivo imperfetto o trapassato
+TROVA L'ERRORE;Difficile;Non sono mai stato a Napoli, ma voglio andarne presto.;andarci|andarlo|andarvene;;;[DA CONFERMARE] Non sono mai stato a Napoli, ma voglio andarci presto. — il luogo si sostituisce con ci: andarci
+TROVA L'ERRORE;Difficile;Ho comprato un regalo per Maria e le l'ho dato.;gliel'ho dato|gli lo ho dato|ce l'ho dato;;;[DA CONFERMARE] Ho comprato un regalo per Maria e gliel'ho dato. — le + lo diventa glielo: gliel'ho dato
+TROVA L'ERRORE;Difficile;Se vuoi il mio libro, ti lo presto.;te lo presto|ce lo presto|me lo presto;;;[DA CONFERMARE] Se vuoi il mio libro, te lo presto. — ti + lo diventa te lo
+TROVA L'ERRORE;Difficile;Sbrigati, il treno sta partire.;sta per partire|sta a partire|sta di partire;;;[DA CONFERMARE] Sbrigati, il treno sta per partire. — azione imminente: stare per + infinito
+TROVA L'ERRORE;Difficile;Sto andando in Italia ogni estate.;Vado|Andare|Sono andando;;;[DA CONFERMARE] Vado in Italia ogni estate. — azione abituale: presente semplice, non stare + gerundio
+TROVA L'ERRORE;Difficile;In Italia si mangia molti spaghetti.;si mangiano|si mangiamo|ci mangiano;;;[DA CONFERMARE] In Italia si mangiano molti spaghetti. — si passivante: il verbo concorda con spaghetti
+TROVA L'ERRORE;Difficile;Quando si è giovane, si ha più energia.;si è giovani|si sono giovani|si ha giovani;;;[DA CONFERMARE] Quando si è giovani, si ha più energia. — si impersonale: l'aggettivo va al plurale
+TROVA L'ERRORE;Difficile;Le finestre sono state aperta da Luca.;aperte|aperti|aperto;;;[DA CONFERMARE] Le finestre sono state aperte da Luca. — nel passivo il participio concorda col soggetto
+TROVA L'ERRORE;Difficile;Sebbene è tardi, restiamo ancora un po'.;sia|siano|stia;;;[DA CONFERMARE] Sebbene sia tardi, restiamo ancora un po'. — sebbene vuole il congiuntivo: sia
+TROVA L'ERRORE;Difficile;Prima che tu parti, devo dirti una cosa.;parta|partirai|parti;;;[DA CONFERMARE] Prima che tu parta, devo dirti una cosa. — prima che vuole il congiuntivo: parta
+TROVA L'ERRORE;Difficile;È importante che tutti partecipano alla riunione.;partecipino|partecipare|partecipando;;;[DA CONFERMARE] È importante che tutti partecipino alla riunione. — dopo è importante che: congiuntivo
+TROVA L'ERRORE;Difficile;Mi dispiace che tu non puoi venire.;tu non possa|tu non possi|tu non potessi;;;[DA CONFERMARE] Mi dispiace che tu non possa venire. — dopo mi dispiace che: congiuntivo, possa
+TROVA L'ERRORE;Difficile;Ho letto il libro che mi hai parlato.;di cui|di che|a cui;;;[DA CONFERMARE] Ho letto il libro di cui mi hai parlato. — parlare di qualcosa: il libro di cui
+TROVA L'ERRORE;Difficile;Penso che io ho ragione.;di avere ragione|di avuto ragione|di aveva ragione;;;[DA CONFERMARE] Penso di avere ragione. — stesso soggetto: penso di + infinito
+TROVA L'ERRORE;Difficile;Dubito che il treno arriva in orario.;arrivi|arrivino|arrivasse;;;[DA CONFERMARE] Dubito che il treno arrivi in orario. — dopo dubito che: congiuntivo, arrivi
+TROVA L'ERRORE;Difficile;Se vedi Anna, saluta la da parte mia.;salutala|la saluta|salutarla;;;[DA CONFERMARE] Se vedi Anna, salutala da parte mia. — con l'imperativo il pronome si attacca: salutala
+TROVA L'ERRORE;Difficile;Ho cercato le mie chiavi e le ho trovato in cucina.;trovate|trovati|trovata;;;[DA CONFERMARE] Ho cercato le mie chiavi e le ho trovate in cucina. — il participio concorda col pronome: le ho trovate
+TROVA L'ERRORE;Difficile;Quando sono arrivato, il treno già partì.;era già partito|aveva già partito|fu già partito;;;[DA CONFERMARE] Quando sono arrivato, il treno era già partito. — azione anteriore: trapassato prossimo, era partito
+TROVA L'ERRORE;Difficile;Ho conosciuto un ragazzo il cui sorella lavora a Berlino.;la cui sorella|la di cui sorella|di cui la sorella;;;[DA CONFERMARE] Ho conosciuto un ragazzo la cui sorella lavora a Berlino. — cui concorda col nome dopo: la cui sorella
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: A;;;;[DA CONFERMARE] cosa: albero, anello · nome: Anna, Andrea · città: Ancona, Arezzo
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: B;;;;[DA CONFERMARE] cosa: borsa, bicchiere · nome: Barbara, Bruno · città: Bologna, Bari
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: C;;;;[DA CONFERMARE] cosa: casa, cane · nome: Carlo, Chiara · città: Como, Catania
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: D;;;;[DA CONFERMARE] cosa: dado, dente · nome: Daniela, Davide · città: Domodossola, Dresda
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: E;;;;[DA CONFERMARE] cosa: erba, esame · nome: Elena, Enrico · città: Empoli, Edimburgo
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: F;;;;[DA CONFERMARE] cosa: fiore, finestra · nome: Francesca, Franco · città: Firenze, Foggia
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: G;;;;[DA CONFERMARE] cosa: gatto, gonna · nome: Giulia, Giorgio · città: Genova, Grosseto
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: H;;;;[DA CONFERMARE] cosa: hotel, hamburger · nome: Hans, Heidi · città: Helsinki, Hannover
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: I;;;;[DA CONFERMARE] cosa: isola, inchiostro · nome: Ilaria, Ivan · città: Imola, Innsbruck
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: L;;;;[DA CONFERMARE] cosa: libro, luna · nome: Luca, Laura · città: Lecce, Livorno
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: M;;;;[DA CONFERMARE] cosa: mela, matita · nome: Marco, Maria · città: Milano, Messina
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: N;;;;[DA CONFERMARE] cosa: naso, nave · nome: Nicola, Nadia · città: Napoli, Novara
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: O;;;;[DA CONFERMARE] cosa: orologio, ombrello · nome: Oscar, Olga · città: Orvieto, Oslo
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: P;;;;[DA CONFERMARE] cosa: pane, penna · nome: Paolo, Paola · città: Palermo, Parma
+COSE-NOMI-CITTÀ;Medio|Difficile;Lettera: Q;;;;[DA CONFERMARE] cosa: quaderno, quadro · nome: Quirino, Quintino · città: Quito, Québec
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: R;;;;[DA CONFERMARE] cosa: radio, riso · nome: Roberto, Rita · città: Roma, Ravenna
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: S;;;;[DA CONFERMARE] cosa: sedia, sole · nome: Stefano, Sara · città: Siena, Salerno
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: T;;;;[DA CONFERMARE] cosa: tavolo, tazza · nome: Tommaso, Teresa · città: Torino, Trieste
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: U;;;;[DA CONFERMARE] cosa: uovo, uva · nome: Ugo, Umberto · città: Udine, Urbino
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: V;;;;[DA CONFERMARE] cosa: vino, valigia · nome: Valentina, Vittorio · città: Venezia, Verona
+COSE-NOMI-CITTÀ;Facile|Medio|Difficile;Lettera: Z;;;;[DA CONFERMARE] cosa: zaino, zucchero · nome: Zeno, Zoe · città: Zurigo, Zagabria
+COSE-NOMI-CITTÀ;Difficile;Lettera: J;;;;[DA CONFERMARE] cosa: jeans, jazz · nome: Jacopo, Jessica · città: Jesolo, Johannesburg
+COSE-NOMI-CITTÀ;Difficile;Lettera: K;;;;[DA CONFERMARE] cosa: koala, karaoke · nome: Katia, Kevin · città: Kabul, Kyoto
+COSE-NOMI-CITTÀ;Difficile;Lettera: W;;;;[DA CONFERMARE] cosa: würstel, whisky · nome: Walter, Wanda · città: Washington, Wellington
+COSE-NOMI-CITTÀ;Difficile;Lettera: X;;;;[DA CONFERMARE] cosa: xilofono, xenofobia · nome: Xavier, Xenia · città: Xi'an, Xalapa
+COSE-NOMI-CITTÀ;Difficile;Lettera: Y;;;;[DA CONFERMARE] cosa: yogurt, yacht · nome: Yuri, Yvonne · città: York, Yokohama
+LEGGI LO SCIOGLILINGUA;Facile;Tre tigri contro tre tigri.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Due tazze strette in due strette tazze.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Tre stecchi secchi in tre strette tasche stanno.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Sopra la panca la capra campa, sotto la panca la capra crepa.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Li vuoi quei kiwi? E se non vuoi quei kiwi, che kiwi vuoi?;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Figlia, sfoglia la foglia, sfoglia la foglia, figlia.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;In un piatto poco cupo poco pepe cape.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Remo rema sul Reno con remi di rame.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Sette zucche secche e storte stanno strette dentro al sacco.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Sopra quattro rossi sassi quattro grossi gatti rossi.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Caro conte, chi ti canta tanto canta che t'incanta.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Chi ama chiama chi ama, chiamami tu che chi ami chiami.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Una rara rana nera sulla rena errò una sera.;;;;
+LEGGI LO SCIOGLILINGUA;Facile;Trentatré trentini entrarono a Trento, tutti e trentatré trotterellando.;;;;
+LEGGI LO SCIOGLILINGUA;Facile|Medio;Oh che orrore, ho visto un ramarro verde su un muro marrone.;;;;
+LEGGI LO SCIOGLILINGUA;Facile|Medio;Se oggi seren non è, doman seren sarà, se non sarà seren si rasserenerà.;;;;
+LEGGI LO SCIOGLILINGUA;Facile|Medio;Il Papa pesa e pesta il pepe a Pisa, Pisa pesa e pesta il pepe al Papa.;;;;
+LEGGI LO SCIOGLILINGUA;Facile|Medio|Difficile;Stanno stretti sotto i letti sette spettri a denti stretti.;;;;
+LEGGI LO SCIOGLILINGUA;Facile|Medio|Difficile;Sette scettici sceicchi sciocchi con la sciatica a Shanghai.;;;;
+LEGGI LO SCIOGLILINGUA;Facile|Medio|Difficile;Nell'anfratto della grotta trentatré gretti gatti si grattano.;;;;
+LEGGI LO SCIOGLILINGUA;Medio;C'è il questore in questura a quest'ora? A quest'ora il questore in questura non c'è!;;;;
+LEGGI LO SCIOGLILINGUA;Medio;Sul mare ci sono nove navi nuove, una delle nove non vuole navigare.;;;;
+LEGGI LO SCIOGLILINGUA;Medio;Vedo un ragno nel suo regno, che lavora con impegno, e uno gnomo che fa il bagno con un cigno nello stagno.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Porta aperta per chi porta, chi non porta parta pure, poco importa.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Tito, tu m'hai ritinto il tetto, ma non t'intendi tanto di tetti ritinti.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Dietro il palazzo c'è un povero cane pazzo, chi darà un pezzo di pane a quel povero pazzo cane?;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Tre fiaschi stretti stan dentro tre stretti fiaschi, e ogni fiasco stretto sta dentro lo stretto fiasco.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Pio Pietro Paolo Pula, pittore palermitano, pinse pittura per poco prezzo.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Se il coniglio gli agli ti piglia, togligli gli agli e tagliagli gli artigli.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Sul tagliere l'aglio taglia, non tagliare la tovaglia: la tovaglia non è aglio, se la tagli fai uno sbaglio.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;A che serve che la serva si conservi la conserva, se la serva quando serve non si serve di conserva?;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Chi troppo in alto sal, cade sovente precipitevolissimevolmente.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Regna il ragno dentro al buco, nella mela regna il bruco, dentro al buco il ragno regna, nella mela il bruco regna.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Sotto le frasche del capanno quattro gatti grossi stanno, sotto quattro grossi sassi quattro gatti grossi e grassi.;;;;
+LEGGI LO SCIOGLILINGUA;Medio|Difficile;Al pozzo dei pazzi una pazza lavava le pezze, andò un pazzo e buttò la pazza con tutte le pezze nel pozzo dei pazzi.;;;;
+LEGGI LO SCIOGLILINGUA;Difficile;Apelle figlio di Apollo fece una palla di pelle di pollo, tutti i pesci vennero a galla per vedere la palla di pelle di pollo fatta da Apelle figlio di Apollo.;;;;
+LEGGI LO SCIOGLILINGUA;Difficile;Il cuoco cuoce in cucina e dice che la cuoca giace e tace perché sua cugina non dica che le piace cuocere in cucina col cuoco.;;;;
+LEGGI LO SCIOGLILINGUA;Difficile;Se l'arcivescovo di Costantinopoli si disarcivescoviscostantinopolizzasse, tu ti disarcivescoviscostantinopolizzeresti come si è disarcivescoviscostantinopolizzato l'arcivescovo di Costantinopoli?;;;;
+LEGGI LO SCIOGLILINGUA;Difficile;Guglielmo coglie ghiaia dagli scogli scagliandola oltre gli scogli tra mille gorgogli.;;;;
+LEGGI LO SCIOGLILINGUA;Difficile;Ho in tasca l'esca ed esco per la pesca, ma il pesce non s'adesca, c'è l'acqua troppo fresca. Convien che la finisca, non prenderò una lisca! Mi metto in tasca l'esca e torno dalla pesca.;;;;
+LEGGI LO SCIOGLILINGUA;Difficile;Quando il coniglio senza consiglio con la coniglia fece famiglia, gli nacque un figlio e poi una figlia, poi un altro figlio e un'altra figlia. Ora il coniglio senza consiglio ha una famiglia lunga tre miglia.;;;;
+QUIZ DI CULTURA GENERALE;Facile;Qual è la capitale d'Italia?;Roma|Milano|Firenze;;;[DA CONFERMARE] Roma. Curiosità: Roma è chiamata anche la Città Eterna.
+QUIZ DI CULTURA GENERALE;Facile;Quali sono i colori della bandiera italiana?;Verde, bianco e rosso|Blu, bianco e rosso|Verde, giallo e rosso;;;[DA CONFERMARE] Verde, bianco e rosso. Curiosità: Il primo tricolore italiano fu adottato a Reggio Emilia nel 1797.
+QUIZ DI CULTURA GENERALE;Facile;Quale antico anfiteatro è il simbolo di Roma?;Il Colosseo|Il Pantheon|Il Foro Romano;;;[DA CONFERMARE] Il Colosseo. Curiosità: Il Colosseo poteva ospitare decine di migliaia di spettatori.
+QUIZ DI CULTURA GENERALE;Facile;Quale pizza con pomodoro, mozzarella e basilico ha i colori della bandiera?;La Margherita|La Marinara|La Capricciosa;;;[DA CONFERMARE] La Margherita. Curiosità: L'arte del pizzaiolo napoletano è patrimonio UNESCO dal 2017.
+QUIZ DI CULTURA GENERALE;Facile;Quale vulcano sovrasta la città di Napoli?;Il Vesuvio|L'Etna|Lo Stromboli;;;[DA CONFERMARE] Il Vesuvio. Curiosità: Nel 79 d.C. il Vesuvio seppellì Pompei ed Ercolano.
+QUIZ DI CULTURA GENERALE;Facile;Quale città è famosa per i canali e le gondole?;Venezia|Genova|Bologna;;;[DA CONFERMARE] Venezia. Curiosità: Venezia è costruita su più di cento piccole isole.
+QUIZ DI CULTURA GENERALE;Facile;Come si chiama il famoso ponte con le botteghe di gioiellieri a Firenze?;Ponte Vecchio|Ponte di Rialto|Ponte Sant'Angelo;;;[DA CONFERMARE] Ponte Vecchio. Curiosità: Il Ponte Vecchio attraversa il fiume Arno.
+QUIZ DI CULTURA GENERALE;Facile;Quale città è famosa per la sua Torre pendente?;Pisa|Siena|Lucca;;;[DA CONFERMARE] Pisa. Curiosità: La torre cominciò a pendere già durante la costruzione perché il terreno cedette.
+QUIZ DI CULTURA GENERALE;Facile;Quale pasta lunga e sottile è la più famosa all'estero?;Gli spaghetti|Le penne|Le farfalle;;;[DA CONFERMARE] Gli spaghetti. Curiosità: La parola spaghetti viene da spago, cioè un filo sottile.
+QUIZ DI CULTURA GENERALE;Facile;Quale bevanda italiana è fatta di caffè, latte caldo e schiuma di latte?;Il cappuccino|Il ristretto|Il caffè macchiato;;;[DA CONFERMARE] Il cappuccino. Curiosità: In Italia il cappuccino si beve di solito solo la mattina.
+QUIZ DI CULTURA GENERALE;Facile;Che cos'è il tiramisù?;Un dolce con caffè e mascarpone|Una zuppa di pesce|Un tipo di pasta fresca;;;[DA CONFERMARE] Un dolce con caffè e mascarpone. Curiosità: Il nome tiramisù significa letteralmente «tirami su».
+QUIZ DI CULTURA GENERALE;Facile;In quale città si trova lo Stato della Città del Vaticano?;Roma|Assisi|Torino;;;[DA CONFERMARE] Roma. Curiosità: Il Vaticano è il più piccolo stato del mondo.
+QUIZ DI CULTURA GENERALE;Facile;Quale mare separa l'Italia dalla Croazia?;Il Mar Adriatico|Il Mar Tirreno|Il Mar Ligure;;;[DA CONFERMARE] Il Mar Adriatico. Curiosità: Rimini e Bari si affacciano sul Mar Adriatico.
+QUIZ DI CULTURA GENERALE;Facile;Qual è l'isola più grande d'Italia?;La Sicilia|La Sardegna|L'isola d'Elba;;;[DA CONFERMARE] La Sicilia. Curiosità: La Sicilia è l'isola più grande del Mar Mediterraneo.
+QUIZ DI CULTURA GENERALE;Facile;Qual è la moneta usata oggi in Italia?;L'euro|La sterlina|Il franco;;;[DA CONFERMARE] L'euro. Curiosità: Prima dell'euro in Italia si usava la lira.
+QUIZ DI CULTURA GENERALE;Facile;In quale città si trova il famoso teatro La Scala?;Milano|Venezia|Roma;;;[DA CONFERMARE] Milano. Curiosità: Il teatro La Scala fu inaugurato nel 1778.
+QUIZ DI CULTURA GENERALE;Facile;Quale formaggio fresco e bianco si usa sulla pizza Margherita?;La mozzarella|Il gorgonzola|Il pecorino;;;[DA CONFERMARE] La mozzarella. Curiosità: La mozzarella di bufala è tipica della Campania.
+QUIZ DI CULTURA GENERALE;Facile;Come si chiama la salsa verde al basilico tipica della Liguria?;Il pesto|Il ragù|L'arrabbiata;;;[DA CONFERMARE] Il pesto. Curiosità: La parola pesto viene dal verbo pestare.
+QUIZ DI CULTURA GENERALE;Facile;Quale giorno festivo cade il 25 dicembre in Italia?;Natale|Epifania|Ferragosto;;;[DA CONFERMARE] Natale. Curiosità: Anche il 26 dicembre, Santo Stefano, è un giorno di festa.
+QUIZ DI CULTURA GENERALE;Facile;Quale città italiana è famosa per le maschere del suo Carnevale?;Venezia|Palermo|Trieste;;;[DA CONFERMARE] Venezia. Curiosità: A Viareggio il Carnevale è famoso per i grandi carri di cartapesta.
+QUIZ DI CULTURA GENERALE;Facile;In quale fontana di Roma si lanciano le monete per tornare in città?;Fontana di Trevi|Fontana del Nettuno|Fontana Maggiore;;;[DA CONFERMARE] Fontana di Trevi. Curiosità: Le monete lanciate nella fontana vengono raccolte e donate in beneficenza.
+QUIZ DI CULTURA GENERALE;Facile;In quale città si trova l'Arena romana dove si tengono opere liriche?;Verona|Padova|Vicenza;;;[DA CONFERMARE] Verona. Curiosità: L'Arena di Verona è un anfiteatro romano ancora in uso.
+QUIZ DI CULTURA GENERALE;Facile;Quale dolce siciliano è un tubo croccante pieno di crema di ricotta?;Il cannolo|Il panettone|Il tiramisù;;;[DA CONFERMARE] Il cannolo. Curiosità: La cialda del cannolo siciliano è fritta.
+QUIZ DI CULTURA GENERALE;Facile;Come si chiama il caffè corto servito nella tazzina in Italia?;L'espresso|Il caffè americano|Il caffè latte;;;[DA CONFERMARE] L'espresso. Curiosità: In Italia si beve spesso in piedi al bancone del bar.
+QUIZ DI CULTURA GENERALE;Facile;Quale animale allattò i gemelli Romolo e Remo secondo la leggenda?;Una lupa|Un'orsa|Una leonessa;;;[DA CONFERMARE] Una lupa. Curiosità: Secondo la tradizione Roma fu fondata nel 753 a.C.
+QUIZ DI CULTURA GENERALE;Facile;Quale tipo di spettacolo musicale con cantanti e orchestra è tipico dell'Italia?;L'opera lirica|Il flamenco|Il fado;;;[DA CONFERMARE] L'opera lirica. Curiosità: L'opera lirica nacque in Italia intorno al 1600.
+QUIZ DI CULTURA GENERALE;Facile;Come si chiama il burattino di legno con il naso che cresce quando dice bugie?;Pinocchio|Pulcinella|Arlecchino;;;[DA CONFERMARE] Pinocchio. Curiosità: L'autore di Pinocchio è Carlo Collodi.
+QUIZ DI CULTURA GENERALE;Medio;Qual è il fiume più lungo d'Italia?;Il Po|Il Tevere|L'Arno;;;[DA CONFERMARE] Il Po. Curiosità: Il Po scorre per oltre 600 chilometri nella Pianura Padana.
+QUIZ DI CULTURA GENERALE;Medio;Quale montagna è la più alta delle Alpi?;Il Monte Bianco|Il Monte Rosa|Il Cervino;;;[DA CONFERMARE] Il Monte Bianco. Curiosità: Sotto il Monte Bianco passa un tunnel stradale che collega Italia e Francia.
+QUIZ DI CULTURA GENERALE;Medio;Quante regioni ha l'Italia?;Venti|Diciotto|Ventidue;;;[DA CONFERMARE] Venti. Curiosità: La Valle d'Aosta è la regione più piccola per superficie.
+QUIZ DI CULTURA GENERALE;Medio;Chi dipinse la Gioconda?;Leonardo da Vinci|Raffaello|Caravaggio;;;[DA CONFERMARE] Leonardo da Vinci. Curiosità: La Gioconda è conservata al Louvre di Parigi.
+QUIZ DI CULTURA GENERALE;Medio;Chi scrisse la Divina Commedia?;Dante Alighieri|Francesco Petrarca|Giovanni Boccaccio;;;[DA CONFERMARE] Dante Alighieri. Curiosità: La Commedia è divisa in tre parti: Inferno, Purgatorio e Paradiso.
+QUIZ DI CULTURA GENERALE;Medio;Che cosa si festeggia il 2 giugno in Italia?;La Festa della Repubblica|La Festa dei lavoratori|La Festa della Liberazione;;;[DA CONFERMARE] La Festa della Repubblica. Curiosità: Per la Festa della Repubblica c'è una parata militare a Roma.
+QUIZ DI CULTURA GENERALE;Medio;Quando si festeggia Ferragosto?;Il 15 agosto|Il 1° agosto|Il 1° settembre;;;[DA CONFERMARE] Il 15 agosto. Curiosità: Il nome Ferragosto viene dal latino Feriae Augusti, cioè «riposo di Augusto».
+QUIZ DI CULTURA GENERALE;Medio;Chi porta i regali ai bambini italiani la notte del 5 gennaio?;La Befana|Babbo Natale|Gesù Bambino;;;[DA CONFERMARE] La Befana. Curiosità: Secondo la tradizione la Befana viaggia su una scopa.
+QUIZ DI CULTURA GENERALE;Medio;In quale piazza si corre il Palio di Siena?;Piazza del Campo|Piazza San Marco|Piazza Navona;;;[DA CONFERMARE] Piazza del Campo. Curiosità: Il Palio si corre due volte l'anno, il 2 luglio e il 16 agosto.
+QUIZ DI CULTURA GENERALE;Medio;In quale regione si produce il Parmigiano Reggiano?;Emilia-Romagna|Veneto|Sardegna;;;[DA CONFERMARE] Emilia-Romagna. Curiosità: Il Parmigiano Reggiano è stagionato almeno dodici mesi.
+QUIZ DI CULTURA GENERALE;Medio;Qual è il capoluogo della Toscana?;Firenze|Pisa|Siena;;;[DA CONFERMARE] Firenze. Curiosità: A Firenze si trova il Duomo con la cupola di Brunelleschi.
+QUIZ DI CULTURA GENERALE;Medio;Quale città è famosa per i Sassi, antichi quartieri scavati nella roccia?;Matera|Alberobello|Ragusa;;;[DA CONFERMARE] Matera. Curiosità: Matera è stata Capitale europea della cultura nel 2019.
+QUIZ DI CULTURA GENERALE;Medio;Quale pasta ripiena è tipica di Bologna?;I tortellini|Le orecchiette|Le trofie;;;[DA CONFERMARE] I tortellini. Curiosità: Nel bolognese i tortellini si mangiano tradizionalmente in brodo.
+QUIZ DI CULTURA GENERALE;Medio;Da quale regione vengono le orecchiette?;Puglia|Liguria|Friuli-Venezia Giulia;;;[DA CONFERMARE] Puglia. Curiosità: Il nome delle orecchiette deriva dalla loro forma di piccole orecchie.
+QUIZ DI CULTURA GENERALE;Medio;Chi ha composto Le quattro stagioni?;Antonio Vivaldi|Giuseppe Verdi|Giacomo Puccini;;;[DA CONFERMARE] Antonio Vivaldi. Curiosità: Vivaldi era un prete veneziano e lo chiamavano «il prete rosso».
+QUIZ DI CULTURA GENERALE;Medio;Quale strumento musicale fu inventato a Firenze da Bartolomeo Cristofori?;Il pianoforte|Il violino|La fisarmonica;;;[DA CONFERMARE] Il pianoforte. Curiosità: All'inizio lo strumento si chiamava «gravicembalo col piano e forte».
+QUIZ DI CULTURA GENERALE;Medio;Quale romanzo di Alessandro Manzoni racconta la storia di Renzo e Lucia?;I promessi sposi|Il Gattopardo|Il nome della rosa;;;[DA CONFERMARE] I promessi sposi. Curiosità: I promessi sposi è ambientato in Lombardia nel Seicento.
+QUIZ DI CULTURA GENERALE;Medio;Chi ha scritto il romanzo Il nome della rosa?;Umberto Eco|Italo Calvino|Primo Levi;;;[DA CONFERMARE] Umberto Eco. Curiosità: Umberto Eco era anche professore di semiotica.
+QUIZ DI CULTURA GENERALE;Medio;A che ora si pranza di solito in Italia?;Verso le 13|Verso le 11|Verso le 16;;;[DA CONFERMARE] Verso le 13. Curiosità: In Italia molti negozi piccoli fanno la pausa pranzo e chiudono per un paio d'ore.
+QUIZ DI CULTURA GENERALE;Medio;Come si chiama la scuola per i bambini da 6 a 11 anni in Italia?;Scuola primaria|Scuola media|Liceo;;;[DA CONFERMARE] Scuola primaria. Curiosità: La scuola primaria si chiamava prima scuola elementare e molti la chiamano ancora così.
+QUIZ DI CULTURA GENERALE;Medio;Come si chiama l'esame finale delle scuole superiori in Italia?;Esame di maturità|Licenza media|Concorso di Stato;;;[DA CONFERMARE] Esame di maturità. Curiosità: L'esame di maturità si chiama ufficialmente anche esame di Stato.
+QUIZ DI CULTURA GENERALE;Medio;Che cosa bisogna fare prima di salire su un treno regionale con un biglietto di carta?;Convalidare il biglietto alla macchinetta|Mostrare il passaporto al capotreno|Pagare in contanti al conducente;;;[DA CONFERMARE] Convalidare il biglietto alla macchinetta. Curiosità: Senza la convalida del biglietto si può ricevere una multa.
+QUIZ DI CULTURA GENERALE;Medio;Quale fiume attraversa Roma?;Il Tevere|L'Arno|L'Adige;;;[DA CONFERMARE] Il Tevere. Curiosità: Il Tevere è lungo circa 400 chilometri.
+QUIZ DI CULTURA GENERALE;Medio;Chi scolpì il David di marmo conservato alla Galleria dell'Accademia di Firenze?;Michelangelo|Canova|Bernini;;;[DA CONFERMARE] Michelangelo. Curiosità: Il David di Michelangelo è alto più di quattro metri, senza il piedistallo.
+QUIZ DI CULTURA GENERALE;Medio;Che cosa si mangia tradizionalmente a Capodanno per portare fortuna?;Le lenticchie|La torta di mele|Il pesce spada;;;[DA CONFERMARE] Le lenticchie. Curiosità: Le lenticchie ricordano le monete e quindi la ricchezza.
+QUIZ DI CULTURA GENERALE;Medio;Quale dolce natalizio è tipico di Milano?;Il panettone|La colomba|La pastiera;;;[DA CONFERMARE] Il panettone. Curiosità: Il panettone ha dentro uvetta e canditi.
+QUIZ DI CULTURA GENERALE;Medio;Quale catena montuosa attraversa l'Italia da nord a sud?;Gli Appennini|Le Alpi|I Carpazi;;;[DA CONFERMARE] Gli Appennini. Curiosità: Gli Appennini sono considerati la spina dorsale dell'Italia.
+QUIZ DI CULTURA GENERALE;Medio;Chi fu Giuseppe Garibaldi?;Un generale che lottò per l'unità d'Italia|Il primo presidente della Repubblica|Un pittore del Rinascimento;;;[DA CONFERMARE] Un generale che lottò per l'unità d'Italia. Curiosità: Garibaldi era chiamato «l'eroe dei due mondi».
+QUIZ DI CULTURA GENERALE;Medio;Che cosa si festeggia il 25 aprile in Italia?;La Liberazione|La Festa della Repubblica|L'Unità d'Italia;;;[DA CONFERMARE] La Liberazione. Curiosità: Il 25 aprile ricorda la fine dell'occupazione nazifascista nel 1945.
+QUIZ DI CULTURA GENERALE;Medio;Come si chiama il lunedì dopo Pasqua?;Pasquetta|Ferragosto|Epifania;;;[DA CONFERMARE] Pasquetta. Curiosità: A Pasquetta molti italiani fanno una gita o un picnic.
+QUIZ DI CULTURA GENERALE;Difficile;In quale anno fu proclamato il Regno d'Italia?;1861|1848|1870;;;[DA CONFERMARE] 1861. Curiosità: Vittorio Emanuele II fu il primo re d'Italia.
+QUIZ DI CULTURA GENERALE;Difficile;Quale fu la prima capitale del Regno d'Italia?;Torino|Firenze|Milano;;;[DA CONFERMARE] Torino. Curiosità: La capitale passò poi a Firenze nel 1865 e a Roma nel 1871.
+QUIZ DI CULTURA GENERALE;Difficile;In quale anno gli italiani scelsero la Repubblica con un referendum?;1946|1936|1953;;;[DA CONFERMARE] 1946. Curiosità: Nel 1946 votarono per la prima volta anche le donne a livello nazionale.
+QUIZ DI CULTURA GENERALE;Difficile;Chi guidò la Spedizione dei Mille nel 1860?;Giuseppe Garibaldi|Giuseppe Mazzini|Camillo Cavour;;;[DA CONFERMARE] Giuseppe Garibaldi. Curiosità: I Mille partirono da Quarto, vicino a Genova.
+QUIZ DI CULTURA GENERALE;Difficile;Chi dipinse il soffitto della Cappella Sistina?;Michelangelo|Raffaello|Botticelli;;;[DA CONFERMARE] Michelangelo. Curiosità: Michelangelo ci lavorò dal 1508 al 1512.
+QUIZ DI CULTURA GENERALE;Difficile;Quale coro famoso appartiene al Nabucco?;Va, pensiero|Nessun dorma|Largo al factotum;;;[DA CONFERMARE] Va, pensiero. Curiosità: Il Nabucco fu composto da Giuseppe Verdi.
+QUIZ DI CULTURA GENERALE;Difficile;Quale scienziato bolognese ricevette il Nobel per la fisica nel 1909 per la telegrafia senza fili?;Guglielmo Marconi|Alessandro Volta|Enrico Fermi;;;[DA CONFERMARE] Guglielmo Marconi. Curiosità: Marconi condivise il premio con il fisico tedesco Ferdinand Braun.
+QUIZ DI CULTURA GENERALE;Difficile;Quale scienziato lombardo inventò la pila elettrica?;Alessandro Volta|Galileo Galilei|Enrico Fermi;;;[DA CONFERMARE] Alessandro Volta. Curiosità: L'unità di misura volt porta il suo nome.
+QUIZ DI CULTURA GENERALE;Difficile;In quale anno il Vesuvio seppellì Pompei?;79 d.C.|476 d.C.|79 a.C.;;;[DA CONFERMARE] Nel 79 d.C. Curiosità: L'eruzione seppellì anche la città di Ercolano.
+QUIZ DI CULTURA GENERALE;Difficile;Qual è il lago più grande d'Italia?;Il Lago di Garda|Il Lago Maggiore|Il Lago di Como;;;[DA CONFERMARE] Il Lago di Garda. Curiosità: Il Lago di Garda bagna tre regioni: Lombardia, Veneto e Trentino-Alto Adige.
+QUIZ DI CULTURA GENERALE;Difficile;Quale vulcano della Sicilia è il più alto vulcano attivo d'Europa?;L'Etna|Il Vesuvio|Lo Stromboli;;;[DA CONFERMARE] L'Etna. Curiosità: L'Etna si trova vicino a Catania ed è uno dei vulcani più attivi del mondo.
+QUIZ DI CULTURA GENERALE;Difficile;Quale famiglia di banchieri governò Firenze nel Rinascimento?;I Medici|Gli Sforza|I Borgia;;;[DA CONFERMARE] I Medici. Curiosità: Lorenzo il Magnifico fu un grande mecenate di artisti.
+QUIZ DI CULTURA GENERALE;Difficile;Quale scienziato toscano osservò le lune di Giove con il telescopio?;Galileo Galilei|Evangelista Torricelli|Giordano Bruno;;;[DA CONFERMARE] Galileo Galilei. Curiosità: Galileo scoprì quattro lune di Giove nel 1610.
+QUIZ DI CULTURA GENERALE;Difficile;Per quale donna Petrarca scrisse le poesie del Canzoniere?;Laura|Beatrice|Fiammetta;;;[DA CONFERMARE] Laura. Curiosità: Il Canzoniere raccoglie 366 componimenti.
+QUIZ DI CULTURA GENERALE;Difficile;Quale opera di Boccaccio racconta cento novelle?;Il Decameron|Il Principe|Il Cortegiano;;;[DA CONFERMARE] Il Decameron. Curiosità: Nel Decameron dieci giovani fuggono dalla peste e si rifugiano in campagna.
+QUIZ DI CULTURA GENERALE;Difficile;Quale film di Federico Fellini del 1960 ha una famosa scena nella Fontana di Trevi?;La dolce vita|Otto e mezzo|Amarcord;;;[DA CONFERMARE] La dolce vita. Curiosità: Federico Fellini nacque a Rimini.
+QUIZ DI CULTURA GENERALE;Difficile;Chi scrisse Il Principe?;Niccolò Machiavelli|Francesco Guicciardini|Baldassarre Castiglione;;;[DA CONFERMARE] Niccolò Machiavelli. Curiosità: Il Principe fu scritto intorno al 1513 e pubblicato dopo la morte dell'autore.
+QUIZ DI CULTURA GENERALE;Difficile;In quale città si trovano i mosaici bizantini della basilica di San Vitale?;Ravenna|Ferrara|Rimini;;;[DA CONFERMARE] Ravenna. Curiosità: Per un periodo Ravenna fu capitale dell'Impero romano d'Occidente.
+QUIZ DI CULTURA GENERALE;Difficile;Chi dipinse La nascita di Venere?;Sandro Botticelli|Tiziano|Giotto;;;[DA CONFERMARE] Sandro Botticelli. Curiosità: Il dipinto è conservato agli Uffizi di Firenze.
+QUIZ DI CULTURA GENERALE;Difficile;Quale artista affrescò la Cappella degli Scrovegni a Padova?;Giotto|Cimabue|Masaccio;;;[DA CONFERMARE] Giotto. Curiosità: Gli affreschi furono realizzati nei primi anni del Trecento.
+QUIZ DI CULTURA GENERALE;Difficile;Quale compositore scrisse Tosca e Madama Butterfly?;Giacomo Puccini|Gioachino Rossini|Vincenzo Bellini;;;[DA CONFERMARE] Giacomo Puccini. Curiosità: Giacomo Puccini nacque a Lucca.
+QUIZ DI CULTURA GENERALE;Difficile;Quale opera comica di Rossini è ambientata a Siviglia?;Il barbiere di Siviglia|L'italiana in Algeri|La Cenerentola;;;[DA CONFERMARE] Il barbiere di Siviglia. Curiosità: Il barbiere di Siviglia debuttò a Roma nel 1816.
+QUIZ DI CULTURA GENERALE;Difficile;Chi ha scritto Se questo è un uomo?;Primo Levi|Italo Calvino|Cesare Pavese;;;[DA CONFERMARE] Primo Levi. Curiosità: Il libro racconta l'esperienza di Primo Levi nel campo di Auschwitz.
+QUIZ DI CULTURA GENERALE;Difficile;Quale scrittore siciliano scrisse Il Gattopardo?;Giuseppe Tomasi di Lampedusa|Luigi Pirandello|Leonardo Sciascia;;;[DA CONFERMARE] Giuseppe Tomasi di Lampedusa. Curiosità: Il Gattopardo fu pubblicato nel 1958 dopo la morte dell'autore.
+QUIZ DI CULTURA GENERALE;Difficile;Quale scrittore siciliano vinse il Nobel per la letteratura nel 1934?;Luigi Pirandello|Giovanni Verga|Salvatore Quasimodo;;;[DA CONFERMARE] Luigi Pirandello. Curiosità: Tra le sue opere c'è Sei personaggi in cerca d'autore.
+QUIZ DI CULTURA GENERALE;Difficile;Qual è il capoluogo del Friuli-Venezia Giulia?;Trieste|Udine|Gorizia;;;[DA CONFERMARE] Trieste. Curiosità: Trieste è famosa per i caffè storici e per il vento chiamato Bora.
+QUIZ DI CULTURA GENERALE;Difficile;In quale città si gioca il Calcio Storico in costume nella piazza Santa Croce?;Firenze|Siena|Arezzo;;;[DA CONFERMARE] Firenze. Curiosità: Il Calcio Storico si gioca tradizionalmente a giugno.
+QUIZ DI CULTURA GENERALE;Difficile;Quale città è famosa insieme a Reggio Emilia per l'aceto balsamico tradizionale?;Modena|Parma|Ferrara;;;[DA CONFERMARE] Modena. Curiosità: L'aceto balsamico tradizionale invecchia almeno dodici anni.
+QUIZ DI CULTURA GENERALE;Difficile;Chi fu il primo presidente del Consiglio del Regno d'Italia?;Camillo Cavour|Giuseppe Garibaldi|Giuseppe Mazzini;;;[DA CONFERMARE] Camillo Cavour. Curiosità: Cavour morì nel giugno 1861, pochi mesi dopo la proclamazione del Regno.
+QUIZ DI CULTURA GENERALE;Difficile;Quale pittore del chiaroscuro dipinse la Vocazione di san Matteo?;Caravaggio|Tiziano|Tintoretto;;;[DA CONFERMARE] Caravaggio. Curiosità: La tela si trova nella chiesa di San Luigi dei Francesi a Roma.
+QUIZ DI CULTURA GENERALE;Difficile;Che cos'è il coperto sul conto di un ristorante italiano?;Un costo fisso a persona per pane e servizio|Una mancia obbligatoria per il cameriere|Il prezzo del piatto del giorno;;;[DA CONFERMARE] Un costo fisso a persona per pane e servizio. Curiosità: Il coperto non è una mancia, e in Italia la mancia non è obbligatoria.

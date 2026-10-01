@@ -115,3 +115,13 @@ Append-only. Never edit old entries.
   on every save (24 h counts from the last action). The resume dialog cannot be dismissed with Escape/backdrop.
 - Known limit: headless Chromium has no Italian hyphenation, so on the 320px compact grid a long tile word may break
   without a hyphen; phones with hyphenation dictionaries (iOS, Android Chrome) hyphenate.
+
+## 2026-10-01 — Card decks (Abdel / lead)
+- data/carte.csv replaced by 590 drafted cards (8 decks, ≥ 20 per category × level). Every risposta starts with
+  [DA CONFERMARE] for Chiara's check. Drafted by builder agents, every card reviewed by the lead; rejected/changed
+  cards are listed in the PR.
+- COSE-NOMI-CITTÀ: one card per letter, valid for several levels (letters are level-neutral): 19 letters + H at
+  Facile (H is easy for German speakers), + Q at Medio, + J K W X Y at Difficile.
+- LEGGI LO SCIOGLILINGUA: only traditional texts found in several Italian collections (web search); 41 texts, short
+  ones at Facile, long ones at Difficile, some shared by two or three levels to reach 20 per level.
+- Tests no longer depend on the content of data/carte.csv: the old sample cards are frozen in tests/fixtures/sample.
