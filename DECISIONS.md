@@ -102,3 +102,16 @@ Append-only. Never edit old entries.
 - Batch 1 (lead): the language switch is a header row in flow; the card screen is locked to the viewport
   and the card is sized by a size container (cqw/cqh), replacing the fixed `--card-reserved` heights.
   Button green behind white text = #007a3a (4.5:1); #009246 stays for the tricolore.
+- Batch 2 (lead): one card geometry for template and CSS cards (unit = 1 px of the 750×1050 template); the fit
+  scales prompt + Hilfe options together, never splits words above 14px, scrolls (with a cue) instead of clipping.
+  [aiuto] left / [soluzione] right as in the sketch; on cards < 430px tall the pills move to the free side of the icon.
+  Placeholder templates: baked icon moved down 20 px (78–87% of the height). Images are preloaded; audio is not.
+- Batch 3 (lead): only key columns are required (a missing optional column = one warning). Banner = collapsible,
+  collapsed on game screens, max 10 lines per file. Typos get a "forse '…'?" hint. Hilfe options use aria-disabled
+  after a pick (focus stays).
+- Batch 4 (lead): preview = index.html?anteprima (same renderer, fixed card height 360/480/600). Extra banner warning
+  when the app-drawn icon reaches into the text area. Banner is in flow, not sticky.
+- Batch 5 (lead): saved game = localStorage `tlspi-partita`, cards stored by content (sfida+testo+immagine), refreshed
+  on every save (24 h counts from the last action). The resume dialog cannot be dismissed with Escape/backdrop.
+- Known limit: headless Chromium has no Italian hyphenation, so on the 320px compact grid a long tile word may break
+  without a hyphen; phones with hyphenation dictionaries (iOS, Android Chrome) hyphenate.
