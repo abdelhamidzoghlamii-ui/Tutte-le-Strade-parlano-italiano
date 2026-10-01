@@ -86,10 +86,10 @@ const same = (a, b, what) => {
 };
 
 async function reach(page, mode) {   // to the category grid
-  if (mode === 'group') { await startGroup(page, MEDIO); return; }
+  if (mode === 'group') { await startGroup(page, MEDIO); return; }   // 'group' = the "same level" path (one player)
   await startPlayers(page, ['Anna', 'Bruno', 'Chiara'], [0, 1, 2]);
   await page.locator('.topfield-btn').click();
-  await page.locator('.panel .btn-level').nth(1).click();   // active player = 2 (Medio)
+  await page.locator('.panel .btn-player').nth(1).click();   // active player = 2 (Medio)
   await page.waitForFunction(() => !document.querySelector('.backdrop'));
 }
 
@@ -130,7 +130,6 @@ async function toScreen(page, mode, name) {
 export default function (t) {
   for (const mode of ['group', 'players']) {
     for (const name of SCREENS) {
-      if (name === 'popup' && mode === 'group') continue;   // the player selector exists only in player mode
       t.test('persist: reload on ' + name + ' (' + mode + ') -> prompt -> continua', async ({ browser }) => {
         const lang0 = mode === 'group' ? 'de' : 'it', lang1 = mode === 'group' ? 'it' : 'de';   // the init script resets lang to lang0 on every load
         const page = await newPage(browser, { lang: lang0 });
@@ -195,11 +194,12 @@ export default function (t) {
     await openCategory(page, T_QUIZ);
     await page.click('.btn-aiuto');
     const s = JSON.parse(await getSave(page));
-    eq(s.v, 1); assert(Math.abs(Date.now() - s.savedAt) < 60000, 'savedAt'); eq(s.lang, 'it'); eq(s.screen, 'carta');
+    eq(s.v, 2); assert(Math.abs(Date.now() - s.savedAt) < 60000, 'savedAt'); eq(s.lang, 'it'); eq(s.screen, 'carta');
     eq(JSON.stringify(Object.keys(s.setup)), JSON.stringify(['stesso', 'livello', 'giocatori', 'attivo']));
     eq(s.setup.stesso, true); eq(s.setup.livello, 'Medio');
+    eq(JSON.stringify(s.setup.giocatori), JSON.stringify([{ nome: '', livello: 'Medio' }]), 'players, level prefilled'); eq(s.setup.attivo, 0);
     assert(s.card && s.card.id.split('␟').length === 3 && s.card.id.startsWith('QUIZ DI CULTURA GENERALE␟'), 'card id: ' + (s.card && s.card.id));
-    assert(s.card.hilfe && s.card.hilfe.order.length === 3 && s.card.hilfe.picked === null, 'hilfe');
+    assert(s.card.hilfe && s.card.hilfe.order.length === 3 && s.card.hilfe.picked === null && s.card.hilfe.hidden === false, 'hilfe');
     eq(s.last['QUIZ DI CULTURA GENERALE|Medio'], s.card.id);
     eq(JSON.stringify(s.pools['QUIZ DI CULTURA GENERALE|Medio']), '[]');
     const raw = await getSave(page);
@@ -279,7 +279,7 @@ export default function (t) {
     await bottom(page, 0).click();
     await page.click('.backdrop .btn-yes');
     await page.waitForSelector('.start');
-    await setSave(page, JSON.stringify({ v: 1, savedAt: Date.now(), lang: 'de', screen: 'stesso', setup: { stesso: null, livello: null, giocatori: [{ nome: '', livello: null }], attivo: 0 }, pools: {}, last: {}, card: null }));
+    await setSave(page, JSON.stringify({ v: 2, savedAt: Date.now(), lang: 'de', screen: 'stesso', setup: { stesso: null, livello: null, giocatori: [{ nome: '', livello: null }], attivo: 0 }, pools: {}, last: {}, card: null }));
     await page.click('.start .btn');
     eq(await getSave(page), null, '[nuova_partita] clears it');
   });
@@ -311,7 +311,8 @@ export default function (t) {
   /* ---- corrupt data ---- */
   const CORRUPT = [
     { name: 'garbage JSON', mode: 'group', raw: 'not json {{', prompt: false },
-    { name: 'v: 2', mode: 'group', body: 's.v = 2', prompt: false },
+    { name: 'v: 1 (old save)', mode: 'group', body: 's.v = 1', prompt: false },
+    { name: 'v: 3 (from the future)', mode: 'group', body: 's.v = 3', prompt: false },
     { name: 'savedAt missing', mode: 'group', body: 'delete s.savedAt', prompt: false },
     { name: "screen 'xyz'", mode: 'group', body: "s.screen = 'xyz'", prompt: false },
     { name: 'giocatori not an array', mode: 'group', body: "s.setup.giocatori = 'x'", prompt: null },
@@ -324,6 +325,10 @@ export default function (t) {
       eq(await page.evaluate(() => window.__app.card.hilfe), null);
       eq(await page.locator('.card-opts').count(), 0);
       eq(await page.locator('.btn-aiuto').count(), 1, 'Hilfe button is back');
+    } },
+    { name: 'hilfe hidden: "yes" (not a boolean true) -> shown', mode: 'group', card: true, hilfe: true, body: "s.card.hilfe.hidden = 'yes'", prompt: true, check: async page => {
+      eq(await page.locator('.card-opts').count(), 1, 'options shown');
+      eq(await page.evaluate(() => window.__app.card.hilfe.hidden), false);
     } },
     { name: 'hilfe picked 7', mode: 'group', card: true, hilfe: true, body: 's.card.hilfe.picked = 7', prompt: true, check: async page => { eq(await page.evaluate(() => window.__app.card.hilfe), null); } }
   ];
@@ -397,15 +402,16 @@ export default function (t) {
     eq(await page.evaluate(() => window.__app.carte[window.__app.card.idx].testo), vita);
   });
 
-  t.test('persist: csv changed - the group level removed -> livello screen', async ({ browser }) => {
+  t.test('persist: csv changed - the same-level choice removed -> giocatori, the level field empty', async ({ browser }) => {
     const page = await newPage(browser);
     await startGroup(page, MEDIO);
     await openCategory(page, T_COSE);
     await reloadTo(page, config.base + '/fx/p-sans-medio/');
     await resume(page);
     const r = await page.evaluate(() => ({ screen: window.__app.screen, lv: window.__app.setup.livello, st: window.__app.setup.stesso }));
-    eq(r.screen, 'livello'); eq(r.lv, null); eq(r.st, true);
-    eq(await page.locator('.btn-level').count(), 2, 'Facile + Difficile left');
+    eq(r.screen, 'giocatori'); eq(r.lv, null); eq(r.st, true);
+    eq(await page.locator('.level-field.empty').count(), 1, 'the player level field is empty');
+    eq(await page.locator('.btn-start').isDisabled(), true, 'inizia disabled');
   });
 
   t.test('persist: csv changed - one player level removed -> giocatori, that field empty, inizia disabled', async ({ browser }) => {

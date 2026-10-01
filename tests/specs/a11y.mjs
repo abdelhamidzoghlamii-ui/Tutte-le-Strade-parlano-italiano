@@ -28,12 +28,16 @@ async function drawWithHilfe(page, tile) {
 }
 
 export default async function (t) {
-  t.test('a11y focus never on <body>: group path, grid, card, flip, back', async ({ browser }) => {
+  t.test('a11y focus never on <body>: same-level path, grid, card, flip, back', async ({ browser }) => {
     const page = await newPage(browser, { lang: 'de' });
     let a = await step(page, 'nuova partita', () => page.click('.start .btn'));
     assert(await page.evaluate(() => document.activeElement.classList.contains('question')), 'stesso: focus on the question');
     await step(page, 'si', () => page.click('.btn-yes'));
     await step(page, 'livello', () => page.locator('.btn-level').nth(1).click());
+    assert(await page.evaluate(() => document.activeElement.classList.contains('question')), 'quanti: focus on the question');
+    await step(page, 'numero 1', () => page.locator('[data-fid="num-1"]').click());
+    assert(await page.evaluate(() => document.activeElement.classList.contains('rows')), 'players: focus on the rows');
+    await step(page, 'inizia', () => page.click('.btn-start'));
     assert(await page.evaluate(() => document.activeElement.classList.contains('topfield')), 'grid: focus on the top field');
     await step(page, 'tile', () => page.locator('.tile').nth(T_PLURALE).click());
     assert(await page.evaluate(() => document.activeElement.classList.contains('card-front')), 'card: focus on the front');
@@ -86,7 +90,7 @@ export default async function (t) {
     await step(page, 'inizia', () => page.click('.btn-start'));
     await step(page, 'top field', () => page.click('.topfield-btn'));
     eq((await active(page)).inPanel, true);
-    await step(page, 'pick player', () => page.locator('.panel .btn-level').nth(1).click());
+    await step(page, 'pick player', () => page.locator('.panel .btn-player').nth(1).click());
     eq((await active(page)).fid, 'topfield');
     await step(page, 'tile', () => page.locator('.tile').nth(T_TIMER).click());
     await page.waitForTimeout(400);
@@ -313,6 +317,10 @@ export default async function (t) {
     await page.click('.btn-yes');
     await checkNames(page, s, 'livello');
     await page.locator('.btn-level').nth(0).click();
+    await checkNames(page, s, 'quanti');
+    await page.locator('.btn-num').nth(1).click();
+    await checkNames(page, s, 'giocatori-prefilled');
+    await page.click('.btn-start');
     await checkNames(page, s, 'grid-group');
     await openCategory(page, T_PLURALE);
     await checkNames(page, s, 'card');

@@ -69,7 +69,7 @@ const CONFIG = {
   storageKey: 'tlspi-partita',
   saveMaxAgeMs: 24 * 60 * 60 * 1000,    // an older save is discarded
   saveFutureMs: 5 * 60 * 1000,          // a save dated further in the future than this is discarded (clock nonsense)
-  saveVersion: 1,
+  saveVersion: 2,                       // a save with another version is discarded silently (no migration)
   saveScreens: ['stesso', 'livello', 'quanti', 'giocatori', 'gioco', 'carta'],   // only these are saved / restored
   nameMax: 40,                          // player name length (input maxLength, and the cut on restore)
   REQUIRED_KEYS: [
@@ -86,7 +86,8 @@ const CONFIG = {
     'err_posizione', 'err_icona_dimensione', 'err_margine', 'err_icona_testo',
     'torna_al_gioco', 'anteprima_titolo', 'anteprima_dimensione', 'anteprima_piccola', 'anteprima_media',
     'anteprima_grande', 'anteprima_aiuto', 'anteprima_retro', 'anteprima_area', 'anteprima_standard',
-    'anteprima_standard_modello', 'partita_in_corso', 'continua'
+    'anteprima_standard_modello', 'partita_in_corso', 'continua',
+    'tocca_a', 'livello_di', 'nascondi', 'err_salvataggio'
   ]
 };
 
@@ -288,14 +289,16 @@ function checkLayout(file, riga, d, s) {
   if (d.icona_posizione) {
     const pos = d.icona_posizione.trim().toLowerCase().replace(/\s+/g, '-');
     if (CONFIG.iconPositions.includes(pos)) s.iconPos = pos;
-    else problem(file, riga, 'err_posizione');
+    else problem(file, riga, 'err_posizione', { valore: d.icona_posizione });
   }
   if (d.icona_dimensione) {
     const n = parseNum(d.icona_dimensione);
     if (inRange(n, L.iconSize)) s.iconSize = n;
-    else problem(file, riga, 'err_icona_dimensione', { min: L.iconSize[0], max: L.iconSize[1] });
+    else problem(file, riga, 'err_icona_dimensione', { valore: d.icona_dimensione, min: L.iconSize[0], max: L.iconSize[1] });
   }
-  const mv = { min: L.margin[0], max: L.margin[1], somma: L.marginSum };
+  // {valore} = the cells as written (column name = value), so Chiara sees which one is wrong
+  const given = ['testo_margine_alto', 'testo_margine_basso'].filter(c => d[c]).map(c => c + ' = ' + d[c]).join(', ');
+  const mv = { valore: given, min: L.margin[0], max: L.margin[1], somma: L.marginSum };
   const top = d.testo_margine_alto ? parseNum(d.testo_margine_alto) : null;
   const bottom = d.testo_margine_basso ? parseNum(d.testo_margine_basso) : null;
   const okT = top != null && inRange(top, L.margin), okB = bottom != null && inRange(bottom, L.margin);
@@ -556,13 +559,14 @@ function goSettings() { state.popup = null; state.dialog = null; go('stesso'); }
    ========================================================================== */
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* blocked or full: the game keeps working */ } },
+  set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; /* blocked or full: the game keeps working */ } },
   del(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
 };
 const cardId = c => [c.sfida, c.testo, c.immagine].join('\u241f');   // content-based id of a card
 const clearSave = () => store.del(CONFIG.storageKey);
 let untouched = false;   // true right after [nuova_partita]: nothing is saved until the player does something (go())
 let pendingSave = null;  // a valid save found at startup, waiting for the resume dialog
+let saveWarned = false;  // the failed-write warning (err_salvataggio) is shown once per session
 
 function saveGame() {
   if (untouched || !CONFIG.saveScreens.includes(state.screen)) return;   // start screen and preview never save
@@ -575,15 +579,16 @@ function saveGame() {
   if (state.screen === 'carta' && cs) {
     const c = cs.idx != null ? state.carte[cs.idx] : null;
     if (cs.idx == null || c) {
-      card = { sfida: cs.sfida, id: c ? cardId(c) : null, hilfe: cs.hilfe ? { order: cs.hilfe.order.slice(), picked: cs.hilfe.picked } : null };
+      card = { sfida: cs.sfida, id: c ? cardId(c) : null, hilfe: cs.hilfe ? { order: cs.hilfe.order.slice(), picked: cs.hilfe.picked, hidden: !!cs.hilfe.hidden } : null };
     }
   }
   const s = state.setup;
-  store.set(CONFIG.storageKey, JSON.stringify({
+  const ok = store.set(CONFIG.storageKey, JSON.stringify({
     v: CONFIG.saveVersion, savedAt: Date.now(), lang: state.lang, screen: state.screen,
     setup: { stesso: s.stesso, livello: s.livello, giocatori: s.giocatori.map(p => ({ nome: p.nome, livello: p.livello })), attivo: s.attivo },
     pools, last, card
   }));
+  if (!ok && !saveWarned) { saveWarned = true; problem('localStorage', null, 'err_salvataggio'); renderBanner(); }
 }
 window.addEventListener('pagehide', saveGame);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveGame(); });
@@ -625,10 +630,7 @@ function applySave(sv) {
   }
 
   let screen = sv.screen;
-  if (screen === 'gioco' || screen === 'carta') {
-    if (state.setup.stesso === true) { if (!state.setup.livello) screen = 'livello'; }
-    else if (!giocatori.every(p => p.livello)) screen = 'giocatori';
-  }
+  if ((screen === 'gioco' || screen === 'carta') && !giocatori.every(p => p.livello)) screen = 'giocatori';   // the empty level field is where it gets fixed
 
   // pools / last: card ids -> current indexes, only cards that still exist and still belong to that sfida + level
   const byId = new Map();
@@ -672,8 +674,8 @@ function applySave(sv) {
       else {
         const h = c.hilfe;
         const hilfeOk = h && typeof h === 'object' && state.carte[idx].opzioni.length === 3 && Array.isArray(h.order) && h.order.length === 3 &&
-          [0, 1, 2].every(n => h.order.includes(n)) && (h.picked === null || h.picked === 0 || h.picked === 1 || h.picked === 2);
-        state.card = { sfida: sf.sfida, idx, flipped: false, hilfe: hilfeOk ? { order: h.order.slice(), picked: h.picked } : null, fx: {} };
+          [0, 1, 2].every(n => h.order.includes(n)) && (h.picked === null || h.picked === 0 || h.picked === 1 || h.picked === 2);   // `hidden`: anything but true = shown
+        state.card = { sfida: sf.sfida, idx, flipped: false, hilfe: hilfeOk ? { order: h.order.slice(), picked: h.picked, hidden: h.hidden === true } : null, fx: {} };
         fadeCard = true;
       }
     }
@@ -728,7 +730,12 @@ function renderLivello(app) {
   const s = state.setup;
   const stack = el('div', 'stack');
   state.livelli.forEach((l, i) => {
-    stack.appendChild(marked(levelBtn(l, 'btn btn-level', () => { s.livello = l.livello; s.stesso = true; go('gioco'); }, 'level-' + i),
+    stack.appendChild(marked(levelBtn(l, 'btn btn-level', () => {
+      s.livello = l.livello;
+      s.stesso = true;
+      s.giocatori.forEach(p => { p.livello = l.livello; });   // prefilled for everybody, still editable on the players screen
+      go('quanti');
+    }, 'level-' + i),
       s.livello === l.livello));
   });
   if (!state.livelli.length) stack.appendChild(emptyNote('livelli'));
@@ -740,7 +747,7 @@ function renderQuanti(app) {
   const grid = el('div', 'grid3');
   for (let n = 1; n <= CONFIG.maxGiocatori; n++) {
     grid.appendChild(marked(button(String(n), 'btn btn-num', () => {
-      while (g.length < n) g.push({ nome: '', livello: null });
+      while (g.length < n) g.push({ nome: '', livello: state.setup.stesso === true ? state.setup.livello : null });
       g.length = n;
       go('giocatori');
     }, 'num-' + n), g.length === n));
@@ -774,7 +781,6 @@ function renderGiocatori(app) {
   });
   const go_ = button(t('inizia'), 'btn btn-start', () => {
     if (!s.giocatori.every(p => findLevel(p.livello))) return;
-    s.stesso = false;
     s.attivo = 0;
     go('gioco');
   }, 'inizia');
@@ -821,10 +827,9 @@ function levelPopup(i) {
 /* ==========================================================================
    GAME SCREEN (category grid) + CARD
    ========================================================================== */
+// A game is always a list of players: the current level is the active player's (stesso / livello are only setup memory)
 const curLevelId = () => {
-  const s = state.setup;
-  if (s.stesso) return s.livello;
-  const p = s.giocatori[s.attivo];
+  const p = state.setup.giocatori[state.setup.attivo];
   return p ? p.livello : null;
 };
 
@@ -845,39 +850,46 @@ function iconNode(sf, cls) {
   return box;
 }
 
-// Top field. clickable = player mode on the grid only.
+// Top field: "<tocca_a> <name> – <level>" on the level's colour. clickable = on the grid only (opens the player dialog).
 function topField(clickable) {
   const s = state.setup;
-  if (s.stesso) {
-    const l = findLevel(s.livello);
-    const txt = (t('livello') + ' – ' + (l ? levelName(l) : '')).toUpperCase();
-    const d = el('div', 'topfield', txt);
-    d.title = txt;
-    return d;
-  }
   const p = s.giocatori[s.attivo];
   const l = p && findLevel(p.livello);
-  const txt = playerName(s.attivo) + ' – ' + (l ? levelName(l) : '');
-  if (!clickable) { const d = el('div', 'topfield', txt); d.title = txt; return d; }
-  const b = button(txt, 'topfield topfield-btn', () => openDialog('giocatore', 'topfield'), 'topfield');
-  if (l && l.colore) b.style.background = l.colore;
-  b.title = txt;
-  return b;
+  const txt = t('tocca_a') + ' ' + playerName(s.attivo) + ' – ' + (l ? levelName(l) : '');
+  const d = clickable ? button(txt, 'topfield topfield-btn', () => openDialog('giocatore', 'topfield'), 'topfield') : el('div', 'topfield', txt);
+  if (l && l.colore) d.style.background = l.colore;
+  d.title = txt;
+  return d;
 }
 
+// Top-field dialog (grid): title = whose turn; section 1 = the level of THIS player only; section 2 = pick another player.
 function playerPopup() {
+  const s = state.setup, a = s.attivo, cur = s.giocatori[a];
   const panel = el('div', 'panel');
-  state.setup.giocatori.forEach((p, i) => {
+  const section = (id, heading) => {
+    const sec = el('div', 'dlg-section');
+    const h = el('h3', null, heading);
+    h.id = id;
+    sec.setAttribute('role', 'group');
+    sec.setAttribute('aria-labelledby', id);
+    sec.appendChild(h);
+    panel.appendChild(sec);
+    return sec;
+  };
+  const lv = section('dlg-lvl', t('livello_di', { valore: playerName(a) }));
+  state.livelli.forEach((l, k) => {
+    lv.appendChild(marked(levelBtn(l, 'btn btn-level', () => { cur.livello = l.livello; closePopup(); }, 'glevel-' + k), cur.livello === l.livello));
+  });
+  if (!state.livelli.length) lv.appendChild(emptyNote('livelli'));
+  const pl = section('dlg-players', t('scegli_giocatore'));
+  s.giocatori.forEach((p, i) => {
     const l = findLevel(p.livello);
-    const b = button(playerName(i) + ' – ' + (l ? levelName(l) : ''), 'btn btn-level', () => {
-      state.setup.attivo = i;
-      closePopup();
-    }, 'player-' + i);
+    const b = button(playerName(i) + ' – ' + (l ? levelName(l) : ''), 'btn btn-player', () => { s.attivo = i; closePopup(); }, 'player-' + i);
     if (l && l.colore) b.style.background = l.colore;
-    panel.appendChild(marked(b, state.setup.attivo === i));
+    pl.appendChild(marked(b, a === i));
   });
   panel.appendChild(button(t('annulla'), 'btn btn-cancel', closePopup, 'annulla'));
-  return dialogBack('giocatore', panel, t('scegli_giocatore'));
+  return dialogBack('giocatore', panel, t('tocca_a') + ' ' + playerName(a));
 }
 
 function exitPopup() {
@@ -901,7 +913,7 @@ function resumePopup() {
 }
 
 function renderGioco(app) {
-  app.appendChild(topField(!state.setup.stesso));
+  app.appendChild(topField(true));
   app.appendChild(el('h2', 'scegli', t('scegli_categoria')));
   const grid = el('div', 'tiles');
   if (fadeGrid) { grid.classList.add('fade-in'); fadeGrid = false; }
@@ -919,7 +931,7 @@ function renderGioco(app) {
   bar.append(button(t('esci'), 'btn btn-secondary', () => openDialog('esci', 'esci'), 'esci'),
     button(t('impostazioni'), 'btn btn-secondary', goSettings, 'impostazioni'));
   app.appendChild(bar);
-  if (state.dialog === 'giocatore' && !state.setup.stesso) app.appendChild(playerPopup());
+  if (state.dialog === 'giocatore') app.appendChild(playerPopup());
   else if (state.dialog === 'esci') app.appendChild(exitPopup());
 }
 
@@ -1049,13 +1061,13 @@ function buildFace(sf, card, side) {
   return c;
 }
 
-/* ---- Hilfe (multiple choice). State in state.card.hilfe = { order:[option idx], picked:idx|null };
+/* ---- Hilfe (multiple choice). State in state.card.hilfe = { order:[option idx], picked:idx|null, hidden:bool };
    option 0 is the correct one (first in the CSV), order is the shuffled display order. ---- */
 function renderOpts(face, card, cs = state.card) {
   const old = face.querySelector('.card-opts');
   if (old) old.remove();
   const h = cs.hilfe;
-  if (!h) return null;
+  if (!h || h.hidden) return null;   // hidden: the options are not drawn (order and a locked pick stay in the state)
   const box = el('div', 'card-opts');
   box.setAttribute('role', 'group');
   box.setAttribute('aria-label', t('aiuto'));
@@ -1117,25 +1129,30 @@ function buildCard(sf, card, cs = state.card, preview = false) {
   flip.appendChild(front);
 
   const acts = el('div', 'card-actions');
-  if (card.opzioni.length === 3) {
-    const a = button(t('aiuto'), 'card-btn btn-aiuto', () => {
-      cs.hilfe = { order: shuffle([0, 1, 2]), picked: null };
-      a.remove();
-      renderOpts(front, card, cs);
-      fitCard();
-      saveGame();
-      focusFid('opt-0');   // the button that had the focus is gone: move on to the first option
-    }, 'aiuto');
-    if (!cs.hilfe) acts.appendChild(a);
-  }
   if (card.risposta) {
     const b = button(t('soluzione'), 'card-btn btn-soluzione', () => setFlipped(flip, sf, card, true, true, cs), 'soluzione');
     acts.appendChild(b);
   }
   acts.lang = state.lang;   // the pills are UI text, not Italian card content
-  if (preview) acts.querySelectorAll('button').forEach(b => { b.disabled = true; });   // preview: the pills only show where they sit
   front.appendChild(acts);
-  renderOpts(front, card, cs);   // restores Hilfe after a re-render (e.g. language switch)
+  // Hilfe pill: [aiuto] while the options are not shown, [nascondi] while they are. Hiding keeps order and a locked pick.
+  let pill = null;
+  const syncHilfe = refocus => {
+    if (pill) pill.remove();
+    const shown = !!cs.hilfe && !cs.hilfe.hidden;
+    pill = button(shown ? t('nascondi') : t('aiuto'), 'card-btn btn-aiuto', () => {
+      if (!cs.hilfe) cs.hilfe = { order: shuffle([0, 1, 2]), picked: null, hidden: false };
+      else cs.hilfe.hidden = !cs.hilfe.hidden;
+      syncHilfe(true);
+      fitCard();
+      saveGame();
+    }, shown ? 'nascondi' : 'aiuto');
+    acts.prepend(pill);
+    renderOpts(front, card, cs);   // also restores Hilfe after a re-render (e.g. language switch)
+    if (refocus) focusFid(shown ? 'opt-0' : 'aiuto');   // the pill that had the focus is gone
+  };
+  if (card.opzioni.length === 3) syncHilfe(false);
+  if (preview) acts.querySelectorAll('button').forEach(b => { b.disabled = true; });   // preview: the pills only show where they sit
 
   if (preview) {
     if (cs.flipped) setFlipped(flip, sf, card, true, false, cs);   // preview back: also for cards without risposta (shows the back template)
@@ -1413,7 +1430,11 @@ function renderCarta(app) {
     else announce(t('nessuna_carta'), state.lang);
   }, 'altra');
   more.disabled = !card;
-  bar.append(button(t('chiudi'), 'btn btn-secondary', () => { fadeGrid = true; go('gioco'); }, 'chiudi'), more);
+  bar.append(button(t('chiudi'), 'btn btn-secondary', () => {
+    state.setup.attivo = (state.setup.attivo + 1) % state.setup.giocatori.length;   // closing a card passes the turn
+    fadeGrid = true;
+    go('gioco');
+  }, 'chiudi'), more);
   app.appendChild(bar);
   fitCard();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);

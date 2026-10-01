@@ -51,10 +51,14 @@ export const startBtn = page => page.locator('.start .btn');
 export const tiles = page => page.locator('.tile');
 export const bottomBtns = page => page.locator('.pair.bottom .btn');
 
-export async function startGroup(page, levelIndex = 0) {
+// "Same level" path: Sì -> level once -> count (default 1) -> names (left blank, levels prefilled) -> start.
+export async function startGroup(page, levelIndex = 0, n = 1) {
   await page.click('.start .btn');
   await page.click('.btn-yes');
   await page.locator('.btn-level').nth(levelIndex).click();
+  await page.locator('.btn-num').nth(n - 1).click();
+  await page.waitForSelector('.name-input');
+  await page.click('.btn-start');
   await page.waitForSelector('.tiles');
 }
 
