@@ -22,13 +22,14 @@ const CONFIG = {
   // A new column of a later batch = one more name in the right `optional` list.
   columns: {
     carte: { required: ['sfida', 'livelli', 'testo'], optional: ['opzioni', 'media', 'immagine', 'risposta'] },
-    sfide: { required: ['sfida'], optional: ['icona', 'accento', 'sfondo', 'timer', 'carattere', 'dimensione', 'colore_testo', 'allineamento'] },
+    sfide: { required: ['sfida'], optional: ['icona', 'accento', 'sfondo', 'timer', 'carattere', 'dimensione', 'colore_testo', 'allineamento',
+      'icona_posizione', 'icona_dimensione', 'testo_margine_alto', 'testo_margine_basso'] },
     livelli: { required: ['livello'], optional: ['nome_de', 'colore', 'ordine'] },
     testi: { required: ['chiave', 'de', 'it'], optional: [] }
   },
   fileOrder: ['testi', 'livelli', 'sfide', 'carte'],   // banner order (then by row)
   bannerMaxPerFile: 10,                                // banner lines per file; the rest = one err_altri line
-  bannerOpenScreens: ['start', 'stesso', 'livello', 'quanti', 'giocatori'],   // banner expanded here, collapsed elsewhere
+  bannerOpenScreens: ['start', 'stesso', 'livello', 'quanti', 'giocatori', 'anteprima'],   // banner expanded here, collapsed elsewhere
   didYouMeanMax: 2,                                    // max Levenshtein distance for "forse ...?"
   delimiters: [';', ',', '\t'],
   imageExt: /\.(png|jpe?g|gif|svg|webp)$/i,
@@ -36,6 +37,15 @@ const CONFIG = {
   mediaImageExt: /\.(png|jpe?g|gif|webp|svg)$/i,
   mediaAudioExt: /\.(mp3|m4a|aac|ogg|oga|wav|opus)$/i,
   alignments: ['sinistra', 'centro', 'destra'],
+  iconPositions: ['alto-sinistra', 'alto-centro', 'alto-destra', 'basso-sinistra', 'basso-centro', 'basso-destra'],
+  // limits of the card-layout columns of sfide.csv (icona_dimensione in px of the 750x1050 template, margins in % of the card height)
+  limits: { iconSize: [20, 400], margin: [0, 45], marginSum: 80 },
+  // preview (index.html?anteprima): fixed card heights in px, key = testi_ui.csv key of the button
+  previewSizes: [{ key: 'anteprima_piccola', h: 360 }, { key: 'anteprima_media', h: 480 }, { key: 'anteprima_grande', h: 600 }],
+  previewDefaultSize: 'anteprima_media',
+  // geometry of the 750x1050 Canva template, in px (keep in sync with --icon-top / --icon-bottom in style.css): used by the
+  // err_icona_testo check (does the app icon reach into the text area?)
+  template: { h: 1050, iconTop: 70, iconBottom: 128, titleGap: 6, titleMin: 50 },
   // fallbacks for empty/invalid CSV cells and card-fit limits (used everywhere, never as literals)
   defaults: {
     fontMax: 28,            // card text size when sfide.csv `dimensione` is empty (px)
@@ -45,7 +55,13 @@ const CONFIG = {
     accent: 'var(--green)', // category accent colour when `accento` is empty
     alignment: 'centro',    // text alignment when `allineamento` is empty
     growMs: 350,            // grow-from-tile animation if --card-grow-time cannot be read
-    doubleTapMs: 400        // [altra_carta] ignores a second tap within this time (double tap = ONE card)
+    doubleTapMs: 400,       // [altra_carta] ignores a second tap within this time (double tap = ONE card)
+    // card layout when the sfide.csv columns are blank / invalid. Keep in sync with the CSS fallbacks in style.css (.card).
+    iconPos: 'basso-destra',    // icona_posizione (CSS cards; template cards draw NO app icon unless it is set, decision D2)
+    iconSize: 100,              // icona_dimensione, px of the 750x1050 template
+    textTop: 20,                // testo_margine_alto, % of the card height
+    textBottom: 22,             // testo_margine_basso
+    liveDelayMs: 60             // [altra_carta] live region: cleared, then filled after this delay (so an identical text is read again)
   },
   // every key the app uses (all keys of testi_ui.csv)
   maxGiocatori: 6,
@@ -59,7 +75,11 @@ const CONFIG = {
     'err_sfida', 'err_livello', 'err_nessun_livello', 'err_opzioni', 'err_testo', 'err_timer',
     'err_dimensione', 'err_allineamento', 'err_ordine', 'err_traduzione', 'err_chiave',
     'err_file', 'err_font', 'err_media_tipo',
-    'err_colonna_opzionale', 'err_file_vuoto', 'err_altri', 'err_colore', 'err_forse', 'giusto', 'sbagliato'
+    'err_colonna_opzionale', 'err_file_vuoto', 'err_altri', 'err_colore', 'err_forse', 'giusto', 'sbagliato',
+    'err_posizione', 'err_icona_dimensione', 'err_margine', 'err_icona_testo',
+    'torna_al_gioco', 'anteprima_titolo', 'anteprima_dimensione', 'anteprima_piccola', 'anteprima_media',
+    'anteprima_grande', 'anteprima_aiuto', 'anteprima_retro', 'anteprima_area', 'anteprima_standard',
+    'anteprima_standard_modello'
   ]
 };
 
@@ -247,6 +267,57 @@ function validateLivelli(csv) {
   return out.sort((a, b) => (a.ordine === b.ordine ? 0 : a.ordine < b.ordine ? -1 : 1));
 }
 
+// Number cell of the layout columns: "20", "20%", "20,5" (German decimal comma), "100px", " 100 " -> number; anything else -> NaN
+function parseNum(v) {
+  const m = String(v == null ? '' : v).trim().match(/^(\d+(?:[.,]\d+)?)\s*(?:px|%)?$/i);
+  return m ? Number(m[1].replace(',', '.')) : NaN;
+}
+const inRange = (n, [lo, hi]) => n >= lo && n <= hi;
+// Layout columns of sfide.csv (icona_posizione, icona_dimensione, testo_margine_alto/basso). The checked values go to
+// s.iconPos / s.iconSize / s.textTop / s.textBottom; null = blank or invalid -> the default (CONFIG.defaults) is used.
+function checkLayout(file, riga, d, s) {
+  const L = CONFIG.limits;
+  s.iconPos = s.iconSize = s.textTop = s.textBottom = null;
+  if (d.icona_posizione) {
+    const pos = d.icona_posizione.trim().toLowerCase().replace(/\s+/g, '-');
+    if (CONFIG.iconPositions.includes(pos)) s.iconPos = pos;
+    else problem(file, riga, 'err_posizione');
+  }
+  if (d.icona_dimensione) {
+    const n = parseNum(d.icona_dimensione);
+    if (inRange(n, L.iconSize)) s.iconSize = n;
+    else problem(file, riga, 'err_icona_dimensione', { min: L.iconSize[0], max: L.iconSize[1] });
+  }
+  const mv = { min: L.margin[0], max: L.margin[1], somma: L.marginSum };
+  const top = d.testo_margine_alto ? parseNum(d.testo_margine_alto) : null;
+  const bottom = d.testo_margine_basso ? parseNum(d.testo_margine_basso) : null;
+  const okT = top != null && inRange(top, L.margin), okB = bottom != null && inRange(bottom, L.margin);
+  if ((top != null && !okT) || (bottom != null && !okB)) problem(file, riga, 'err_margine', mv);   // one message per row
+  if (okT && okB && top + bottom > L.marginSum) { problem(file, riga, 'err_margine', mv); return; }   // only the sum is wrong: ONE message, both defaults
+  if (okT) s.textTop = top;
+  if (okB) s.textBottom = bottom;
+}
+
+// err_icona_testo: the app-drawn icon box reaches into the text area band (computed in template px from position, size and
+// margins), or an alto-centro icon on a CSS card leaves less than titleMin px for the title. Only where the app really
+// draws the icon (a template without icona_posizione has none, decision D2). Names the margin to change.
+function checkIconFit(file, riga, s) {
+  const D = CONFIG.defaults, T = CONFIG.template;
+  const tpl = !!s.sfondo;
+  const pos = s.iconPos || (tpl ? null : D.iconPos);
+  if (!pos) return;
+  const size = s.iconSize ?? D.iconSize;
+  const bandTop = (s.textTop ?? D.textTop) / 100 * T.h, bandBottom = T.h - (s.textBottom ?? D.textBottom) / 100 * T.h;
+  const iconBottomEdge = T.iconTop + size;           // alto: lower edge of the icon
+  const iconTopEdge = T.h - T.iconBottom - size;     // basso: upper edge of the icon
+  let margine = null;
+  if (pos.startsWith('alto')) {
+    if (iconBottomEdge > bandTop) margine = 'testo_margine_alto';
+    else if (pos === 'alto-centro' && !tpl && bandTop - (iconBottomEdge + T.titleGap) < T.titleMin) margine = 'testo_margine_alto';
+  } else if (iconTopEdge < bandBottom) margine = 'testo_margine_basso';
+  if (margine) problem(file, riga, 'err_icona_testo', { margine });
+}
+
 function validateSfide(csv) {
   const out = [], seen = new Set();
   if (!csv) return out;
@@ -265,6 +336,8 @@ function validateSfide(csv) {
     else if (!CONFIG.alignments.includes(d.allineamento)) { problem(csv.file, riga, 'err_allineamento'); s.allineamento = CONFIG.defaults.alignment; }
     checkColor(csv.file, riga, s, 'accento');
     checkColor(csv.file, riga, s, 'colore_testo');
+    checkLayout(csv.file, riga, d, s);
+    checkIconFit(csv.file, riga, s);
     addRef(csv.file, riga, CONFIG.dirs.sfondi, d.sfondo);
     if (CONFIG.imageExt.test(d.icona)) addRef(csv.file, riga, CONFIG.dirs.icone, d.icona);
     out.push(s);
@@ -760,6 +833,11 @@ function buildFace(sf, card, side) {
   c.dataset.max = String(sf.dimensione || D.fontMax);
   c.style.setProperty('--card-fs', (sf.dimensione || D.fontMax) + 'px');
   c.style.setProperty('--acc', sf.accento || D.accent);
+  // layout columns of sfide.csv, one geometry for template and CSS variant, front and back: text area margins
+  // (fractions of the card height) and icon size (px of the 750x1050 template, scaled by --u)
+  c.style.setProperty('--text-top', String((sf.textTop ?? D.textTop) / 100));
+  c.style.setProperty('--text-bottom', String((sf.textBottom ?? D.textBottom) / 100));
+  c.style.setProperty('--icon-size', String(sf.iconSize ?? D.iconSize));
 
   if (card && side === 'front' && card.immagine) {
     // a) full Canva card image as the front
@@ -773,13 +851,19 @@ function buildFace(sf, card, side) {
     c.appendChild(img);
     return c;
   }
-  if (sf.sfondo && !sf.sfondoBroken) {
-    // b) category template image: app draws only the text area content + pills
+  const tpl = !!(sf.sfondo && !sf.sfondoBroken);
+  // App icon: always on the CSS variant (default bottom right); on a template ONLY if icona_posizione is set (the
+  // template otherwise brings its own icon, decision D2). The icon-pos class also steers the pill arrangement.
+  const pos = sf.iconPos || (tpl ? null : D.iconPos);
+  if (pos) c.classList.add('icon-pos-' + pos);
+  if (tpl) {
+    // b) category template image: app draws only the text area content + pills (+ the icon if asked for)
     c.classList.add('card-tpl');
     c.style.backgroundImage = 'url("' + CONFIG.dirs.sfondi + encodeURIComponent(sf.sfondo) + '")';
+    if (pos) c.appendChild(iconNode(sf, 'circle card-icon icon-box'));
   } else {
     // c) CSS variant: tricolore frame (::before), centred title, icon circle
-    c.append(iconNode(sf, 'circle card-icon'), titleNode(sf));
+    c.append(iconNode(sf, 'circle card-icon icon-box'), titleNode(sf));
   }
   const body = el('div', 'card-body');
   const pr = el('div', 'card-prompt');
@@ -791,10 +875,10 @@ function buildFace(sf, card, side) {
 
 /* ---- Hilfe (multiple choice). State in state.card.hilfe = { order:[option idx], picked:idx|null };
    option 0 is the correct one (first in the CSV), order is the shuffled display order. ---- */
-function renderOpts(face, card) {
+function renderOpts(face, card, cs = state.card) {
   const old = face.querySelector('.card-opts');
   if (old) old.remove();
-  const h = state.card.hilfe;
+  const h = cs.hilfe;
   if (!h) return null;
   const box = el('div', 'card-opts');
   box.setAttribute('role', 'group');
@@ -844,7 +928,9 @@ function renderOpts(face, card) {
   return box;
 }
 
-function buildCard(sf, card) {
+/* cs = the card's view state (flip, Hilfe, features): state.card in the game, a throw-away object in the preview.
+   preview = true: static card (pills inert, no swipe, back not clickable), the caller decides front/back and Hilfe. */
+function buildCard(sf, card, cs = state.card, preview = false) {
   const flip = el('div', 'card-flip');
   if (!card) {
     flip.appendChild(buildFace(sf, null, 'front'));
@@ -856,47 +942,52 @@ function buildCard(sf, card) {
   const acts = el('div', 'card-actions');
   if (card.opzioni.length === 3) {
     const a = button(t('aiuto'), 'card-btn btn-aiuto', () => {
-      state.card.hilfe = { order: shuffle([0, 1, 2]), picked: null };
+      cs.hilfe = { order: shuffle([0, 1, 2]), picked: null };
       a.remove();
-      renderOpts(front, card);
+      renderOpts(front, card, cs);
       fitCard();
       focusFid('opt-0');   // the button that had the focus is gone: move on to the first option
     }, 'aiuto');
-    if (!state.card.hilfe) acts.appendChild(a);
+    if (!cs.hilfe) acts.appendChild(a);
   }
   if (card.risposta) {
-    const b = button(t('soluzione'), 'card-btn btn-soluzione', () => setFlipped(flip, sf, card, true), 'soluzione');
+    const b = button(t('soluzione'), 'card-btn btn-soluzione', () => setFlipped(flip, sf, card, true, true, cs), 'soluzione');
     acts.appendChild(b);
   }
   acts.lang = state.lang;   // the pills are UI text, not Italian card content
+  if (preview) acts.querySelectorAll('button').forEach(b => { b.disabled = true; });   // preview: the pills only show where they sit
   front.appendChild(acts);
-  renderOpts(front, card);   // restores Hilfe after a re-render (e.g. language switch)
+  renderOpts(front, card, cs);   // restores Hilfe after a re-render (e.g. language switch)
 
-  if (card.risposta) {
-    attachSwipe(flip, () => setFlipped(flip, sf, card, !state.card.flipped));
-    if (state.card.flipped) setFlipped(flip, sf, card, true, false);
+  if (preview) {
+    if (cs.flipped) setFlipped(flip, sf, card, true, false, cs);   // preview back: also for cards without risposta (shows the back template)
+  } else if (card.risposta) {
+    attachSwipe(flip, () => setFlipped(flip, sf, card, !cs.flipped, true, cs));
+    if (cs.flipped) setFlipped(flip, sf, card, true, false, cs);
   }
   return flip;
 }
 
 // Back face is built on the first flip. Front tap never flips; back tap flips back.
 // Focus: [soluzione] moves it to the back face (so a screen reader reads the answer), flipping back returns it to [soluzione].
-function setFlipped(flip, sf, card, on, moveFocus = true) {
+function setFlipped(flip, sf, card, on, moveFocus = true, cs = state.card) {
   const front = flip.querySelector('.card-front');
   let back = flip.querySelector('.card-back');
   if (on && !back) {
     back = buildFace(sf, card, 'back');
-    back.setAttribute('role', 'button');
-    back.tabIndex = 0;
-    back.dataset.fid = 'back';
-    back.addEventListener('click', () => setFlipped(flip, sf, card, false));
-    back.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(flip, sf, card, false); }
-    });
+    if (!cs.preview) {   // the preview back is static
+      back.setAttribute('role', 'button');
+      back.tabIndex = 0;
+      back.dataset.fid = 'back';
+      back.addEventListener('click', () => setFlipped(flip, sf, card, false, true, cs));
+      back.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlipped(flip, sf, card, false, true, cs); }
+      });
+    }
     flip.appendChild(back);
     fitCard();
   }
-  state.card.flipped = on;
+  cs.flipped = on;
   flip.classList.toggle('flipped', on);
   front.inert = on;
   if (back) back.inert = !on;
@@ -979,7 +1070,7 @@ window.addEventListener('resize', fitCard);
 
 /* ==========================================================================
    CARD_FEATURES - per-category / per-card features. Adding a feature = adding one entry.
-   Entry: { name, applies(card, sfida) -> bool, render(ctx) -> cleanup fn | undefined }
+   Entry: { name, applies(card, sfida) -> bool, render(ctx) -> cleanup fn | undefined, preview: false = skipped in the preview }
    ctx = { card, sfida,
            front : element inside the front face's content area (prepend/append extras here),
            below : slot OUTSIDE the flipping card, between card and controls (visible when flipped),
@@ -1001,6 +1092,7 @@ function runCleanups() {
    timestamp based), so a running timer simply continues; the interval is cleared and recreated. ---- */
 CARD_FEATURES.push({
   name: 'timer',
+  preview: false,   // the preview is static: no countdown
   applies: (card, sfida) => !!sfida.timer,
   render(ctx) {
     const st = ctx.store;
@@ -1081,6 +1173,41 @@ CARD_FEATURES.push({
   }
 });
 
+// Runs the CARD_FEATURES that apply to the card (the game's card screen and the preview share this).
+function runFeatures(card, sf, flip, below, cs, preview) {
+  const body = flip.querySelector('.card-front .card-body') || flip.querySelector('.card-front');
+  CARD_FEATURES.forEach(f => {
+    try {
+      if ((preview && f.preview === false) || !f.applies(card, sf)) return;
+      const store = (cs.fx[f.name] = cs.fx[f.name] || {});
+      const cleanup = f.render({ card, sfida: sf, front: body, below, store, refit: fitCard });
+      if (typeof cleanup === 'function') cardCleanups.push(cleanup);
+    } catch (e) { console.error(e); }
+  });
+}
+
+// Screen readers: [altra_carta] re-renders the card screen, so the new card is announced through a polite live region
+// that lives outside #app (it survives the re-render). Cleared first, so an identical text is read again. Never moves focus.
+let liveTimer = null;
+function liveRegion() {
+  let live = document.getElementById('card-live');
+  if (!live) {
+    live = el('div', 'sr-only');
+    live.id = 'card-live';
+    live.setAttribute('role', 'status');
+    live.setAttribute('aria-live', 'polite');
+    document.body.appendChild(live);
+  }
+  return live;
+}
+function announce(text, lang) {
+  const live = liveRegion();
+  clearTimeout(liveTimer);
+  live.textContent = '';
+  live.lang = lang;
+  liveTimer = setTimeout(() => { live.textContent = text; }, CONFIG.defaults.liveDelayMs);
+}
+
 function renderCarta(app) {
   const sf = state.card && state.sfide.find(x => x.sfida === state.card.sfida);
   if (!sf) { state.screen = 'gioco'; return renderGioco(app); }
@@ -1094,15 +1221,7 @@ function renderCarta(app) {
   if (growFrom) { growCard(wrap, growFrom); growFrom = null; }
   if (card) {
     const below = el('div', 'card-below');
-    const body = flip.querySelector('.card-front .card-body') || flip.querySelector('.card-front');
-    CARD_FEATURES.forEach(f => {
-      try {
-        if (!f.applies(card, sf)) return;
-        const store = (state.card.fx[f.name] = state.card.fx[f.name] || {});
-        const cleanup = f.render({ card, sfida: sf, front: body, below, store, refit: fitCard });
-        if (typeof cleanup === 'function') cardCleanups.push(cleanup);
-      } catch (e) { console.error(e); }
-    });
+    runFeatures(card, sf, flip, below, state.card, false);
     if (below.children.length) app.appendChild(below);
   }
   const bar = el('div', 'pair bottom');
@@ -1111,6 +1230,9 @@ function renderCarta(app) {
     state.card = newCardState(sf);
     fadeCard = true;
     render();
+    const c = state.card.idx != null ? state.carte[state.card.idx] : null;
+    if (c) announce(c.testo || sf.sfida, 'it');   // card content is Italian
+    else announce(t('nessuna_carta'), state.lang);
   }, 'altra');
   more.disabled = !card;
   bar.append(button(t('chiudi'), 'btn btn-secondary', () => { fadeGrid = true; go('gioco'); }, 'chiudi'), more);
@@ -1119,9 +1241,107 @@ function renderCarta(app) {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);
 }
 
+/* ==========================================================================
+   PREVIEW - index.html?anteprima: one card per category side by side, for Chiara to check her Canva templates and the
+   layout columns of sfide.csv. Same validation, banner, fonts, buildFace/buildCard as the game; the cards are static
+   (no swipe / flip / timer; the Hilfe options stay clickable). It never touches state.card or the game state and
+   writes nothing to localStorage except the language.
+   ========================================================================== */
+const pv = { size: CONFIG.previewDefaultSize, aiuto: false, retro: false, area: false };
+
+// The card shown for a category: the one with the LONGEST testo (any level) = the worst case for the text fit.
+function worstCard(sf) {
+  let best = null;
+  state.carte.forEach(c => {
+    if (c.sfida === sf.sfida && (!best || (c.testo || '').length > (best.testo || '').length)) best = c;
+  });
+  return best;
+}
+
+// Dashed outline of the text area + dotted outline of the app-icon box (where the app icon would go), so a Canva
+// template can be lined up. Same custom properties as the face, so it follows the margins / icon columns exactly.
+function areaOverlay(face) {
+  const ov = el('div', 'pv-overlay ' + ([...face.classList].find(c => c.startsWith('icon-pos-')) || 'icon-pos-' + CONFIG.defaults.iconPos));
+  ov.setAttribute('aria-hidden', 'true');
+  ov.append(el('div', 'pv-area'), el('div', 'pv-icon-box icon-box'));
+  face.appendChild(ov);
+}
+
+// Caption: the CSV column names literally (Chiara knows them) + the value set, or "standard (<default>)".
+function previewCaption(sf, card) {
+  const D = CONFIG.defaults;
+  const cap = el('figcaption', 'pv-cap');
+  const name = el('h2', 'pv-name', sf.sfida);
+  name.lang = 'it';
+  const dl = el('dl', 'pv-info');
+  const row = (k, v) => dl.append(el('dt', null, k), el('dd', null, v));
+  const std = v => t('anteprima_standard', { valore: v });
+  const tpl = !!(sf.sfondo && !sf.sfondoBroken);
+  row('livelli', card ? card.livelli.map(id => { const l = findLevel(id); return l ? levelName(l) : id; }).join(', ') : '—');
+  row('sfondo', sf.sfondo || '—');
+  row('icona_posizione', sf.iconPos || (tpl ? t('anteprima_standard_modello') : std(D.iconPos)));
+  row('icona_dimensione', sf.iconSize != null ? sf.icona_dimensione : std(D.iconSize));
+  row('testo_margine_alto', sf.textTop != null ? sf.testo_margine_alto : std(D.textTop));
+  row('testo_margine_basso', sf.textBottom != null ? sf.testo_margine_basso : std(D.textBottom));
+  cap.append(name, dl);
+  return cap;
+}
+
+function renderAnteprima(app) {
+  const link = el('a', 'pv-back', t('torna_al_gioco'));
+  link.href = location.pathname;   // the game: same page without ?anteprima
+  link.dataset.fid = 'pv-back';
+  app.querySelector('.topbar').prepend(link);
+  app.appendChild(el('h1', 'pv-title', t('anteprima_titolo')));
+
+  const ctl = el('div', 'pv-controls');
+  const toggle = (key, labelKey) => {
+    const b = button(t(labelKey), 'pv-btn', () => { pv[key] = !pv[key]; render(); }, 'pv-' + key);
+    b.setAttribute('aria-pressed', String(pv[key]));
+    return b;
+  };
+  const sizes = el('div', 'pv-sizes');
+  sizes.setAttribute('role', 'group');
+  sizes.setAttribute('aria-label', t('anteprima_dimensione'));
+  sizes.appendChild(el('span', 'pv-label', t('anteprima_dimensione')));
+  CONFIG.previewSizes.forEach(z => {
+    const b = button(t(z.key) + ' ' + z.h + 'px', 'pv-btn', () => { pv.size = z.key; render(); }, 'pv-size-' + z.h);
+    b.setAttribute('aria-pressed', String(pv.size === z.key));
+    sizes.appendChild(b);
+  });
+  ctl.append(sizes, toggle('aiuto', 'anteprima_aiuto'), toggle('retro', 'anteprima_retro'), toggle('area', 'anteprima_area'));
+  app.appendChild(ctl);
+
+  const size = CONFIG.previewSizes.find(z => z.key === pv.size) || CONFIG.previewSizes[0];
+  const grid = el('div', 'pv-grid');
+  grid.style.setProperty('--card-h-fixed', size.h + 'px');
+  state.sfide.forEach(sf => {
+    const card = worstCard(sf);
+    const cs = {
+      sfida: sf.sfida, idx: null, flipped: pv.retro && !!card, fx: {}, preview: true,
+      hilfe: pv.aiuto && card && card.opzioni.length === 3 ? { order: [0, 1, 2], picked: null } : null   // fixed order: the correct one first
+    };
+    const item = el('figure', 'pv-item');
+    const wrap = el('div', 'card-wrap');
+    const flip = buildCard(sf, card, cs, true);
+    wrap.appendChild(flip);
+    const stage = el('div', 'pv-stage');
+    stage.appendChild(wrap);
+    item.append(stage, previewCaption(sf, card));
+    grid.appendChild(item);
+    if (card) runFeatures(card, sf, flip, el('div'), cs, true);
+    if (pv.area) flip.querySelectorAll('.card:not(.card-image)').forEach(areaOverlay);
+  });
+  if (!state.sfide.length) grid.appendChild(emptyNote('sfide'));
+  app.appendChild(grid);
+  fitCard();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);
+}
+
 const SCREENS = {
   start: renderStart, stesso: renderStesso, livello: renderLivello,
-  quanti: renderQuanti, giocatori: renderGiocatori, gioco: renderGioco, carta: renderCarta
+  quanti: renderQuanti, giocatori: renderGiocatori, gioco: renderGioco, carta: renderCarta,
+  anteprima: renderAnteprima
 };
 
 /* ---- Focus management ----
@@ -1136,7 +1356,7 @@ const focusFid = fid => {
 };
 const MAIN_FOCUS = {
   start: '.start h1', stesso: '.question', livello: '.question', quanti: '.question',
-  giocatori: '.rows', gioco: '.topfield', carta: '.card-front'
+  giocatori: '.rows', gioco: '.topfield', carta: '.card-front', anteprima: '.pv-title'
 };
 function focusMain() {
   const e = document.querySelector('#app ' + (MAIN_FOCUS[state.screen] || 'h1'));
@@ -1216,7 +1436,7 @@ function preloadAssets() {
       const img = new Image();
       img.addEventListener('error', () => {
         sf.sfondoBroken = true;
-        if (state.screen === 'carta' && state.card && state.card.sfida === sf.sfida) render();   // card already on screen
+        if (state.screen === 'anteprima' || (state.screen === 'carta' && state.card && state.card.sfida === sf.sfida)) render();   // card already on screen
       });
       img.src = CONFIG.dirs.sfondi + encodeURIComponent(sf.sfondo);
       preloaded.push(img);
@@ -1242,6 +1462,8 @@ async function init() {
   state.livelli = validateLivelli(livelli);
   state.sfide = validateSfide(sfide);
   state.carte = validateCarte(carte);
+  liveRegion();
+  if (new URLSearchParams(location.search).has('anteprima')) state.screen = 'anteprima';   // index.html?anteprima (also ?anteprima=1)
   render();
   preloadAssets();
   await loadFonts();

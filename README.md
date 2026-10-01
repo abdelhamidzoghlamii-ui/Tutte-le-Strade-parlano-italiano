@@ -48,6 +48,8 @@ Ogni riga è una categoria (una casella nel menu del gioco, nello stesso ordine 
    Lascia **libero** circa il 20% in alto (i primi ~210 px) e circa il 22% in basso (gli ultimi
    ~231 px): l'app scrive il testo della carta nel mezzo e mette i pulsanti in basso. L'icona della
    categoria va in basso a destra, dentro quella fascia (circa tra 820 e 915 px dall'alto).
+   Se il tuo modello ha altre misure, i due margini si possono cambiare **per categoria** (vedi
+   «Regolare la carta di una categoria» qui sotto).
 2. Colonne:
    - **sfida** — nome della categoria. **icona** — una emoji, oppure il nome di un'immagine messa
      in `assets/icone/`. **accento** — un colore (es. `#009246`).
@@ -59,6 +61,37 @@ Ogni riga è una categoria (una casella nel menu del gioco, nello stesso ordine 
    - Il nome in **carattere** deve corrispondere a un file in `assets/fonts/` chiamato esattamente
      `<carattere>.woff2` (es. `Patrick Hand.woff2`). Per aggiungere un font metti lì il file
      `.woff2` con il nome giusto. Se manca, l'app mostra un avviso e usa un carattere standard.
+
+### Regolare la carta di una categoria
+Quattro colonne facoltative di `sfide.csv`. Se sono vuote vale lo standard.
+- **icona_posizione** — dove l'app disegna l'icona: `alto-sinistra`, `alto-centro`, `alto-destra`,
+  `basso-sinistra`, `basso-centro`, `basso-destra` (es. `basso-sinistra`; vanno bene anche maiuscole o
+  uno spazio al posto del trattino). Standard: in basso a destra.
+- **icona_dimensione** — grandezza dell'icona, da 20 a 400 (es. `120`). Standard: 100.
+- **testo_margine_alto** — spazio libero in alto prima del testo, da 0 a 45 (es. `25`). Standard: 20.
+- **testo_margine_basso** — spazio libero in basso dopo il testo, da 0 a 45 (es. `30`). Standard: 22.
+  Alto + basso insieme al massimo 80.
+
+Le unità: **icona_dimensione** è in pixel del modello 750×1050, quindi `100` = 100 px sul modello di
+Canva. I **margini** sono in % dell'altezza della carta. Per i numeri vanno bene `20`, `20%` e `20,5`
+(anche `100px`). Un valore non valido dà un avviso e il gioco usa lo standard.
+
+Se ingrandisci l'icona o la metti in alto, aumenta il margine corrispondente: l'avviso in alto ti segnala il problema, e lo controlli nell'anteprima con «Mostra area testo e icona».
+
+**Carte con un modello (colonna sfondo):** l'app disegna l'icona **solo se `icona_posizione` è
+compilata**. Se l'icona è già nel modello di Canva, lascia la cella **vuota**, altrimenti compare due volte.
+Le carte semplici (senza sfondo) hanno sempre l'icona.
+
+**Anteprima.** Per vedere tutte le categorie insieme apri il gioco aggiungendo `?anteprima` all'indirizzo:
+https://abdelhamidzoghlamii-ui.github.io/Tutte-le-Strade-parlano-italiano/?anteprima
+Per ogni categoria vedi una carta (quella con il testo più lungo, il caso peggiore) e sotto i valori delle
+quattro colonne. I pulsanti in alto:
+- **piccola / media / grande** — la grandezza delle carte;
+- **Mostra l'aiuto** — apre le 3 opzioni sulle carte che le hanno;
+- **Mostra il retro** — mostra il retro invece del fronte;
+- **Mostra area testo e icona** — tratteggio rosso = area dove va il testo, puntini blu = dove va
+  l'icona: serve per allineare il modello di Canva.
+Il link «Torna al gioco» riporta al gioco. L'anteprima non cambia nulla nei file.
 
 ## I livelli  →  `data/livelli.csv`
 - **livello** — nome italiano (quello usato in `carte.csv`). **nome_de** — nome tedesco.

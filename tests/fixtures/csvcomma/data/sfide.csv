@@ -1,9 +1,9 @@
-﻿sfida,icona,accento,sfondo,timer,carattere,dimensione,colore_testo,allineamento
-PARLA DI TE,💬,#009246,parla-di-te.png,,Patrick Hand,30,#1A1A1A,centro
-CREA IL PLURALE,➕,#CE2B37,crea-il-plurale.png,,Patrick Hand,34,#1A1A1A,centro
-CONIUGA IL VERBO,🔄,#CE2B37,coniuga-il-verbo.png,,Patrick Hand,32,#1A1A1A,centro
-INDOVINA IL MODO DI DIRE,🗣️,#009246,indovina-il-modo-di-dire.png,,Patrick Hand,34,#1A1A1A,centro
-TROVA L'ERRORE,🔍,#009246,trova-l-errore.png,,Caveat,34,#1A1A1A,centro
-COSE-NOMI-CITTÀ,🏙️,#CE2B37,cose-nomi-citta.png,60,Patrick Hand,40,#1A1A1A,centro
-LEGGI LO SCIOGLILINGUA,👅,#CE2B37,leggi-lo-scioglilingua.png,,Caveat,30,#1A1A1A,centro
-QUIZ DI CULTURA GENERALE,🎭,#009246,quiz-di-cultura-generale.png,,Patrick Hand,30,#1A1A1A,centro
+﻿sfida,icona,accento,sfondo,timer,carattere,dimensione,colore_testo,allineamento,icona_posizione,icona_dimensione,testo_margine_alto,testo_margine_basso
+PARLA DI TE,💬,#009246,parla-di-te.png,,Patrick Hand,30,#1A1A1A,centro,,,,
+CREA IL PLURALE,➕,#CE2B37,crea-il-plurale.png,,Patrick Hand,34,#1A1A1A,centro,,,,
+CONIUGA IL VERBO,🔄,#CE2B37,coniuga-il-verbo.png,,Patrick Hand,32,#1A1A1A,centro,,,,
+INDOVINA IL MODO DI DIRE,🗣️,#009246,indovina-il-modo-di-dire.png,,Patrick Hand,34,#1A1A1A,centro,,,,
+TROVA L'ERRORE,🔍,#009246,trova-l-errore.png,,Caveat,34,#1A1A1A,centro,,,,
+COSE-NOMI-CITTÀ,🏙️,#CE2B37,cose-nomi-citta.png,60,Patrick Hand,40,#1A1A1A,centro,,,,
+LEGGI LO SCIOGLILINGUA,👅,#CE2B37,leggi-lo-scioglilingua.png,,Caveat,30,#1A1A1A,centro,,,,
+QUIZ DI CULTURA GENERALE,🎭,#009246,quiz-di-cultura-generale.png,,Patrick Hand,30,#1A1A1A,centro,,,,

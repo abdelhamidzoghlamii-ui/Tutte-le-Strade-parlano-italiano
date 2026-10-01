@@ -55,3 +55,18 @@ err_colore,'{valore}' ist keine gültige Farbe,'{valore}' non è un colore valid
 err_forse,(vielleicht '{valore}'?),(forse '{valore}'?)
 giusto,richtig,giusto
 sbagliato,falsch,sbagliato
+err_posizione,Icon-Position ungültig: alto-/basso- + sinistra/centro/destra verwenden,posizione dell'icona non valida: usa alto-/basso- + sinistra/centro/destra
+err_icona_dimensione,Icon-Größe muss eine Zahl von {min} bis {max} sein,la dimensione dell'icona deve essere un numero da {min} a {max}
+err_margine,"Textränder müssen Zahlen von {min} bis {max} sein, zusammen höchstens {somma}","i margini del testo devono essere numeri da {min} a {max}, insieme al massimo {somma}"
+torna_al_gioco,Zurück zum Spiel,Torna al gioco
+anteprima_titolo,Kartenvorschau,Anteprima delle carte
+anteprima_dimensione,Größe,Dimensione
+anteprima_piccola,klein,piccola
+anteprima_media,mittel,media
+anteprima_grande,groß,grande
+anteprima_aiuto,Hilfe zeigen,Mostra l'aiuto
+anteprima_retro,Rückseite zeigen,Mostra il retro
+anteprima_area,Textbereich und Icon zeigen,Mostra area testo e icona
+anteprima_standard,Standard ({valore}),standard ({valore})
+anteprima_standard_modello,Standard (kein App-Icon: die Vorlage bringt es mit),standard (nessuna icona dell'app: ce l'ha già il modello)
+err_icona_testo,Das Icon ragt in den Textbereich (oder lässt keinen Platz für den Titel): {margine} erhöhen oder icona_dimensione verkleinern,l'icona entra nell'area del testo (o non lascia spazio al titolo): aumenta {margine} o riduci icona_dimensione

@@ -1,9 +1,9 @@
-sfida;icona;accento;sfondo;timer;carattere;dimensione;colore_testo;allineamento
-PARLA DI TE;💬;#009246;;;Patrick Hand;30;#1A1A1A;centro
-CREA IL PLURALE;➕;#CE2B37;;;Patrick Hand;34;#1A1A1A;centro
-CONIUGA IL VERBO;🔄;#CE2B37;;;Patrick Hand;32;#1A1A1A;centro
-INDOVINA IL MODO DI DIRE;🗣️;#009246;;;Patrick Hand;34;#1A1A1A;centro
-TROVA L'ERRORE;🔍;#009246;;;Caveat;34;#1A1A1A;centro
-COSE-NOMI-CITTÀ;🏙️;#CE2B37;;60;Patrick Hand;40;#1A1A1A;centro
-LEGGI LO SCIOGLILINGUA;👅;#CE2B37;;;Caveat;30;#1A1A1A;centro
-QUIZ DI CULTURA GENERALE;🎭;#009246;;;Patrick Hand;30;#1A1A1A;centro
+sfida;icona;accento;sfondo;timer;carattere;dimensione;colore_testo;allineamento;icona_posizione;icona_dimensione;testo_margine_alto;testo_margine_basso
+PARLA DI TE;💬;#009246;;;Patrick Hand;30;#1A1A1A;centro;;;;
+CREA IL PLURALE;➕;#CE2B37;;;Patrick Hand;34;#1A1A1A;centro;;;;
+CONIUGA IL VERBO;🔄;#CE2B37;;;Patrick Hand;32;#1A1A1A;centro;;;;
+INDOVINA IL MODO DI DIRE;🗣️;#009246;;;Patrick Hand;34;#1A1A1A;centro;;;;
+TROVA L'ERRORE;🔍;#009246;;;Caveat;34;#1A1A1A;centro;;;;
+COSE-NOMI-CITTÀ;🏙️;#CE2B37;;60;Patrick Hand;40;#1A1A1A;centro;;;;
+LEGGI LO SCIOGLILINGUA;👅;#CE2B37;;;Caveat;30;#1A1A1A;centro;;;;
+QUIZ DI CULTURA GENERALE;🎭;#009246;;;Patrick Hand;30;#1A1A1A;centro;;;;

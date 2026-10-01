@@ -111,9 +111,9 @@ export function soft() {
   };
 }
 
-export async function shot(page, name) {
+export async function shot(page, name, full = false) {
   if (!config.shots) return;
   const dir = path.join(OUT, 'shots');
   fs.mkdirSync(dir, { recursive: true });
-  await page.screenshot({ path: path.join(dir, name + '.png') });
+  await page.screenshot({ path: path.join(dir, name + '.png'), fullPage: full });
 }

@@ -21,8 +21,7 @@ body {
 
 /* Validation banner: a collapsible <details> (summary = title + count) with the close button beside it */
 #banner {
-  flex: none;
-  position: sticky; top: 0; z-index: 100;
+  flex: none;   /* static, in flow at the top of the page: it scrolls away with the page and never covers content */
   display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: 10px;
   max-height: 40vh; overflow-y: auto;
   background: #fff3cd; color: #5c4400;
@@ -202,7 +201,7 @@ body {
 /* .card-flip = the 3D element (rotates); .card = one face (front / back) */
 .card-flip {
   position: relative; flex: none; transform-style: preserve-3d;
-  --card-h: min(100cqh, calc(100cqw * 7 / 5));
+  --card-h: var(--card-h-fixed, min(100cqh, calc(100cqw * 7 / 5)));   /* the preview (?anteprima) sets --card-h-fixed */
   --frame-w: calc(var(--card-h) * var(--frame-w-f));
   --frame-h: calc(var(--card-h) * var(--frame-h-f));
   --frame-dash: calc(var(--card-h) * var(--frame-dash-f));
@@ -219,8 +218,10 @@ body {
   --u: calc(var(--card-h) / 1050);     /* one pixel of the 750x1050 template */
   --text-top: 0.20;
   --text-bottom: 0.22;
-  /* category icon (CSS variant only; sfondo templates carry their own). Sizes/offsets in u. */
+  /* category icon: the CSS variant always draws it; a template only when sfide.csv icona_posizione is set. Sizes/offsets in u.
+     app.js sets --text-top, --text-bottom and --icon-size per category from sfide.csv (these are the fallbacks). */
   --icon-size: 100;
+  --icon-gap: 8px;                     /* minimum space between the icon and the pills */
   --icon-edge: 85;                     /* distance from the left/right edge */
   --icon-top: 70;                      /* alto: distance from the top */
   --icon-bottom: 128;                  /* basso: distance from the bottom (icon spans ~78-88% of the height) */
@@ -254,15 +255,25 @@ body {
   text-transform: uppercase; overflow-wrap: anywhere; text-wrap: balance;
 }
 .card-title-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }   /* max 2 lines, then an ellipsis */
-/* ... and the category icon (accent circle) bottom-right by default; icon-pos-<alto|basso>-<sinistra|centro|destra> moves it */
-.card .card-icon {
+/* alto-* icon (CSS variant): the title never touches it. Left/right: symmetric padding of icon edge + icon size + 6u on BOTH sides
+   (the title stays centred); centre: the title box starts below the icon and still ends at --text-top. */
+.icon-pos-alto-sinistra .card-title, .icon-pos-alto-destra .card-title {
+  left: calc((var(--icon-edge) + var(--icon-size) + 6) * var(--u)); right: calc((var(--icon-edge) + var(--icon-size) + 6) * var(--u));
+}
+.icon-pos-alto-centro .card-title {
+  top: calc((var(--icon-top) + var(--icon-size) + 6) * var(--u));
+  height: calc(var(--card-h) * var(--text-top) - (var(--icon-top) + var(--icon-size) + 6) * var(--u));
+}
+/* ... and the category icon (accent circle) bottom-right by default; icon-pos-<alto|basso>-<sinistra|centro|destra> moves it.
+   .icon-box = anything placed like the icon (the icon itself, the preview's dotted icon box) */
+.card .icon-box {
   position: absolute; z-index: 1; width: calc(var(--icon-size) * var(--u)); height: calc(var(--icon-size) * var(--u));
   font-size: calc(var(--icon-size) * var(--u) * 0.5);
   right: calc(var(--icon-edge) * var(--u)); bottom: calc(var(--icon-bottom) * var(--u));
 }
-.icon-pos-alto-sinistra .card-icon, .icon-pos-alto-centro .card-icon, .icon-pos-alto-destra .card-icon { top: calc(var(--icon-top) * var(--u)); bottom: auto; }
-.icon-pos-alto-sinistra .card-icon, .icon-pos-basso-sinistra .card-icon { left: calc(var(--icon-edge) * var(--u)); right: auto; }
-.icon-pos-alto-centro .card-icon, .icon-pos-basso-centro .card-icon { left: 50%; right: auto; transform: translateX(-50%); }
+.icon-pos-alto-sinistra .icon-box, .icon-pos-alto-centro .icon-box, .icon-pos-alto-destra .icon-box { top: calc(var(--icon-top) * var(--u)); bottom: auto; }
+.icon-pos-alto-sinistra .icon-box, .icon-pos-basso-sinistra .icon-box { left: calc(var(--icon-edge) * var(--u)); right: auto; }
+.icon-pos-alto-centro .icon-box, .icon-pos-basso-centro .icon-box { left: 50%; right: auto; transform: translateX(-50%); }
 /* text area contents, in order: [media] [prompt] [Hilfe options] */
 .card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
 .card-body.fit-scroll { overflow-y: auto; }   /* last resort of fitCard(): text is never clipped, the area scrolls */
@@ -285,29 +296,30 @@ body {
 .card-image { padding: 0; background-color: var(--card-cream); }
 .card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 /* pills: bottom 6px; sketch: [aiuto] bottom-left, [soluzione] bottom-right. The icon (ours and the templates') sits at
-   ~78-88% of the height, bottom-right: the right pill clears it only if 128u >= 51px (pill top), i.e. card height >= ~420px.
-   Shorter cards (container query on .card-wrap, threshold 430px height; width 307px = height 430 via the 5:7 ratio)
-   put both pills on the left; with a bottom-left icon (icon-pos-basso-sinistra) they go right, bottom-centre: spread. */
+   ~78-88% of the height: its bottom edge is 128u above the card bottom, the pills' top edge 50px, so on cards at least
+   ~410px high the pills are below the icon whatever its position. On shorter cards (container query on .card-wrap,
+   threshold 430px height; width 307px = height 430 via the 5:7 ratio) the icon's height range reaches the pills row, so
+   the pills use the free side(s) of an icon at the bottom (icon-pos-basso-*, set by app.js; a template without
+   icona_posizione has no class and keeps the old rule: both pills left, clear of the template's bottom-right icon).
+   icon-pos-alto-* never touches the pills. If even that is too narrow (big icon, tiny card) the pills shrink to their
+   minimum width and the label is cut with an ellipsis rather than overlapping the icon. */
 .card-actions {
   position: absolute; left: 10px; right: 10px; bottom: 6px; display: flex; gap: 6px; pointer-events: none;
 }
 .card-actions .btn-soluzione { margin-left: auto; }
-@container (max-height: 430px) {
+@container (max-height: 430px) or (max-width: 307px) {
   .card-actions .btn-soluzione { margin-left: 0; }
-  .icon-pos-basso-sinistra .card-actions { justify-content: flex-end; }
+  .card-actions .card-btn { flex: 0 1 auto; min-width: 44px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* basso-destra: pills left of the icon */
+  .icon-pos-basso-destra .card-actions { right: calc((var(--icon-edge) + var(--icon-size)) * var(--u) + var(--icon-gap)); }
+  /* basso-sinistra: pills right of the icon, pushed to the right edge */
+  .icon-pos-basso-sinistra .card-actions { left: calc((var(--icon-edge) + var(--icon-size)) * var(--u) + var(--icon-gap)); justify-content: flex-end; }
+  /* basso-centro: one pill on each side of the icon, each at most half the free width */
   .icon-pos-basso-centro .card-actions { justify-content: space-between; }
+  .icon-pos-basso-centro .card-actions .card-btn { max-width: calc(50% - var(--icon-size) * var(--u) / 2 - var(--icon-gap)); }
 }
-@container (max-width: 307px) {
-  .card-actions .btn-soluzione { margin-left: 0; }
-  .icon-pos-basso-sinistra .card-actions { justify-content: flex-end; }
-  .icon-pos-basso-centro .card-actions { justify-content: space-between; }
-}
-/* very small cards (landscape phones, card < 360px high): both pills must fit left of the icon, so they get tighter */
-@container (max-height: 360px) {
-  .card-actions { gap: 4px; }
-  .card-actions .card-btn { font-size: 13px; padding: 6px 7px; }
-}
-@container (max-width: 257px) {
+/* very small cards (landscape phones, card < 360px high): both pills must fit beside the icon, so they get tighter */
+@container (max-height: 360px) or (max-width: 257px) {
   .card-actions { gap: 4px; }
   .card-actions .card-btn { font-size: 13px; padding: 6px 7px; }
 }
@@ -331,6 +343,45 @@ body {
 /* grid fades in after [chiudi] */
 .tiles.fade-in { animation: card-in 0.25s ease-out; }
 /* END CARD STYLE */
+
+/* ---- Preview (index.html?anteprima): cards side by side at a fixed height, with caption ---- */
+body.screen-anteprima #app { max-width: 1500px; }
+body.screen-anteprima .topbar { justify-content: space-between; align-items: center; gap: 12px; }
+.pv-back {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; font-size: 16px; font-weight: 700;
+  color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 999px; text-decoration: none;
+}
+.pv-title { margin: 4px 0 12px; font-size: 24px; overflow-wrap: anywhere; }
+.pv-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-bottom: 16px; }
+.pv-sizes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pv-label { font-weight: 700; }
+.pv-btn {
+  font: inherit; font-size: 15px; min-height: 44px; padding: 6px 14px; cursor: pointer;
+  color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 999px;
+}
+.pv-btn[aria-pressed="true"] { color: #fff; background: var(--ink); }
+.pv-btn:focus-visible, .pv-back:focus-visible { box-shadow: 0 0 0 2px #fff; }
+/* one column on a phone, as many as fit on a desktop; a card wider than the column scrolls inside its own cell, never the page */
+.pv-grid {
+  display: grid; align-items: start; gap: 28px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--card-h-fixed) * 5 / 7 + 24px)), 1fr));
+}
+.pv-item { margin: 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.pv-stage { display: flex; max-width: 100%; overflow-x: auto; padding: 8px 12px 14px; }
+.pv-stage .card-wrap { flex: none; margin: 0 auto; height: var(--card-h-fixed); width: calc(var(--card-h-fixed) * 5 / 7); }   /* the size container of the card (pill container queries) */
+.pv-cap { width: 100%; max-width: 440px; font-size: 14px; }
+.pv-name { margin: 0 0 6px; font-size: 16px; text-align: center; overflow-wrap: anywhere; }
+.pv-info { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 10px; margin: 0; }
+.pv-info dt { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; color: #555; }
+.pv-info dd { margin: 0; overflow-wrap: anywhere; }
+/* [anteprima_area]: dashed = text area, dotted = app icon box */
+.pv-overlay { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.pv-area {
+  position: absolute; left: calc(var(--frame-w) + var(--card-pad)); right: calc(var(--frame-w) + var(--card-pad));
+  top: calc(var(--card-h) * var(--text-top)); bottom: calc(var(--card-h) * var(--text-bottom));
+  outline: 2px dashed #d0021b; outline-offset: -1px; background: rgba(208, 2, 27, 0.05);
+}
+.pv-icon-box { outline: 2px dotted #0057d8; outline-offset: -1px; background: rgba(0, 87, 216, 0.08); }
 
 /* ---- Card screen: locked to the viewport; order = topbar, topfield, card, timer slot, bottom bar ---- */
 body.screen-carta { height: 100vh; height: 100dvh; }
