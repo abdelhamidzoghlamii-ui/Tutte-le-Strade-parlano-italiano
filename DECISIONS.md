@@ -79,3 +79,10 @@ Append-only. Never edit old entries.
 - Item 6: a card with `immagine` set skips its `media` entirely (simplest, console-free); revisit if that
   combination is ever used.
 - Small screens (max-height 740px): compact tiles (icon left of the name), smaller reserved space around the card.
+
+## 2026-10-01 — Slice 9 (Abdel / lead)
+- Standard card = the reference layout from docs/riferimenti (tricolore frame, centred title top, icon bottom-right); BUILD_BRIEF §3.5/§4 updated, approved by Abdel. Templates and CSS fallback share it.
+- Template rule for Chiara: exactly 750×1050 px, top ~20% and bottom ~13% free of text (README).
+- QR (docs/qr.png) generated with the npm `qrcode` package in the scratchpad (not in the repo) and decoded to verify it equals the Pages URL.
+- The live Pages URL could not be checked from the build environment (github.io blocked); Abdel verifies on a phone (README release checklist).
+- PWA skipped for now. `.nojekyll` added.

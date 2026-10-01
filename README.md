@@ -44,6 +44,9 @@ Ogni riga è una categoria (una casella nel menu del gioco, nello stesso ordine 
    750×1050 px), con l'intestazione in alto e il centro vuoto (lì l'app scrive il testo), e caricalo
    in `assets/sfondi/` con **esattamente lo stesso nome** del file provvisorio. Non devi cambiare
    nient'altro.
+   **Misure:** stessa dimensione dei modelli provvisori, in verticale, **esattamente 750 × 1050 px**.
+   Lascia **senza testo** circa il 20% in alto (i primi ~210 px) e circa il 13% in basso (gli ultimi
+   ~137 px): l'app scrive il testo della carta nel mezzo e mette i pulsanti in basso.
 2. Colonne:
    - **sfida** — nome della categoria. **icona** — una emoji, oppure il nome di un'immagine messa
      in `assets/icone/`. **accento** — un colore (es. `#009246`).
@@ -87,4 +90,13 @@ del file e il numero della riga. Correggi e ricarica il file.
   `docs/skizze-app.pdf`.
 - Run locally: `python -m http.server` in the repo root → http://localhost:8000
 - Hosting: GitHub Pages from `main` (root). Settings → Pages → Deploy from a branch → `main` / root.
-- QR code to the Pages URL: `docs/qr.png`.
+- Live URL: https://abdelhamidzoghlamii-ui.github.io/Tutte-le-Strade-parlano-italiano/
+- QR code to the Pages URL: `docs/qr.png` (regenerate if the URL changes). `.nojekyll` at the root makes Pages serve files as-is.
+
+## Release checklist (on a real phone, after each release)
+- Open the live URL by scanning `docs/qr.png`. (Add-to-home-screen is not required.)
+- Both setup paths work: same level for all, and per-player levels.
+- Horizontal swipe flips the card, and swiping again flips it back.
+- Timer (COSE-NOMI-CITTÀ): start, pause, resume, time's up. Vibration on Android only; iPhone does not vibrate.
+- Audio plays on a media card (QUIZ DI CULTURA).
+- DE/IT switch still holds after reloading the page.

@@ -40,8 +40,8 @@ or board position.
    - Tapping a tile draws a random card for that category whose `livelli` includes the current level
      (group level, or the active player's level). Animation: the card grows from the tile to full
      size; the grid disappears.
-   - Must look like a real physical card. **Front:** standard header (category icon left, category
-     title, tricolore stripe in Italian colors), then the prompt in the middle. Bottom-left [aiuto],
+   - Must look like a real physical card. **Front:** the standard layout from `docs/riferimenti/` (tricolore
+     frame, centred category title at the top, category icon bottom-right), then the prompt in the middle. Bottom-left [aiuto],
      bottom-right [soluzione].
    - **[aiuto]** reveals the card's 3 `opzioni` as multiple-choice buttons under the prompt. Tapping one
      marks it right/wrong (right = matches the correct option, see §6). Hide [aiuto] if no `opzioni`.
@@ -60,7 +60,10 @@ or board position.
 Chiara designs ONE template per category in Canva; all cards of that category share it.
 - `sfondo` set in sfide.csv → use that image as the card face; the app draws ONLY the prompt text
   (and buttons) on top — the template already contains the header/stripe design.
-- `sfondo` empty → the app draws the standard header (icon, title, tricolore stripe) in CSS.
+- `sfondo` empty → the app draws the standard card in CSS, matching the reference layout in
+  `docs/riferimenti/`: tricolore frame (green left, red right, diagonal green/white/red stripes top and
+  bottom), centred category title at the top, category icon bottom-right, text in the middle.
+  Templates and this fallback share the same layout.
 - Text is styled per category from sfide.csv (`carattere`, `dimensione`, `colore_testo`,
   `allineamento`). No global text style.
 - **Optional override:** `immagine` set on a card → show that full Canva-made card image as the front
