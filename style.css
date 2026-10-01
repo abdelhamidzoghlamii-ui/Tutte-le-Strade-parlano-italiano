@@ -1,13 +1,17 @@
 :root {
   --bg: #faf7f0;
   --ink: #1a1a1a;
-  --green: #009246;
+  --green: #009246;                    /* tricolore, accents, frames */
+  --btn-green: #007a3a;                /* green BEHIND white text (contrast >= 4.5) */
   --red: #ce2b37;
   --font-fallback: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; min-height: 100%; }
+html, body { margin: 0; min-height: 100%; overscroll-behavior-y: none; }
+button { touch-action: manipulation; }
+/* page = flex column: [banner] + #app. The card screen is locked to the viewport height (no page scroll). */
 body {
+  display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-fallback);
@@ -17,6 +21,7 @@ body {
 
 /* Validation banner */
 #banner {
+  flex: none;
   position: sticky; top: 0; z-index: 100;
   display: grid; grid-template-columns: 1fr auto; align-items: start; column-gap: 10px;
   max-height: 40vh; overflow-y: auto;
@@ -30,33 +35,41 @@ body {
 #banner ul { grid-column: 1 / -1; margin: 0 0 4px; padding-left: 20px; }
 #banner li { margin-bottom: 3px; overflow-wrap: anywhere; }
 #banner button {
-  font: inherit; padding: 6px 14px; border: 1px solid #a07a00;
+  font: inherit; min-width: 44px; min-height: 44px; padding: 6px 14px; border: 1px solid #a07a00;
   background: #fff; border-radius: 6px; cursor: pointer;
 }
 
+/* App column */
+#app {
+  flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;
+  width: 100%; max-width: 520px; margin: 0 auto;
+  padding: max(8px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+:where(#app) > * { flex: none; }   /* zero specificity: .tiles / .card-wrap override it */
+/* Top row on every screen: language switch, right-aligned, in flow */
+.topbar { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+
 /* Start screen */
-#app { padding: 24px 16px; max-width: 520px; margin: 0 auto; }
 .start { display: flex; flex-direction: column; align-items: center; gap: 28px; padding-top: 12vh; text-align: center; }
 .start h1 { font-size: 28px; margin: 0; }
 .btn {
-  font: inherit; font-size: 20px; padding: 14px 24px; width: 100%;
-  border: 0; border-radius: 12px; background: var(--green); color: #fff; cursor: pointer;
+  font: inherit; font-size: 20px; padding: 14px 24px; width: 100%; min-height: 56px;
+  border: 3px solid transparent; border-radius: 999px; background: var(--btn-green); color: #fff; cursor: pointer;
+  overflow-wrap: anywhere;
 }
 .btn:active { filter: brightness(0.9); }
 
-/* Language switch (corner, every screen) */
+/* Language switch (own row, see .topbar) */
 #lang {
-  position: fixed; top: 8px; right: 8px; z-index: 90;
   display: flex; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; background: #fff;
 }
 .lang-btn {
-  font: inherit; font-size: 14px; font-weight: 700; min-width: 44px; min-height: 36px;
+  font: inherit; font-size: 14px; font-weight: 700; min-width: 44px; min-height: 44px;
   border: 0; background: transparent; color: var(--ink); cursor: pointer;
 }
 .lang-btn.active { background: var(--ink); color: #fff; }
 
 /* Setup screens */
-#app { padding-top: 56px; }
 .question {
   background: #ffe066; border: 3px solid #e0b800; border-radius: 20px;
   padding: 20px 16px; text-align: center; font-size: 22px; font-weight: 700;
@@ -64,13 +77,12 @@ body {
 }
 .stack { display: flex; flex-direction: column; gap: 14px; }
 .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.btn { min-height: 56px; border-radius: 999px; border: 3px solid transparent; overflow-wrap: anywhere; }
 .btn.marked { border-color: var(--ink); box-shadow: 0 0 0 3px #fff inset; }
-.btn-yes { background: var(--green); color: #fff; }
+.btn-yes { background: var(--btn-green); color: #fff; }
 .btn-no { background: var(--red); color: #fff; }
 .btn-level { color: var(--ink); font-weight: 700; }
 .btn-num { font-size: 28px; font-weight: 700; background: #fff; color: var(--ink); border-color: #ccc; }
-.btn-secondary { background: #fff; color: var(--ink); border-color: var(--ink); margin-top: 20px; }
+.btn-secondary { background: #fff; color: var(--ink); border-color: var(--ink); }
 .btn-cancel { background: #fff; color: var(--ink); border-color: #999; }
 .btn-start { margin-top: 24px; }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -93,29 +105,34 @@ body {
   display: flex; align-items: center; justify-content: center; padding: 16px;
 }
 .panel {
-  width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+  width: 100%; max-width: 420px; max-height: 90vh; max-height: 90dvh; overflow-y: auto;
   background: var(--bg); border-radius: 20px; padding: 18px;
   display: flex; flex-direction: column; gap: 12px;
 }
+.panel > * { flex: none; }   /* buttons never squash: the panel scrolls instead */
 .panel h2 { margin: 0; text-align: center; font-size: 20px; }
 
 /* Stesso / popup: two buttons side by side */
 .pair { display: flex; gap: 12px; }
 .pair > .btn { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 8px; }
 .pair.bottom { margin-top: 14px; }
-.pair.bottom > .btn { margin-top: 0; font-size: 17px; }
+.pair.bottom > .btn { font-size: 17px; }
 
 /* Game screen */
 .topfield-btn { width: 100%; font: inherit; font-size: 20px; font-weight: 700; color: var(--ink); cursor: pointer; display: block; }
 .scegli { margin: 12px 0 8px; text-align: center; font-size: 20px; }
-.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+/* tiles fill the height left between the heading and the bottom bar */
+.tiles { flex: 1 1 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(64px, 1fr); gap: 10px; }
 .tile {
   font: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  min-height: 88px; padding: 8px 6px; background: #fff; color: var(--ink);
+  padding: 8px 6px; background: #fff; color: var(--ink);
   border: 2px solid #ddd; border-radius: 16px; cursor: pointer;
 }
 .tile:active { filter: brightness(0.95); }
-.tile-name { font-size: 13px; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; text-align: center; }
+.tile-name {
+  font-size: 14px; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; text-align: center;
+  color: color-mix(in srgb, var(--acc) 78%, #000);
+}
 .circle {
   flex: none; width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
   display: inline-flex; align-items: center; justify-content: center; font-size: 22px; line-height: 1;
@@ -129,7 +146,6 @@ body {
    ========================================================================== */
 :root {
   --card-ratio: 5 / 7;                 /* width / height of the card */
-  --card-reserved: 215px;              /* vertical space used by top field + controls + paddings */
   --card-radius: 14px;
   --card-cream: #f8f8f1;               /* off-white of the Canva cards (docs/riferimenti) */
   --card-edge: 1px solid rgba(60, 40, 0, 0.18);   /* hairline edge of the physical card */
@@ -161,24 +177,28 @@ body {
   --card-btn-color: var(--ink);
   --card-btn-border: 2px solid var(--ink);
   --card-btn-radius: 999px;
-  --card-btn-size: 14px;
+  --card-btn-size: 15px;
   --card-right-bg: #c9f0d4;            /* Hilfe: correct option */
   --card-right-border: #009246;
   --card-wrong-bg: #f8c9cd;            /* Hilfe: wrongly tapped option */
   --card-wrong-border: #ce2b37;
   --card-flip-time: 0.5s;
 }
-.card-wrap { display: flex; justify-content: center; margin-top: 12px; }
-.card-wrap { perspective: 1400px; }
-.card-wrap.has-below { --card-reserved: 285px; }   /* room for the timer slot under the card */
+/* The card screen is locked to the viewport (body.screen-carta); .card-wrap takes the height left between the
+   top field and the timer/bottom bar and is a size container, so the card is exactly as big as fits (cqw/cqh). */
+.card-wrap {
+  flex: 1 1 0; min-height: 0; container-type: size;
+  display: flex; align-items: center; justify-content: center;
+  perspective: 1400px; margin-top: 8px;
+}
 /* .card-flip = the 3D element (rotates); .card = one face (front / back) */
 .card-flip {
-  position: relative; transform-style: preserve-3d;
-  --card-h: min(calc((100vw - 32px) / (5 / 7)), calc(100dvh - var(--card-reserved)));
+  position: relative; flex: none; transform-style: preserve-3d;
+  --card-h: min(100cqh, calc(100cqw * 7 / 5));
   --frame-w: calc(var(--card-h) * var(--frame-w-f));
   --frame-h: calc(var(--card-h) * var(--frame-h-f));
   --frame-dash: calc(var(--card-h) * var(--frame-dash-f));
-  height: var(--card-h); aspect-ratio: var(--card-ratio); max-width: 100%;
+  height: var(--card-h); aspect-ratio: var(--card-ratio); width: auto;
   transition: transform var(--card-flip-time) ease;
   touch-action: pan-y; -webkit-user-select: none; user-select: none;
   animation: card-in 0.25s ease-out;
@@ -205,7 +225,8 @@ body {
 /* sfondo variant (front AND back): template fills the face, text area = its empty middle */
 .card-tpl {
   background-size: 100% 100%; background-origin: border-box;
-  padding: calc(var(--card-h) * var(--tpl-top)) calc(var(--frame-w) + var(--card-pad)) calc(var(--card-h) * var(--tpl-bottom));
+  /* bottom: never less than the 44px buttons (+10px) so Hilfe options stay clear of [aiuto] / [soluzione] */
+  padding: calc(var(--card-h) * var(--tpl-top)) calc(var(--frame-w) + var(--card-pad)) max(calc(var(--card-h) * var(--tpl-bottom)), 58px);
 }
 .card-tpl .card-body { padding: 0; }
 @keyframes card-in { from { opacity: 0; } to { opacity: 1; } }
@@ -246,16 +267,17 @@ body {
   position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; gap: 8px; pointer-events: none;
 }
 .card-btn {
-  pointer-events: auto; font: inherit; font-size: var(--card-btn-size); font-weight: 700; padding: 6px 14px;
+  pointer-events: auto; font: inherit; font-size: var(--card-btn-size); font-weight: 700; padding: 6px 14px; min-height: 44px;
   background: var(--card-btn-bg); color: var(--card-btn-color); border: var(--card-btn-border);
   border-radius: var(--card-btn-radius); cursor: pointer;
 }
+.card-actions .btn-soluzione { margin-left: auto; }
 .card-empty { align-items: center; justify-content: center; text-align: center; }
 .card-msg { margin: 0; font-size: 20px; font-weight: 700; color: #6b5d33; padding: 0 12px; }
 /* Hilfe: the 3 option buttons */
 .card-opts { flex: none; display: flex; flex-direction: column; gap: 5px; }
 .card-opt {
-  font: inherit; font-size: var(--card-btn-size); line-height: 1.15; padding: 4px 9px; text-align: left;
+  font: inherit; font-size: var(--card-btn-size); line-height: 1.15; padding: 4px 9px; min-height: 44px; text-align: left;
   overflow-wrap: anywhere; color: var(--card-btn-color); background: var(--card-btn-bg);
   border: var(--card-btn-border); border-radius: 12px; cursor: pointer;
 }
@@ -266,18 +288,15 @@ body {
 .card-image .card-opts { position: absolute; left: 10px; right: 10px; bottom: 52px; }
 /* grid fades in after [chiudi] */
 .tiles.fade-in { animation: card-in 0.25s ease-out; }
-/* small screens: less vertical space reserved around the card so it fits without page scroll */
-@media (max-height: 740px) {
-  :root { --card-reserved: 158px; --card-btn-size: 12.5px; }
-  .card-wrap { margin-top: 8px; }
-  .card-wrap.has-below { --card-reserved: 244px; }
-  .card-below { margin-top: 6px; }
-}
 /* END CARD STYLE */
 
-/* ---- Small screens: everything must fit without page scroll (card screen) / compact grid ---- */
+/* ---- Card screen: locked to the viewport; order = topbar, topfield, card, timer slot, bottom bar ---- */
+body.screen-carta { height: 100vh; height: 100dvh; }
+body.screen-carta .topfield { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- Small screens: compact grid ---- */
 @media (max-height: 740px) {
-  #app { padding-top: 46px; padding-bottom: 12px; }
+  #app { padding-bottom: 12px; }
   .topfield { padding: 8px 12px; font-size: 17px; }
   .scegli { margin: 8px 0 6px; font-size: 18px; }
   .pair.bottom { margin-top: 8px; }
@@ -287,9 +306,13 @@ body {
   .tile-name { text-align: left; font-size: 12px; min-width: 0; overflow-wrap: normal; }
   .tile .circle { width: 34px; height: 34px; font-size: 17px; border-width: 2px; }
 }
+/* tall screens: big tiles, bigger icon circle */
+@media (min-height: 741px) {
+  .tile .circle { width: 52px; height: 52px; font-size: 26px; }
+}
 
 /* ---- Card features (timer, media) ---- */
-.card-below { margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.card-below { margin-top: 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .card-timer {
   display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 12px; row-gap: 4px;
   width: 100%; max-width: 420px; padding: 8px 12px; background: #fff; border: 3px solid var(--ink); border-radius: 16px;
@@ -297,7 +320,7 @@ body {
 .timer-display { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .btn-timer {
   font: inherit; font-size: 16px; font-weight: 700; min-height: 44px; padding: 6px 14px; min-width: 0;
-  background: var(--green); color: #fff; border: 0; border-radius: 999px; cursor: pointer; overflow-wrap: anywhere;
+  background: var(--btn-green); color: #fff; border: 0; border-radius: 999px; cursor: pointer; overflow-wrap: anywhere;
 }
 .timer-msg { grid-column: 1 / -1; font-weight: 800; font-size: 20px; text-align: center; }
 .timer-msg:empty { display: none; }
@@ -318,5 +341,22 @@ body {
 @media (max-width: 340px) {
   .tile { gap: 4px; padding: 5px; }
   .tile .circle { width: 28px; height: 28px; font-size: 14px; }
-  .tile-name { font-size: 10.5px; }
+  .tile-name { font-size: 13px; }
+}
+
+/* ---- Landscape phones: card on the left (full height), controls stacked and centred on the right; 4 tile columns ---- */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.screen-carta #app, body.screen-gioco #app { max-width: 900px; }
+  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body.screen-carta #app {
+    display: grid; column-gap: 16px; row-gap: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto auto auto 1fr;
+  }
+  body.screen-carta #app > * { grid-column: 2; width: 100%; max-width: 360px; justify-self: center; }
+  body.screen-carta .topbar { grid-row: 1; }
+  body.screen-carta .topfield { grid-row: 3; }
+  body.screen-carta .card-below { grid-row: 4; }
+  body.screen-carta .pair.bottom { grid-row: 5; }
+  body.screen-carta #app > .card-wrap { grid-column: 1; grid-row: 1 / span 6; max-width: none; justify-self: stretch; margin-top: 0; }
 }

@@ -327,22 +327,19 @@ function levelBtn(l, cls, onClick) {
 const findLevel = id => state.livelli.find(l => l.livello === id) || null;
 const playerName = i => state.setup.giocatori[i].nome || (t('giocatore') + ' ' + (i + 1));
 
-function renderLang() {
-  let box = document.getElementById('lang');
-  if (!box) {
-    box = el('div');
-    box.id = 'lang';
-    box.setAttribute('role', 'group');
-    document.body.appendChild(box);
-  }
+// Language switch: lives in its own <header class="topbar"> row at the top of every screen (in flow, never overlaps content).
+function langBox() {
+  const box = el('div');
+  box.id = 'lang';
+  box.setAttribute('role', 'group');
   box.setAttribute('aria-label', t('lingua'));
-  box.textContent = '';
   ['de', 'it'].forEach(code => {
     const b = button(code.toUpperCase(), 'lang-btn', () => setLang(code));
     b.setAttribute('aria-pressed', String(state.lang === code));
     if (state.lang === code) b.classList.add('active');
     box.appendChild(b);
   });
+  return box;
 }
 
 function setLang(code) {
@@ -487,14 +484,18 @@ function topField(clickable) {
   const s = state.setup;
   if (s.stesso) {
     const l = findLevel(s.livello);
-    return el('div', 'topfield', (t('livello') + ' – ' + (l ? levelName(l) : '')).toUpperCase());
+    const txt = (t('livello') + ' – ' + (l ? levelName(l) : '')).toUpperCase();
+    const d = el('div', 'topfield', txt);
+    d.title = txt;
+    return d;
   }
   const p = s.giocatori[s.attivo];
   const l = p && findLevel(p.livello);
   const txt = playerName(s.attivo) + ' – ' + (l ? levelName(l) : '');
-  if (!clickable) return el('div', 'topfield', txt);
+  if (!clickable) { const d = el('div', 'topfield', txt); d.title = txt; return d; }
   const b = button(txt, 'topfield topfield-btn', () => { state.dialog = 'giocatore'; render(); });
   if (l && l.colore) b.style.background = l.colore;
+  b.title = txt;
   return b;
 }
 
@@ -585,7 +586,10 @@ function drawCard(sf) {
 }
 
 // Per-card view state: lives as long as the card; a new card resets flip, Hilfe and feature state.
+let lastDrawAt = 0;    // timestamp of the last draw; [altra_carta] ignores clicks within DOUBLE_TAP_MS of it (double tap = ONE card)
+const DOUBLE_TAP_MS = 400;
 function newCardState(sf) {
+  lastDrawAt = Date.now();
   return { sfida: sf.sfida, idx: drawCard(sf), flipped: false, hilfe: null, fx: {} };
 }
 let growFrom = null;   // tile rect (viewport coords) for the grow-from-tile animation; consumed by renderCarta
@@ -717,7 +721,6 @@ function buildCard(sf, card) {
   }
   if (card.risposta) {
     const b = button(t('soluzione'), 'card-btn btn-soluzione', () => setFlipped(flip, sf, card, true));
-    b.style.marginLeft = 'auto';
     acts.appendChild(b);
   }
   front.appendChild(acts);
@@ -912,10 +915,14 @@ function renderCarta(app) {
         if (typeof cleanup === 'function') cardCleanups.push(cleanup);
       } catch (e) { console.error(e); }
     });
-    if (below.children.length) { wrap.classList.add('has-below'); app.appendChild(below); }
+    if (below.children.length) app.appendChild(below);
   }
   const bar = el('div', 'pair bottom');
-  const more = button(t('altra_carta'), 'btn', () => { state.card = newCardState(sf); render(); });
+  const more = button(t('altra_carta'), 'btn', () => {
+    if (Date.now() - lastDrawAt < DOUBLE_TAP_MS) return;
+    state.card = newCardState(sf);
+    render();
+  });
   more.disabled = !card;
   bar.append(button(t('chiudi'), 'btn btn-secondary', () => { fadeGrid = true; go('gioco'); }), more);
   app.appendChild(bar);
@@ -932,8 +939,11 @@ function render() {
   runCleanups();   // card features (timer, audio...) are torn down on every re-render / screen change
   const app = document.getElementById('app');
   app.textContent = '';
+  const bar = el('header', 'topbar');
+  bar.appendChild(langBox());
+  app.appendChild(bar);
   (SCREENS[state.screen] || renderStart)(app);
-  renderLang();
+  document.body.className = 'screen-' + state.screen;   // after the screen ran: renderCarta may fall back to 'gioco'
   renderBanner();
 }
 
